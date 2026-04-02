@@ -71,9 +71,9 @@ ascent! {
         let field_type = wraps.as_ref().unwrap();
 
     // ── Derived: transitive closure ──
-    relation TransitiveContains(String, String);
-    TransitiveContains(x, y) <-- ContainedType(x, y);
-    TransitiveContains(x, z) <-- ContainedType(x, y), TransitiveContains(y, z);
+    relation RecursiveType(String, String);
+    RecursiveType(x, y) <-- ContainedType(x, y);
+    RecursiveType(x, z) <-- ContainedType(x, y), RecursiveType(y, z);
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -272,9 +272,9 @@ pub fn is_known_method(name: &str, world: &World) -> bool {
     })
 }
 
-/// Recursive fields from the derived TransitiveContains relation.
+/// Recursive fields from the derived RecursiveType relation.
 pub fn query_recursive_fields(world: &World) -> HashSet<(String, String)> {
-    world.TransitiveContains.iter()
+    world.RecursiveType.iter()
         .filter(|(parent, child)| parent == child)
         .map(|(parent, _)| {
             // Find the specific field that causes the recursion
@@ -331,8 +331,8 @@ mod tests {
         world.Field.push((2, 0, "subtree".into(), "Tree".into()));
         run_rules(&mut world);
         // Tree → Branch → Tree is a cycle
-        assert!(world.TransitiveContains.contains(&("Tree".into(), "Tree".into())));
-        assert!(world.TransitiveContains.contains(&("Branch".into(), "Branch".into())));
+        assert!(world.RecursiveType.contains(&("Tree".into(), "Tree".into())));
+        assert!(world.RecursiveType.contains(&("Branch".into(), "Branch".into())));
     }
 
     #[test]
@@ -344,8 +344,8 @@ mod tests {
         world.Field.push((1, 0, "b".into(), "B".into()));
         world.Field.push((2, 0, "c".into(), "C".into()));
         run_rules(&mut world);
-        assert!(world.TransitiveContains.contains(&("A".into(), "C".into())));
-        assert!(!world.TransitiveContains.contains(&("C".into(), "A".into())));
+        assert!(world.RecursiveType.contains(&("A".into(), "C".into())));
+        assert!(!world.RecursiveType.contains(&("C".into(), "A".into())));
     }
 
     #[test]

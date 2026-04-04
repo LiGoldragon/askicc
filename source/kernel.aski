@@ -274,153 +274,157 @@ derive [World [
 
   ;; Top-level: calls all rules in order
   derive(~@Self) [
-    ___
+    ~@Self.deriveVariantOf
+    ~@Self.deriveTypeKind
+    ~@Self.deriveBindingInfo
+    ~@Self.deriveMethodOnType
+    ~@Self.deriveContainedType
+    ~@Self.deriveQualifiedNames
+    ~@Self.deriveCanSee
+    ~@Self.deriveRecursiveType
   ]
 
   ;; ── VariantOf ──
   ;; Each variant maps to its owning domain name and node id.
-  ;;
-  ;; ~@Self.VariantOfs.set(
-  ;;   @Self.Nodes.filter(@Node.Kind == Domain)
-  ;;     .flatMap(@Self.Variants.filter(@Variant.DomainId == @Node.Id)
-  ;;       .map(VariantOf(
-  ;;         VariantName(@Variant.Name)
-  ;;         DomainName(@Node.Name)
-  ;;         DomainNodeId(@Node.Id)))))
   deriveVariantOf(~@Self) [
-    ___
+    ~@Self.VariantOfs.set(
+      @Self.Nodes.filter(@Node.Kind == Domain)
+        .flatMap(@Self.Variants.filter(@Variant.DomainId == @Node.Id)
+          .map(VariantOf(
+            VariantName(@Variant.Name)
+            DomainName(@Node.Name)
+            DomainNodeId(@Node.Id)))))
   ]
 
   ;; ── TypeKind ──
   ;; Domain nodes → Domain category. Struct nodes → Struct category.
-  ;;
-  ;; ~@Self.TypeKinds.set(
-  ;;   @Self.Nodes.filter(@Node.Kind == Domain | @Node.Kind == Struct)
-  ;;     .map(TypeKind(
-  ;;       TypeName(@Node.Name)
-  ;;       Category((| @Node.Kind (Domain) Domain (Struct) Struct (_) Primitive |)))))
   deriveTypeKind(~@Self) [
-    ___
+    ~@Self.TypeKinds.set(
+      @Self.Nodes.filter(@Node.Kind == Domain)
+        .map(TypeKind(TypeName(@Node.Name) Category(Domain)))
+      .chain(
+        @Self.Nodes.filter(@Node.Kind == Struct)
+          .map(TypeKind(TypeName(@Node.Name) Category(Struct)))))
   ]
 
   ;; ── BindingInfo ──
   ;; Parse "Var:Type" encoding from SubTypeNew exprs.
   ;; SameTypeNew: value is just the type name (var = type).
-  ;;
-  ;; ~@Self.BindingInfos.set(
-  ;;   @Self.Exprs.filter(@Expr.Kind == SubTypeNew)
-  ;;     .filter(@Expr.Value.contains(":"))
-  ;;     .map(BindingInfo(
-  ;;       ExprId(@Expr.Id)
-  ;;       VarName(@Expr.Value.beforeColon)
-  ;;       TypeName(@Expr.Value.afterColon)))
-  ;;   .chain(
-  ;;     @Self.Exprs.filter(@Expr.Kind == SameTypeNew)
-  ;;       .filter(@Expr.Value.contains(":") == False)
-  ;;       .map(BindingInfo(
-  ;;         ExprId(@Expr.Id)
-  ;;         VarName(@Expr.Value)
-  ;;         TypeName(@Expr.Value)))))
   deriveBindingInfo(~@Self) [
-    ___
+    ~@Self.BindingInfos.set(
+      @Self.Exprs.filter(@Expr.Kind == SubTypeNew)
+        .filter(@Expr.Value.contains(":"))
+        .map(BindingInfo(
+          ExprId(@Expr.Id)
+          VarName(@Expr.Value.beforeColon)
+          TypeName(@Expr.Value.afterColon)))
+      .chain(
+        @Self.Exprs.filter(@Expr.Kind == SameTypeNew)
+          .filter(@Expr.Value.contains(":") == False)
+          .map(BindingInfo(
+            ExprId(@Expr.Id)
+            VarName(@Expr.Value)
+            TypeName(@Expr.Value)))))
   ]
 
   ;; ── MethodOnType ──
   ;; Methods whose parent is a TraitImpl's impl_body node.
-  ;;
-  ;; ~@Self.MethodOnTypes.set(
-  ;;   @Self.TraitImpls.flatMap(
-  ;;     @Self.Nodes
-  ;;       .filter(@Node.Kind == Method | @Node.Kind == TailMethod)
-  ;;       .filter(@Node.Parent == @TraitImpl.ImplNodeId)
-  ;;       .map(MethodOnType(
-  ;;         TypeName(@TraitImpl.TypeName)
-  ;;         MethodName(@Node.Name)
-  ;;         MethodNodeId(@Node.Id)))))
   deriveMethodOnType(~@Self) [
-    ___
+    ~@Self.MethodOnTypes.set(
+      @Self.TraitImpls.flatMap(
+        @Self.Nodes
+          .filter(@Node.Kind == Method || @Node.Kind == TailMethod)
+          .filter(@Node.Parent == @TraitImpl.ImplNodeId)
+          .map(MethodOnType(
+            TypeName(@TraitImpl.TypeName)
+            MethodName(@Node.Name)
+            MethodNodeId(@Node.Id)))))
   ]
 
   ;; ── ContainedType ──
   ;; From struct fields and domain variant wraps.
-  ;;
-  ;; ~@Self.ContainedTypes.set(
-  ;;   @Self.Nodes.filter(@Node.Kind == Struct)
-  ;;     .flatMap(@Self.Fields.filter(@Field.StructId == @Node.Id)
-  ;;       .map(ContainedType(ParentType(@Node.Name) ChildType(@Field.TypeRef))))
-  ;;   .chain(
-  ;;     @Self.Nodes.filter(@Node.Kind == Domain)
-  ;;       .flatMap(@Self.Variants
-  ;;         .filter(@Variant.DomainId == @Node.Id)
-  ;;         .filter(@Variant.WrapsType != "")
-  ;;         .map(ContainedType(ParentType(@Node.Name) ChildType(@Variant.WrapsType))))))
   deriveContainedType(~@Self) [
-    ___
+    ~@Self.ContainedTypes.set(
+      @Self.Nodes.filter(@Node.Kind == Struct)
+        .flatMap(@Self.Fields.filter(@Field.StructId == @Node.Id)
+          .map(ContainedType(ParentType(@Node.Name) ChildType(@Field.TypeRef))))
+      .chain(
+        @Self.Nodes.filter(@Node.Kind == Domain)
+          .flatMap(@Self.Variants
+            .filter(@Variant.DomainId == @Node.Id)
+            .filter(@Variant.WrapsType != "")
+            .map(ContainedType(ParentType(@Node.Name) ChildType(@Variant.WrapsType))))))
   ]
 
   ;; ── QualifiedName (fixed-point) ──
   ;; Top-level without scope: just the name.
   ;; Top-level with scope: "scope::name".
   ;; Children: "parent_qn::name" — walks parent chain.
-  ;;
-  ;; deriveQualifiedNames(~@Self) [|
-  ;;   ~@Self.QualifiedNames.set(
-  ;;     @Self.Nodes.filter(@Node.Parent == 0).filter(@Node.ScopeId == 0)
-  ;;       .map(QualifiedName(NodeId(@Node.Id) FullPath(@Node.Name)))
-  ;;     .chain(
-  ;;       @Self.Nodes.filter(@Node.Parent == 0).filter(@Node.ScopeId != 0)
-  ;;         .flatMap(@Self.Scopes.filter(@Scope.Id == @Node.ScopeId)
-  ;;           .map(QualifiedName(NodeId(@Node.Id) FullPath("$@Scope.Name::$@Node.Name"))))))
-  ;;   @NewChildren Vec{QualifiedName}/new(
-  ;;     @Self.Nodes.filter(@Node.Parent != 0)
-  ;;       .flatMap(@Self.QualifiedNames.filter(@QualifiedName.NodeId == @Node.Parent)
-  ;;         .map(QualifiedName(NodeId(@Node.Id) FullPath("$@QualifiedName.FullPath::$@Node.Name")))))
-  ;;   ~@Self.QualifiedNames.extend(@NewChildren)
-  ;;   ^(| @NewChildren.count (0) @Self (_) @Self.deriveQualifiedNames |)
-  ;; |]
-  deriveQualifiedNames(~@Self) [
-    ___
-  ]
+  deriveQualifiedNames(~@Self) [|
+    ~@Self.QualifiedNames.set(
+      @Self.Nodes.filter(@Node.Parent == 0)
+        .filter(@Node.ScopeId == 0)
+        .map(QualifiedName(NodeId(@Node.Id) FullPath(@Node.Name)))
+      .chain(
+        @Self.Nodes.filter(@Node.Parent == 0)
+          .filter(@Node.ScopeId != 0)
+          .flatMap(@Self.Scopes.filter(@Scope.Id == @Node.ScopeId)
+            .map(QualifiedName(NodeId(@Node.Id) FullPath("$@Scope.Name::$@Node.Name"))))))
+    @NewChildren Vec{QualifiedName}/new(
+      @Self.Nodes.filter(@Node.Parent != 0)
+        .flatMap(@Self.QualifiedNames.filter(@QualifiedName.NodeId == @Node.Parent)
+          .map(QualifiedName(NodeId(@Node.Id) FullPath("$@QualifiedName.FullPath::$@Node.Name")))))
+    ~@Self.QualifiedNames.extend(@NewChildren)
+    ^(| @NewChildren.count
+      (0) @Self
+      (_) @Self.deriveQualifiedNames
+    |)
+  |]
 
   ;; ── CanSee (fixed-point) ──
   ;; Self, siblings, imports, inherited from parent.
-  ;;
-  ;; deriveCanSee(~@Self) [|
-  ;;   ~@Self.CanSees.set(
-  ;;     @Self.Nodes.map(CanSee(ObserverId(@Node.Id) VisibleId(@Node.Id)))
-  ;;     .chain(@Self.Nodes.flatMap(
-  ;;       @Self.Nodes.filter(@Other.Parent == @Node.Parent).filter(@Other.Id != @Node.Id)
-  ;;         .map(CanSee(ObserverId(@Node.Id) VisibleId(@Other.Id)))))
-  ;;     .chain(@Self.Nodes.filter(@Node.ScopeId != 0)
-  ;;       .flatMap(@Self.Imports.filter(@Import.ScopeId == @Node.ScopeId)
-  ;;         .flatMap(@Self.Nodes.filter(@Target.Name == @Import.ImportedName)
-  ;;           .map(CanSee(ObserverId(@Node.Id) VisibleId(@Target.Id)))))))
-  ;;   @NewEdges Vec{CanSee}/new(
-  ;;     @Self.Nodes.filter(@Node.Parent != 0)
-  ;;       .flatMap(@Self.CanSees.filter(@Edge.ObserverId == @Node.Parent)
-  ;;         .map(CanSee(ObserverId(@Node.Id) VisibleId(@Edge.VisibleId)))))
-  ;;   ~@Self.CanSees.extend(@NewEdges)
-  ;;   ^(| @NewEdges.count (0) @Self (_) @Self.deriveCanSee |)
-  ;; |]
-  deriveCanSee(~@Self) [
-    ___
-  ]
+  deriveCanSee(~@Self) [|
+    ~@Self.CanSees.set(
+      @Self.Nodes.map(CanSee(ObserverId(@Node.Id) VisibleId(@Node.Id)))
+      .chain(
+        @Self.Nodes.flatMap(
+          @Self.Nodes
+            .filter(@Other.Parent == @Node.Parent)
+            .filter(@Other.Id != @Node.Id)
+            .map(CanSee(ObserverId(@Node.Id) VisibleId(@Other.Id)))))
+      .chain(
+        @Self.Nodes.filter(@Node.ScopeId != 0)
+          .flatMap(@Self.Imports.filter(@Import.ScopeId == @Node.ScopeId)
+            .flatMap(@Self.Nodes.filter(@Target.Name == @Import.ImportedName)
+              .map(CanSee(ObserverId(@Node.Id) VisibleId(@Target.Id)))))))
+    @NewEdges Vec{CanSee}/new(
+      @Self.Nodes.filter(@Node.Parent != 0)
+        .flatMap(@Self.CanSees.filter(@Edge.ObserverId == @Node.Parent)
+          .map(CanSee(ObserverId(@Node.Id) VisibleId(@Edge.VisibleId)))))
+    ~@Self.CanSees.extend(@NewEdges)
+    ^(| @NewEdges.count
+      (0) @Self
+      (_) @Self.deriveCanSee
+    |)
+  |]
 
   ;; ── RecursiveType (fixed-point) ──
   ;; Transitive closure of ContainedType.
-  ;;
-  ;; deriveRecursiveType(~@Self) [|
-  ;;   ~@Self.RecursiveTypes.set(
-  ;;     @Self.ContainedTypes.map(RecursiveType(
-  ;;       ParentType(@ContainedType.ParentType) ChildType(@ContainedType.ChildType))))
-  ;;   @NewEdges Vec{RecursiveType}/new(
-  ;;     @Self.ContainedTypes.flatMap(
-  ;;       @Self.RecursiveTypes.filter(@Reach.ParentType == @ContainedType.ChildType)
-  ;;         .map(RecursiveType(ParentType(@ContainedType.ParentType) ChildType(@Reach.ChildType)))))
-  ;;   ~@Self.RecursiveTypes.extend(@NewEdges)
-  ;;   ^(| @NewEdges.count (0) @Self (_) @Self.deriveRecursiveType |)
-  ;; |]
-  deriveRecursiveType(~@Self) [
-    ___
-  ]
+  deriveRecursiveType(~@Self) [|
+    ~@Self.RecursiveTypes.set(
+      @Self.ContainedTypes.map(RecursiveType(
+        ParentType(@ContainedType.ParentType)
+        ChildType(@ContainedType.ChildType))))
+    @NewEdges Vec{RecursiveType}/new(
+      @Self.ContainedTypes.flatMap(
+        @Self.RecursiveTypes.filter(@Reach.ParentType == @ContainedType.ChildType)
+          .map(RecursiveType(
+            ParentType(@ContainedType.ParentType)
+            ChildType(@Reach.ChildType)))))
+    ~@Self.RecursiveTypes.extend(@NewEdges)
+    ^(| @NewEdges.count
+      (0) @Self
+      (_) @Self.deriveRecursiveType
+    |)
+  |]
 ]]

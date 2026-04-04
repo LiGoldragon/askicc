@@ -13,6 +13,14 @@ fn main() {
 
     println!("cargo::rerun-if-changed=source/kernel.aski");
 
+    // Bootstrap: if ASKI_BOOTSTRAP is set, use bootstrap/kernel.rs instead of askic
+    let bootstrap_path = Path::new(&manifest_dir).join("bootstrap/kernel.rs");
+    if std::env::var("ASKI_BOOTSTRAP").is_ok() && bootstrap_path.exists() {
+        let dest = Path::new(&out_dir).join("kernel.rs");
+        std::fs::copy(&bootstrap_path, &dest).expect("copy bootstrap/kernel.rs");
+        return;
+    }
+
     let output = Command::new("askic")
         .arg("--kernel")
         .arg(&kernel_path)

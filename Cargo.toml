@@ -2,8 +2,9 @@
 name = "aski-core"
 version = "0.1.0"
 edition = "2021"
-description = "aski Kernel schema — shared Ascent World between aski-rs and aski-cc"
+description = "aski Kernel schema — World struct, queries, and derivation generated from kernel.aski"
 
 [dependencies]
-ascent = "0.8"
 serde_json = "1.0.149"
+
+[build-dependencies]

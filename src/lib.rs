@@ -1,104 +1,12 @@
 #![allow(non_snake_case)]
 //! aski-core — Kernel schema shared between aski-rs and aski-cc.
 //!
-//! Defines the Ascent World with PascalCase relations (aski naming).
-//! This is the contract: aski-rs codegen reads it, aski-cc projects to it.
+//! Everything here is generated from kernel.aski by askic --kernel.
+//! The World struct, relation types, queries, and derivation rules
+//! are all generated — no hand-written Ascent.
 
-use std::collections::HashSet;
-
-use ascent::ascent;
-
-// ═══════════════════════════════════════════════════════════════
-// Kernel World — the simplified aski AST in relational form
-// ═══════════════════════════════════════════════════════════════
-
-ascent! {
-    pub struct World;
-
-    // ── Nodes ──
-    // Every AST item: domain, struct, trait, impl, method, const, main, type_alias
-    relation Node(i64, String, String, Option<i64>, usize, usize, Option<i64>);
-    // (id, kind, name, parent_id, span_start, span_end, scope_id)
-
-    // ── Domains ──
-    relation Variant(i64, i64, String, Option<String>);
-    // (domain_id, ordinal, name, wraps_type)
-
-    // ── Structs ──
-    relation Field(i64, i64, String, String);
-    // (struct_id, ordinal, name, type_ref)
-
-    // ── Methods ──
-    relation Param(i64, i64, String, Option<String>, Option<String>);
-    // (method_id, ordinal, kind, name, type_ref)
-    // kind: "borrow_self", "mut_borrow_self", "owned_self", "owned", "named", "borrow", "mut_borrow"
-
-    relation Returns(i64, String);
-    // (method_id, type_ref)
-
-    // ── Scope boundary — modules, traits, methods, blocks ──
-    relation Scope(i64, String, String, Option<i64>);
-    // (id, kind, name, parent_scope_id)
-    // kind: "module", "trait", "method", "block"
-
-    // ── Trait inheritance ──
-    relation Supertrait(i64, String);
-    // (trait_node_id, supertrait_name)
-
-    // ── Module exports ──
-    relation Export(i64, String);
-    // (scope_id, exported_name)
-
-    // ── Module imports ──
-    relation Import(i64, String, String);
-    // (scope_id, source_module, imported_name)
-
-    // ── Trait system ──
-    relation TraitImpl(String, String, i64);
-    // (trait_name, type_name, impl_node_id)
-
-    // ── Constants ──
-    relation Constant(i64, String, String, bool);
-    // (node_id, name, type_ref, has_value)
-
-    // ── Expressions ──
-    relation Expr(i64, Option<i64>, String, i64, Option<String>);
-    // (id, parent_id, kind, ordinal, value)
-
-    // ── Match arms ──
-    relation MatchArm(i64, i64, String, Option<i64>, String);
-    // (match_id, ordinal, patterns_json, body_expr_id, arm_kind)
-
-    // ── Grammar rules (Surface → Kernel macro expansion) ──
-    relation GrammarRule(i64, String);
-    // (node_id, rule_name)
-
-    relation GrammarArm(i64, i64, String, String);
-    // (rule_id, ordinal, pattern_json, result_json)
-
-    // ── Derived: type containment ──
-    relation ContainedType(String, String);
-    // (parent_type, child_type) — immediate containment
-
-    // Auto-derive from struct fields
-    ContainedType(parent_type, field_type) <--
-        Node(parent_id, kind, parent_type, _, _, _, _),
-        if kind == "struct",
-        Field(*parent_id, _, _, field_type);
-
-    // Auto-derive from domain variant wraps
-    ContainedType(parent_type, field_type.clone()) <--
-        Node(parent_id, kind, parent_type, _, _, _, _),
-        if kind == "domain",
-        Variant(*parent_id, _, _, wraps),
-        if wraps.is_some(),
-        let field_type = wraps.as_ref().unwrap();
-
-    // ── Derived: transitive closure ──
-    relation RecursiveType(String, String);
-    RecursiveType(x, y) <-- ContainedType(x, y);
-    RecursiveType(x, z) <-- ContainedType(x, y), RecursiveType(y, z);
-}
+// World, enums, structs, queries, derive() — all generated from kernel.aski
+include!(concat!(env!("OUT_DIR"), "/kernel.rs"));
 
 // ═══════════════════════════════════════════════════════════════
 // ID Generator
@@ -161,18 +69,20 @@ pub fn parse_pattern_string(s: &str) -> ParsedPattern {
 // ═══════════════════════════════════════════════════════════════
 
 pub fn run_rules(world: &mut World) {
-    world.run();
+    world.derive();
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Query functions — plain return types, no Result wrapping
+// Compatibility query functions
+// These wrap the generated World methods to match the old API
+// that aski-rs codegen and ir.rs expect.
 // ═══════════════════════════════════════════════════════════════
 
-/// All top-level nodes ordered by id.
+/// All top-level nodes (parent == 0) ordered by id.
 pub fn query_all_top_level_nodes(world: &World) -> Vec<(i64, String, String)> {
-    let mut nodes: Vec<_> = world.Node.iter()
-        .filter(|(_, _, _, parent, _, _, _)| parent.is_none())
-        .map(|(id, kind, name, _, _, _, _)| (*id, kind.clone(), name.clone()))
+    let mut nodes: Vec<_> = world.nodes.iter()
+        .filter(|n| n.parent == 0)
+        .map(|n| (n.id, n.kind.to_str().to_string(), n.name.clone()))
         .collect();
     nodes.sort_by_key(|(id, _, _)| *id);
     nodes
@@ -180,9 +90,9 @@ pub fn query_all_top_level_nodes(world: &World) -> Vec<(i64, String, String)> {
 
 /// Child nodes of a parent, ordered by id.
 pub fn query_child_nodes(world: &World, parent_id: i64) -> Vec<(i64, String, String)> {
-    let mut nodes: Vec<_> = world.Node.iter()
-        .filter(|(_, _, _, parent, _, _, _)| *parent == Some(parent_id))
-        .map(|(id, kind, name, _, _, _, _)| (*id, kind.clone(), name.clone()))
+    let mut nodes: Vec<_> = world.nodes.iter()
+        .filter(|n| n.parent == parent_id && parent_id != 0)
+        .map(|n| (n.id, n.kind.to_str().to_string(), n.name.clone()))
         .collect();
     nodes.sort_by_key(|(id, _, _)| *id);
     nodes
@@ -190,15 +100,15 @@ pub fn query_child_nodes(world: &World, parent_id: i64) -> Vec<(i64, String, Str
 
 /// Domain variants ordered by ordinal.
 pub fn query_domain_variants(world: &World, domain_name: &str) -> Vec<(i32, String, Option<String>)> {
-    let domain_id = world.Node.iter()
-        .find(|(_, kind, name, _, _, _, _)| kind == "domain" && name == domain_name)
-        .map(|(id, _, _, _, _, _, _)| *id);
+    let domain_id = world.nodes.iter()
+        .find(|n| n.kind == NodeKind::Domain && n.name == domain_name)
+        .map(|n| n.id);
 
     let Some(did) = domain_id else { return Vec::new() };
 
-    let mut variants: Vec<_> = world.Variant.iter()
-        .filter(|(id, _, _, _)| *id == did)
-        .map(|(_, ordinal, name, wraps)| (*ordinal as i32, name.clone(), wraps.clone()))
+    let mut variants: Vec<_> = world.variants.iter()
+        .filter(|v| v.domain_id == did)
+        .map(|v| (v.ordinal as i32, v.name.clone(), if v.wraps_type.is_empty() { None } else { Some(v.wraps_type.clone()) }))
         .collect();
     variants.sort_by_key(|(ord, _, _)| *ord);
     variants
@@ -206,15 +116,15 @@ pub fn query_domain_variants(world: &World, domain_name: &str) -> Vec<(i32, Stri
 
 /// Struct fields ordered by ordinal.
 pub fn query_struct_fields(world: &World, struct_name: &str) -> Vec<(i32, String, String)> {
-    let struct_id = world.Node.iter()
-        .find(|(_, kind, name, _, _, _, _)| kind == "struct" && name == struct_name)
-        .map(|(id, _, _, _, _, _, _)| *id);
+    let struct_id = world.nodes.iter()
+        .find(|n| n.kind == NodeKind::Struct && n.name == struct_name)
+        .map(|n| n.id);
 
     let Some(sid) = struct_id else { return Vec::new() };
 
-    let mut fields: Vec<_> = world.Field.iter()
-        .filter(|(id, _, _, _)| *id == sid)
-        .map(|(_, ordinal, name, type_ref)| (*ordinal as i32, name.clone(), type_ref.clone()))
+    let mut fields: Vec<_> = world.fields.iter()
+        .filter(|f| f.struct_id == sid)
+        .map(|f| (f.ordinal as i32, f.name.clone(), f.type_ref.clone()))
         .collect();
     fields.sort_by_key(|(ord, _, _)| *ord);
     fields
@@ -222,9 +132,11 @@ pub fn query_struct_fields(world: &World, struct_name: &str) -> Vec<(i32, String
 
 /// Parameters ordered by ordinal.
 pub fn query_params(world: &World, node_id: i64) -> Vec<(String, Option<String>, Option<String>)> {
-    let mut params: Vec<(i64, String, Option<String>, Option<String>)> = world.Param.iter()
-        .filter(|(nid, _, _, _, _)| *nid == node_id)
-        .map(|(_, ordinal, kind, name, type_ref)| (*ordinal, kind.clone(), name.clone(), type_ref.clone()))
+    let mut params: Vec<(i64, String, Option<String>, Option<String>)> = world.params.iter()
+        .filter(|p| p.method_id == node_id)
+        .map(|p| (p.ordinal, p.kind.to_str().to_string(),
+                   if p.name.is_empty() { None } else { Some(p.name.clone()) },
+                   if p.type_ref.is_empty() { None } else { Some(p.type_ref.clone()) }))
         .collect();
     params.sort_by_key(|(ord, _, _, _)| *ord);
     params.into_iter().map(|(_, kind, name, type_ref)| (kind, name, type_ref)).collect()
@@ -232,23 +144,24 @@ pub fn query_params(world: &World, node_id: i64) -> Vec<(String, Option<String>,
 
 /// Return type.
 pub fn query_return_type(world: &World, node_id: i64) -> Option<String> {
-    world.Returns.iter()
-        .find(|(nid, _)| *nid == node_id)
-        .map(|(_, type_ref)| type_ref.clone())
+    world.returns.iter()
+        .find(|r| r.method_id == node_id)
+        .map(|r| r.type_ref.clone())
 }
 
 /// Constant definition.
 pub fn query_constant(world: &World, node_id: i64) -> Option<(String, String, bool)> {
-    world.Constant.iter()
-        .find(|(nid, _, _, _)| *nid == node_id)
-        .map(|(_, name, type_ref, has_value)| (name.clone(), type_ref.clone(), *has_value))
+    world.constants.iter()
+        .find(|c| c.node_id == node_id)
+        .map(|c| (c.name.clone(), c.type_ref.clone(), c.has_value))
 }
 
 /// Child expressions ordered by ordinal.
 pub fn query_child_exprs(world: &World, parent_id: i64) -> Vec<(i64, String, i64, Option<String>)> {
-    let mut exprs: Vec<_> = world.Expr.iter()
-        .filter(|(_, pid, _, _, _)| *pid == Some(parent_id))
-        .map(|(id, _, kind, ordinal, value)| (*id, kind.clone(), *ordinal, value.clone()))
+    let mut exprs: Vec<_> = world.exprs.iter()
+        .filter(|e| e.parent_id == parent_id && parent_id != 0)
+        .map(|e| (e.id, e.kind.to_str().to_string(), e.ordinal,
+                   if e.value.is_empty() { None } else { Some(e.value.clone()) }))
         .collect();
     exprs.sort_by_key(|(_, _, ord, _)| *ord);
     exprs
@@ -256,11 +169,12 @@ pub fn query_child_exprs(world: &World, parent_id: i64) -> Vec<(i64, String, i64
 
 /// Match arms ordered by ordinal.
 pub fn query_match_arms(world: &World, match_id: i64) -> Vec<(i64, Vec<String>, Option<i64>, String)> {
-    let mut arms: Vec<_> = world.MatchArm.iter()
-        .filter(|(mid, _, _, _, _)| *mid == match_id)
-        .map(|(_, ordinal, patterns_json, body_id, arm_kind)| {
-            let patterns: Vec<String> = serde_json::from_str(patterns_json).unwrap_or_default();
-            (*ordinal, patterns, *body_id, arm_kind.clone())
+    let mut arms: Vec<_> = world.match_arms.iter()
+        .filter(|a| a.match_id == match_id)
+        .map(|a| {
+            let patterns: Vec<String> = serde_json::from_str(&a.patterns_json).unwrap_or_default();
+            let body_id = if a.body_expr_id == 0 { None } else { Some(a.body_expr_id) };
+            (a.ordinal, patterns, body_id, a.kind.to_str().to_string())
         })
         .collect();
     arms.sort_by_key(|(ord, _, _, _)| *ord);
@@ -269,44 +183,46 @@ pub fn query_match_arms(world: &World, match_id: i64) -> Vec<(i64, Vec<String>, 
 
 /// Expression by id.
 pub fn query_expr_by_id(world: &World, expr_id: i64) -> Option<(String, Option<String>)> {
-    world.Expr.iter()
-        .find(|(id, _, _, _, _)| *id == expr_id)
-        .map(|(_, _, kind, _, value)| (kind.clone(), value.clone()))
+    world.exprs.iter()
+        .find(|e| e.id == expr_id)
+        .map(|e| (e.kind.to_str().to_string(),
+                   if e.value.is_empty() { None } else { Some(e.value.clone()) }))
 }
 
 /// All nodes of a given kind.
 pub fn query_nodes_by_kind(world: &World, kind: &str) -> Vec<(i64, String)> {
-    world.Node.iter()
-        .filter(|(_, k, _, _, _, _, _)| k == kind)
-        .map(|(id, _, name, _, _, _, _)| (*id, name.clone()))
+    let k = NodeKind::from_str(kind);
+    world.nodes.iter()
+        .filter(|n| k.map_or(false, |k| n.kind == k))
+        .map(|n| (n.id, n.name.clone()))
         .collect()
 }
 
 /// Node kind by id.
 pub fn query_node_kind(world: &World, node_id: i64) -> Option<String> {
-    world.Node.iter()
-        .find(|(id, _, _, _, _, _, _)| *id == node_id)
-        .map(|(_, kind, _, _, _, _, _)| kind.clone())
+    world.nodes.iter()
+        .find(|n| n.id == node_id)
+        .map(|n| n.kind.to_str().to_string())
 }
 
-/// Check if a name is a known method (has a "method" or "tail_method" node).
+/// Check if a name is a known method.
 pub fn is_known_method(name: &str, world: &World) -> bool {
-    world.Node.iter().any(|(_, kind, n, _, _, _, _)| {
-        (kind == "method" || kind == "tail_method" || kind == "method_sig") && n == name
+    world.nodes.iter().any(|n| {
+        (n.kind == NodeKind::Method || n.kind == NodeKind::TailMethod || n.kind == NodeKind::MethodSig)
+            && n.name == name
     })
 }
 
 /// Recursive fields from the derived RecursiveType relation.
-pub fn query_recursive_fields(world: &World) -> HashSet<(String, String)> {
-    world.RecursiveType.iter()
-        .filter(|(parent, child)| parent == child)
-        .map(|(parent, _)| {
-            // Find the specific field that causes the recursion
-            let field = world.Field.iter()
-                .find(|(_, _, _, type_ref)| type_ref == parent)
-                .map(|(_, _, name, _)| name.clone())
+pub fn query_recursive_fields(world: &World) -> std::collections::HashSet<(String, String)> {
+    world.recursive_types.iter()
+        .filter(|r| r.parent_type == r.child_type)
+        .map(|r| {
+            let field = world.fields.iter()
+                .find(|f| f.type_ref == r.parent_type)
+                .map(|f| f.name.clone())
                 .unwrap_or_default();
-            (parent.clone(), field)
+            (r.parent_type.clone(), field)
         })
         .collect()
 }
@@ -314,12 +230,11 @@ pub fn query_recursive_fields(world: &World) -> HashSet<(String, String)> {
 /// Validate: body-scoped types should not appear in return positions.
 pub fn validate_return_type_scope(world: &World) -> Vec<(String, String)> {
     let mut violations = Vec::new();
-    for (node_id, _, name, parent, _, _, _) in &world.Node {
-        if parent.is_some() {
-            // This is a body-scoped type — check if it appears in any returns
-            for (ret_node, type_ref) in &world.Returns {
-                if type_ref == name && ret_node != node_id {
-                    violations.push((name.clone(), type_ref.clone()));
+    for node in &world.nodes {
+        if node.parent != 0 {
+            for ret in &world.returns {
+                if ret.type_ref == node.name && ret.method_id != node.id {
+                    violations.push((node.name.clone(), ret.type_ref.clone()));
                 }
             }
         }
@@ -329,66 +244,190 @@ pub fn validate_return_type_scope(world: &World) -> Vec<(String, String)> {
 
 /// Supertraits of a trait.
 pub fn query_supertraits(world: &World, trait_id: i64) -> Vec<String> {
-    world.Supertrait.iter()
-        .filter(|(id, _)| *id == trait_id)
-        .map(|(_, name)| name.clone())
+    world.supertraits.iter()
+        .filter(|s| s.trait_node_id == trait_id)
+        .map(|s| s.supertrait_name.clone())
         .collect()
 }
 
 /// Validate: String should not appear as a struct field type.
 pub fn validate_no_string_fields(world: &World) -> Vec<(String, String)> {
     let mut violations = Vec::new();
-    for (struct_id, _, field_name, type_ref) in &world.Field {
-        if type_ref == "String" {
-            let struct_name = world.Node.iter()
-                .find(|(id, _, _, _, _, _, _)| id == struct_id)
-                .map(|(_, _, name, _, _, _, _)| name.clone())
+    for field in &world.fields {
+        if field.type_ref == "String" {
+            let struct_name = world.nodes.iter()
+                .find(|n| n.id == field.struct_id)
+                .map(|n| n.name.clone())
                 .unwrap_or_default();
-            violations.push((struct_name, field_name.clone()));
+            violations.push((struct_name, field.name.clone()));
         }
     }
     violations
+}
+
+/// Which domain owns this variant name?
+pub fn query_variant_domain(world: &World, variant_name: &str) -> Option<(String, i64)> {
+    world.variant_ofs.iter()
+        .find(|v| v.variant_name == variant_name)
+        .map(|v| (v.domain_name.clone(), v.domain_node_id))
+}
+
+/// Binding info for an expression.
+pub fn query_binding_info(world: &World, expr_id: i64) -> Option<(String, String)> {
+    world.binding_infos.iter()
+        .find(|b| b.expr_id == expr_id)
+        .map(|b| (b.var_name.clone(), b.type_name.clone()))
+}
+
+/// What kind of type is this name?
+pub fn query_type_kind(world: &World, name: &str) -> Option<String> {
+    world.type_kinds.iter()
+        .find(|t| t.type_name == name)
+        .map(|t| t.category.to_str().to_string())
+}
+
+/// What methods are available on a type via trait impls?
+pub fn query_methods_on_type(world: &World, type_name: &str) -> Vec<(String, i64)> {
+    world.method_on_types.iter()
+        .filter(|m| m.type_name == type_name)
+        .map(|m| (m.method_name.clone(), m.method_node_id))
+        .collect()
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    fn make_node(id: i64, kind: NodeKind, name: &str, parent: i64, scope_id: i64) -> Node {
+        Node { id, kind, name: name.to_string(), parent, span_start: 0, span_end: 0, scope_id }
+    }
+
     #[test]
     fn recursive_type_detection() {
         let mut world = World::default();
-        world.Node.push((1, "struct".into(), "Tree".into(), None, 0, 0, None));
-        world.Node.push((2, "struct".into(), "Branch".into(), None, 0, 0, None));
-        world.Field.push((1, 0, "children".into(), "Branch".into()));
-        world.Field.push((2, 0, "subtree".into(), "Tree".into()));
+        world.nodes.push(make_node(1, NodeKind::Struct, "Tree", 0, 0));
+        world.nodes.push(make_node(2, NodeKind::Struct, "Branch", 0, 0));
+        world.fields.push(Field { struct_id: 1, ordinal: 0, name: "children".into(), type_ref: "Branch".into() });
+        world.fields.push(Field { struct_id: 2, ordinal: 0, name: "subtree".into(), type_ref: "Tree".into() });
         run_rules(&mut world);
-        // Tree → Branch → Tree is a cycle
-        assert!(world.RecursiveType.contains(&("Tree".into(), "Tree".into())));
-        assert!(world.RecursiveType.contains(&("Branch".into(), "Branch".into())));
+        assert!(world.recursive_types.iter().any(|r| r.parent_type == "Tree" && r.child_type == "Tree"));
+        assert!(world.recursive_types.iter().any(|r| r.parent_type == "Branch" && r.child_type == "Branch"));
     }
 
     #[test]
     fn linear_containment_no_cycle() {
         let mut world = World::default();
-        world.Node.push((1, "struct".into(), "A".into(), None, 0, 0, None));
-        world.Node.push((2, "struct".into(), "B".into(), None, 0, 0, None));
-        world.Node.push((3, "struct".into(), "C".into(), None, 0, 0, None));
-        world.Field.push((1, 0, "b".into(), "B".into()));
-        world.Field.push((2, 0, "c".into(), "C".into()));
+        world.nodes.push(make_node(1, NodeKind::Struct, "A", 0, 0));
+        world.nodes.push(make_node(2, NodeKind::Struct, "B", 0, 0));
+        world.nodes.push(make_node(3, NodeKind::Struct, "C", 0, 0));
+        world.fields.push(Field { struct_id: 1, ordinal: 0, name: "b".into(), type_ref: "B".into() });
+        world.fields.push(Field { struct_id: 2, ordinal: 0, name: "c".into(), type_ref: "C".into() });
         run_rules(&mut world);
-        assert!(world.RecursiveType.contains(&("A".into(), "C".into())));
-        assert!(!world.RecursiveType.contains(&("C".into(), "A".into())));
+        assert!(world.recursive_types.iter().any(|r| r.parent_type == "A" && r.child_type == "C"));
+        assert!(!world.recursive_types.iter().any(|r| r.parent_type == "C" && r.child_type == "A"));
     }
 
     #[test]
     fn query_top_level() {
         let mut world = World::default();
-        world.Node.push((1, "domain".into(), "Element".into(), None, 0, 10, None));
-        world.Node.push((2, "struct".into(), "Point".into(), None, 11, 20, None));
-        world.Node.push((3, "method".into(), "distance".into(), Some(2), 21, 30, None));
+        world.nodes.push(make_node(1, NodeKind::Domain, "Element", 0, 0));
+        world.nodes.push(make_node(2, NodeKind::Struct, "Point", 0, 0));
+        world.nodes.push(make_node(3, NodeKind::Method, "distance", 2, 0));
         let top = query_all_top_level_nodes(&world);
         assert_eq!(top.len(), 2);
         assert_eq!(top[0].2, "Element");
         assert_eq!(top[1].2, "Point");
+    }
+
+    #[test]
+    fn qualified_name_no_scope() {
+        let mut world = World::default();
+        world.nodes.push(make_node(1, NodeKind::Domain, "Element", 0, 0));
+        world.nodes.push(make_node(2, NodeKind::Struct, "Color", 0, 0));
+        run_rules(&mut world);
+        assert!(world.qualified_names.iter().any(|q| q.node_id == 1 && q.full_path == "Element"));
+        assert!(world.qualified_names.iter().any(|q| q.node_id == 2 && q.full_path == "Color"));
+    }
+
+    #[test]
+    fn qualified_name_with_scope() {
+        let mut world = World::default();
+        world.scopes.push(Scope { id: 100, kind: ScopeKind::Module, name: "astro".into(), parent_scope_id: 0 });
+        world.nodes.push(make_node(1, NodeKind::Domain, "Sign", 0, 100));
+        world.nodes.push(make_node(2, NodeKind::Domain, "Planet", 0, 100));
+        run_rules(&mut world);
+        assert!(world.qualified_names.iter().any(|q| q.node_id == 1 && q.full_path == "astro::Sign"));
+        assert!(world.qualified_names.iter().any(|q| q.node_id == 2 && q.full_path == "astro::Planet"));
+    }
+
+    #[test]
+    fn qualified_name_child_nodes() {
+        let mut world = World::default();
+        world.nodes.push(make_node(1, NodeKind::Struct, "Point", 0, 0));
+        world.nodes.push(make_node(2, NodeKind::Method, "distance", 1, 0));
+        run_rules(&mut world);
+        assert!(world.qualified_names.iter().any(|q| q.node_id == 1 && q.full_path == "Point"));
+        assert!(world.qualified_names.iter().any(|q| q.node_id == 2 && q.full_path == "Point::distance"));
+    }
+
+    #[test]
+    fn can_see_self_and_siblings() {
+        let mut world = World::default();
+        world.nodes.push(make_node(1, NodeKind::Domain, "Element", 0, 0));
+        world.nodes.push(make_node(2, NodeKind::Domain, "Sign", 0, 0));
+        run_rules(&mut world);
+        assert!(world.can_sees.iter().any(|c| c.observer_id == 1 && c.visible_id == 1));
+        assert!(world.can_sees.iter().any(|c| c.observer_id == 2 && c.visible_id == 2));
+        assert!(world.can_sees.iter().any(|c| c.observer_id == 1 && c.visible_id == 2));
+        assert!(world.can_sees.iter().any(|c| c.observer_id == 2 && c.visible_id == 1));
+    }
+
+    #[test]
+    fn can_see_inherited_from_parent() {
+        let mut world = World::default();
+        world.nodes.push(make_node(1, NodeKind::Domain, "Element", 0, 0));
+        world.nodes.push(make_node(2, NodeKind::Struct, "Color", 0, 0));
+        world.nodes.push(make_node(3, NodeKind::Method, "bright", 2, 0));
+        run_rules(&mut world);
+        assert!(world.can_sees.iter().any(|c| c.observer_id == 2 && c.visible_id == 1));
+        assert!(world.can_sees.iter().any(|c| c.observer_id == 3 && c.visible_id == 1));
+        assert!(world.can_sees.iter().any(|c| c.observer_id == 3 && c.visible_id == 2));
+    }
+
+    #[test]
+    fn rules_required_for_derived_relations() {
+        let mut world = World::default();
+        world.scopes.push(Scope { id: 100, kind: ScopeKind::Module, name: "astro".into(), parent_scope_id: 0 });
+        world.nodes.push(make_node(1, NodeKind::Domain, "Sign", 0, 100));
+        world.nodes.push(make_node(2, NodeKind::Domain, "Planet", 0, 100));
+        assert!(world.qualified_names.is_empty());
+        assert!(world.can_sees.is_empty());
+        run_rules(&mut world);
+        assert!(!world.qualified_names.is_empty());
+        assert!(!world.can_sees.is_empty());
+    }
+
+    #[test]
+    fn visibility_does_not_leak_downward() {
+        let mut world = World::default();
+        world.nodes.push(make_node(1, NodeKind::Domain, "Element", 0, 0));
+        world.nodes.push(make_node(2, NodeKind::Struct, "Color", 0, 0));
+        world.nodes.push(make_node(3, NodeKind::Method, "bright", 2, 0));
+        world.nodes.push(make_node(4, NodeKind::Struct, "Intermediate", 3, 0));
+        run_rules(&mut world);
+        assert!(!world.can_sees.iter().any(|c| c.observer_id == 1 && c.visible_id == 4));
+    }
+
+    #[test]
+    fn can_see_through_imports() {
+        let mut world = World::default();
+        world.scopes.push(Scope { id: 100, kind: ScopeKind::Module, name: "chart".into(), parent_scope_id: 0 });
+        world.scopes.push(Scope { id: 200, kind: ScopeKind::Module, name: "render".into(), parent_scope_id: 0 });
+        world.nodes.push(make_node(1, NodeKind::Domain, "Element", 0, 100));
+        world.exports.push(Export { scope_id: 100, exported_name: "Element".into() });
+        world.nodes.push(make_node(2, NodeKind::Struct, "Color", 0, 200));
+        world.imports.push(Import { scope_id: 200, source_module: "chart".into(), imported_name: "Element".into() });
+        run_rules(&mut world);
+        assert!(world.can_sees.iter().any(|c| c.observer_id == 2 && c.visible_id == 1));
     }
 }

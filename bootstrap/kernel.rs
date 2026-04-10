@@ -139,6 +139,48 @@ impl FieldValueKind {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RustSpan {
+    Cast,
+    MethodCall,
+    FreeCall,
+    BlockExpr,
+    IndexAccess,
+}
+
+impl std::fmt::Display for RustSpan {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl RustSpan {
+    pub fn from_str(s: &str) -> Option<Self> {
+        match s {
+            "cast" => Some(Self::Cast),
+            "method_call" => Some(Self::MethodCall),
+            "MethodCall" => Some(Self::MethodCall),
+            "free_call" => Some(Self::FreeCall),
+            "FreeCall" => Some(Self::FreeCall),
+            "block_expr" => Some(Self::BlockExpr),
+            "BlockExpr" => Some(Self::BlockExpr),
+            "index_access" => Some(Self::IndexAccess),
+            "IndexAccess" => Some(Self::IndexAccess),
+            _ => None,
+        }
+    }
+
+    pub fn to_str(&self) -> &'static str {
+        match self {
+            Self::Cast => "cast",
+            Self::MethodCall => "method_call",
+            Self::FreeCall => "free_call",
+            Self::BlockExpr => "block_expr",
+            Self::IndexAccess => "index_access",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Type {
     pub id: i64,
@@ -196,6 +238,15 @@ pub struct ResultElem {
     pub binding_name: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FfiEntry {
+    pub library: String,
+    pub aski_name: String,
+    pub rust_name: String,
+    pub span: RustSpan,
+    pub return_type: String,
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Instance {
     pub id: i64,
@@ -247,6 +298,7 @@ pub struct World {
     pub arms: Vec<Arm>,
     pub pat_elems: Vec<PatElem>,
     pub result_elems: Vec<ResultElem>,
+    pub ffi_entries: Vec<FfiEntry>,
     pub instances: Vec<Instance>,
     pub field_values: Vec<FieldValue>,
     pub variant_ofs: Vec<VariantOf>,
@@ -255,7 +307,7 @@ pub struct World {
     pub recursive_types: Vec<RecursiveType>,
 }
 
-impl Default for World { fn default() -> Self { Self { types: Default::default(), variants: Default::default(), fields: Default::default(), rules: Default::default(), arms: Default::default(), pat_elems: Default::default(), result_elems: Default::default(), instances: Default::default(), field_values: Default::default(), variant_ofs: Default::default(), type_kinds: Default::default(), contained_types: Default::default(), recursive_types: Default::default(), } } }
+impl Default for World { fn default() -> Self { Self { types: Default::default(), variants: Default::default(), fields: Default::default(), rules: Default::default(), arms: Default::default(), pat_elems: Default::default(), result_elems: Default::default(), ffi_entries: Default::default(), instances: Default::default(), field_values: Default::default(), variant_ofs: Default::default(), type_kinds: Default::default(), contained_types: Default::default(), recursive_types: Default::default(), } } }
 
 impl World {
     pub fn new() -> Self { Self::default() }
@@ -374,6 +426,26 @@ impl World {
 
     pub fn result_elem_by_binding_name(&self, val: &str) -> Vec<&ResultElem> {
         self.result_elems.iter().filter(|r| r.binding_name == val).collect()
+    }
+
+    pub fn ffi_entry_by_library(&self, val: &str) -> Vec<&FfiEntry> {
+        self.ffi_entries.iter().filter(|r| r.library == val).collect()
+    }
+
+    pub fn ffi_entry_by_aski_name(&self, val: &str) -> Vec<&FfiEntry> {
+        self.ffi_entries.iter().filter(|r| r.aski_name == val).collect()
+    }
+
+    pub fn ffi_entry_by_rust_name(&self, val: &str) -> Vec<&FfiEntry> {
+        self.ffi_entries.iter().filter(|r| r.rust_name == val).collect()
+    }
+
+    pub fn ffi_entry_by_span(&self, val: RustSpan) -> Vec<&FfiEntry> {
+        self.ffi_entries.iter().filter(|r| r.span == val).collect()
+    }
+
+    pub fn ffi_entry_by_return_type(&self, val: &str) -> Vec<&FfiEntry> {
+        self.ffi_entries.iter().filter(|r| r.return_type == val).collect()
     }
 
     pub fn instance_by_id(&self, val: i64) -> Vec<&Instance> {
@@ -537,4 +609,3 @@ impl World {
     }
 
 }
-

@@ -1,7 +1,8 @@
 (Kernel
-  TypeForm PatElemKind ResultElemKind FieldValueKind
+  TypeForm PatElemKind ResultElemKind FieldValueKind RustSpan
   Type Variant Field
   Rule Arm PatElem ResultElem
+  FfiEntry
   Instance FieldValue
   VariantOf TypeKind ContainedType RecursiveType
   World)
@@ -77,6 +78,20 @@ ResultElem {
 }
 
 ;; ════════════════════════════════════════════════
+;; FFI — Rust interop declarations
+;; ════════════════════════════════════════════════
+
+RustSpan (Cast MethodCall FreeCall BlockExpr IndexAccess)
+
+FfiEntry {
+  Library String
+  AskiName String
+  RustName String
+  Span RustSpan
+  ReturnType String
+}
+
+;; ════════════════════════════════════════════════
 ;; Instances — the actual data created by parsing
 ;; ════════════════════════════════════════════════
 
@@ -134,6 +149,8 @@ World {
   Arms Vec{Arm}
   PatElems Vec{PatElem}
   ResultElems Vec{ResultElem}
+  ;; FFI
+  FfiEntries Vec{FfiEntry}
   ;; Instances
   Instances Vec{Instance}
   FieldValues Vec{FieldValue}

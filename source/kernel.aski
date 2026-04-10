@@ -4,6 +4,7 @@
   Rule Arm PatElem ResultElem
   FfiEntry
   Instance FieldValue
+  Module Export
   VariantOf TypeKind ContainedType RecursiveType
   World)
 
@@ -111,6 +112,20 @@ FieldValue {
 }
 
 ;; ════════════════════════════════════════════════
+;; Modules — file index built from headers
+;; ════════════════════════════════════════════════
+
+Module {
+  Name String
+  Path String
+}
+
+Export {
+  ModuleName String
+  ExportName String
+}
+
+;; ════════════════════════════════════════════════
 ;; Derived relations
 ;; ════════════════════════════════════════════════
 
@@ -154,6 +169,9 @@ World {
   ;; Instances
   Instances Vec{Instance}
   FieldValues Vec{FieldValue}
+  ;; Modules
+  Modules Vec{Module}
+  Exports Vec{Export}
   ;; Derived
   VariantOfs Vec{VariantOf}
   TypeKinds Vec{TypeKind}

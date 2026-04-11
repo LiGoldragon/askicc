@@ -96,18 +96,49 @@ pub fn query_variant_domain(world: &World, variant_name: &str) -> Option<(String
         .map(|v| (v.type_name.clone(), v.type_id))
 }
 
-/// Instances of a given type.
-pub fn query_instances_by_type(world: &World, type_id: i64) -> Vec<&Instance> {
-    world.instances.iter().filter(|i| i.type_id == type_id).collect()
+/// Parse tree: children of a node, ordered by ordinal.
+pub fn query_parse_children(world: &World, parent_id: i64) -> Vec<&ParseNode> {
+    let mut child_ids: Vec<_> = world.parse_children.iter()
+        .filter(|c| c.parent_id == parent_id)
+        .collect();
+    child_ids.sort_by_key(|c| c.ordinal);
+    child_ids.iter()
+        .filter_map(|c| world.parse_nodes.iter().find(|n| n.id == c.child_id))
+        .collect()
 }
 
-/// Field values for an instance.
-pub fn query_field_values(world: &World, instance_id: i64) -> Vec<&FieldValue> {
-    let mut fvs: Vec<_> = world.field_values.iter()
-        .filter(|fv| fv.instance_id == instance_id)
-        .collect();
-    fvs.sort_by_key(|fv| fv.field_ordinal);
-    fvs
+/// Parse tree: ancestor context chain (current → root).
+pub fn query_ancestor_contexts(world: &World, node_id: i64) -> Vec<CtxKind> {
+    let mut contexts = Vec::new();
+    let mut current = node_id;
+    loop {
+        let node = world.parse_nodes.iter().find(|n| n.id == current);
+        match node {
+            Some(n) => {
+                contexts.push(n.ctx.clone());
+                if n.parent_id < 0 { break; }
+                current = n.parent_id;
+            }
+            None => break,
+        }
+    }
+    contexts
+}
+
+/// Parse tree: find nearest ancestor with a specific context.
+pub fn query_in_context(world: &World, node_id: i64, ctx: CtxKind) -> bool {
+    let mut current = node_id;
+    loop {
+        let node = world.parse_nodes.iter().find(|n| n.id == current);
+        match node {
+            Some(n) => {
+                if n.ctx == ctx { return true; }
+                if n.parent_id < 0 { return false; }
+                current = n.parent_id;
+            }
+            None => return false,
+        }
+    }
 }
 
 /// Grammar rules for a dialect.
@@ -195,16 +226,42 @@ mod tests {
     }
 
     #[test]
-    fn instance_and_field_values() {
+    fn parse_tree_children_and_context() {
         let mut world = World::default();
-        world.types.push(Type { id: 1, name: "Point".into(), form: TypeForm::Struct, parent: 0 });
-        world.instances.push(Instance { id: 100, type_id: 1, parent: 0 });
-        world.field_values.push(FieldValue {
-            instance_id: 100, field_ordinal: 0, value_kind: FieldValueKind::StringVal,
-            ordinal_value: 0, string_value: "hello".into(), ref_value: 0,
+        // Root node
+        world.parse_nodes.push(ParseNode {
+            id: 1, constructor: "TraitImpl".into(), ctx: CtxKind::Item,
+            parent_id: -1, status: ParseStatus::Committed,
+            text: "myTrait".into(), token_start: 0, token_end: 10,
         });
-        let fvs = query_field_values(&world, 100);
-        assert_eq!(fvs.len(), 1);
-        assert_eq!(fvs[0].string_value, "hello");
+        // Child: method def
+        world.parse_nodes.push(ParseNode {
+            id: 2, constructor: "MethodDef".into(), ctx: CtxKind::Body,
+            parent_id: 1, status: ParseStatus::Committed,
+            text: "doStuff".into(), token_start: 11, token_end: 20,
+        });
+        // Grandchild: expression
+        world.parse_nodes.push(ParseNode {
+            id: 3, constructor: "BareName".into(), ctx: CtxKind::Expr,
+            parent_id: 2, status: ParseStatus::Committed,
+            text: "foo".into(), token_start: 21, token_end: 24,
+        });
+        // Wire children
+        world.parse_children.push(ParseChild { parent_id: 1, ordinal: 0, child_id: 2 });
+        world.parse_children.push(ParseChild { parent_id: 2, ordinal: 0, child_id: 3 });
+
+        // Query children
+        let children = query_parse_children(&world, 1);
+        assert_eq!(children.len(), 1);
+        assert_eq!(children[0].constructor, "MethodDef");
+
+        // Query ancestor contexts
+        let contexts = query_ancestor_contexts(&world, 3);
+        assert_eq!(contexts, vec![CtxKind::Expr, CtxKind::Body, CtxKind::Item]);
+
+        // Query in-context
+        assert!(query_in_context(&world, 3, CtxKind::Item));
+        assert!(query_in_context(&world, 3, CtxKind::Body));
+        assert!(!query_in_context(&world, 3, CtxKind::Ffi));
     }
 }

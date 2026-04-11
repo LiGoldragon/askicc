@@ -1,9 +1,10 @@
 (Kernel
-  TypeForm PatElemKind ResultElemKind FieldValueKind RustSpan
+  TypeForm PatElemKind ResultElemKind RustSpan
+  CtxKind ParseStatus
   Type Variant Field
   Rule Arm PatElem ResultElem
   FfiEntry
-  Instance FieldValue
+  ParseNode ParseChild
   Module Export
   VariantOf TypeKind ContainedType RecursiveType
   World)
@@ -17,8 +18,6 @@ TypeForm (Domain Struct)
 PatElemKind (Terminal NonTerminal Binding BindType BindLit Rest)
 
 ResultElemKind (Create Bind Recurse Literal)
-
-FieldValueKind (Ordinal StringVal Ref)
 
 ;; ════════════════════════════════════════════════
 ;; Schema — what types exist in a World
@@ -93,22 +92,33 @@ FfiEntry {
 }
 
 ;; ════════════════════════════════════════════════
-;; Instances — the actual data created by parsing
+;; Parse tree — CST built during parsing
 ;; ════════════════════════════════════════════════
 
-Instance {
+CtxKind (Root Item Expr Stmt Pattern TypeRef Body Param Ffi Module)
+
+ParseStatus (Staged Committed)
+
+;; A single node in the CST. Constructor is the grammar
+;; constructor name (BareName, MethodCallExpr, Domain, etc).
+;; Ctx is derived from the constructor via ctxForConstructor.
+;; ParentId links form the tree; walk up for ancestor context.
+ParseNode {
   Id I64
-  TypeId I64
-  Parent I64
+  Constructor String
+  Ctx CtxKind
+  ParentId I64
+  Status ParseStatus
+  Text String
+  TokenStart I64
+  TokenEnd I64
 }
 
-FieldValue {
-  InstanceId I64
-  FieldOrdinal I64
-  ValueKind FieldValueKind
-  OrdinalValue I64
-  StringValue String
-  RefValue I64
+;; Ordered child references. ParentId + Ordinal → ChildId.
+ParseChild {
+  ParentId I64
+  Ordinal I64
+  ChildId I64
 }
 
 ;; ════════════════════════════════════════════════
@@ -166,9 +176,9 @@ World {
   ResultElems Vec{ResultElem}
   ;; FFI
   FfiEntries Vec{FfiEntry}
-  ;; Instances
-  Instances Vec{Instance}
-  FieldValues Vec{FieldValue}
+  ;; Parse tree
+  ParseNodes Vec{ParseNode}
+  ParseChildren Vec{ParseChild}
   ;; Modules
   Modules Vec{Module}
   Exports Vec{Export}

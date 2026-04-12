@@ -1,0 +1,5 @@
+;; struct.synth — inside {@Struct/ ...}
+;;
+;; {Point/ Horizontal F64 Vertical F64}
+
++(@Field/ :Type)

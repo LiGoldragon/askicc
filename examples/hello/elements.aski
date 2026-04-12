@@ -1,0 +1,16 @@
+(Elements/ Element Quality describe)
+
+(Element/ Fire Earth Air Water)
+
+(Quality/ Passionate Grounded Intellectual Intuitive)
+
+(describe/ [(describe/ :@Self Quality)])
+
+[describe/ Element [
+  (describe/ :@Self Quality (|
+    (Fire) Passionate
+    (Earth) Grounded
+    (Air) Intellectual
+    (Water) Intuitive
+  |))
+]]

@@ -1,0 +1,8 @@
+;; method.synth — inside (@method/ ...)
+;;
+;; (add/ :@Self U32 [^(@Self.Left + @Self.Right)])
+;; (describe/ :@Self Quality (| (Fire) Passionate |))
+
++<Param>
+?@Type
+[<Body>] || (|<Match>|) || [|<Body>|] || ___

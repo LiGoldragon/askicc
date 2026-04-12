@@ -1,0 +1,8 @@
+;; ffi.synth — inside (|@Ffi/ ...|)
+;;
+;; (|Cast/
+;;   (toF32/ @Self F32)
+;;   (toU32/ @Self U32)
+;; |)
+
++(@foreignFunction/ +<Param> :Type)

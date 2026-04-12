@@ -1,44 +1,24 @@
-;; aski.synth — root dialect
+;; aski.synth — the aski dialect
 ;;
-;; Top-level item dispatch + file header.
-;; Inner dialects loaded from aski-*.synth files.
+;; All six delimiters used at root:
+;;   ()    Module, Domain, TraitDecl
+;;   []    TraitImpl
+;;   {}    Struct
+;;   {||}  Const
+;;   (||)  Ffi
+;;   [||]  Process (inline executable)
 
-(CtxKind/ ModuleRoot ModuleExports ModuleImports ModuleConstraints)
+(@Module/ <module>)
 
-/
+*(@Domain/ <domain>)
+*(@trait/ <trait-decl>)
 
-;; ── File header ──
+*[@trait/ <trait-impl>]
 
-(LParen ModuleRoot/ ModuleExports Space)
-;; (Module/ exports)
+*{@Struct/ <struct>}
 
-(LBracket ModuleRoot/ ModuleImports Newline.Indent)
-;; [Import/ deps]
+*{|@Const/ :Type @value|}
 
-(LBrace ModuleRoot/ ModuleConstraints Space)
-;; {Constraint/ flags}
+*(|@Ffi/ <ffi>|)
 
-;; ── Top-level items: (Key/ ...) ──
-
-(LParen ModuleRoot PascalName/ Domain Space)
-;; (Element/ Fire Earth) → push aski-domain
-
-(LParen ModuleRoot camelName/ TraitDecl None)
-;; (describe/ [...]) → push aski-trait-decl
-
-(LBracket ModuleRoot camelName/ TraitImpl None)
-;; [describe/ Type [...]] → push aski-trait-impl
-
-(LBrace ModuleRoot PascalName/ Struct Space)
-;; {Point/ X F64 Y F64} → push aski-struct
-
-(LBrace ModuleRoot Bang/ Const None)
-;; {!Pi/ F64 3.14} → push aski-const
-
-(TraitBoundOpen ModuleRoot PascalName/ FfiBlock Newline.Indent)
-;; {|Cast/ funcs|} → push aski-ffi
-
-;; ── Main entry point ──
-
-(LBracket ModuleRoot/ Main Newline.Indent)
-;; [Main/ stmts] — bare [ at root with "Main" key
+?[|<process>|]

@@ -1,0 +1,8 @@
+;; match.synth — inside (| ... |)
+;;
+;; Match body: (| (Fire) Passionate (Earth) Grounded |)
+;; Match expr: (| @Idx == 0/ (True) @Entry.Name (False) @Self.lookup |)
+
+?@expr/
++(<Pattern>) @expr
++[<Pattern>] @expr

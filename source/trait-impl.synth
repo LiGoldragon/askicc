@@ -1,0 +1,7 @@
+;; trait-impl.synth — inside [@trait/ ...]
+;;
+;; [describe/ Element [
+;;   (describe/ :@Self Quality (| (Fire) Passionate (Earth) Grounded |))
+;; ]]
+
++[:Type/ <type-impl>]

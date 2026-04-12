@@ -1,0 +1,9 @@
+;; expr.synth — expression parsing
+;;
+;; Pratt parser handles operators and precedence.
+;; Synth defines what delimiters mean inside expressions.
+
+(@expr/ <Group>)
+(@Struct/ <StructConstruct>)
+[@expr/ <InlineEval>]
+(|@expr/ <Match>|)

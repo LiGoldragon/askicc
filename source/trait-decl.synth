@@ -1,0 +1,7 @@
+;; trait-decl.synth — inside (@trait/ ...)
+;;
+;; (describe/ [(describe/ :@Self Quality)])
+;; (display&classify/ [(display/ :@Self String) (classify/ :@Self Category)])
+
+*:trait
+[+<signature>]

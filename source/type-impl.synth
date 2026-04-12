@@ -1,0 +1,7 @@
+;; type-impl.synth — inside [@Type/ ...]
+;;
+;; Element [
+;;   (describe/ :@Self Quality (| ... |))
+;; ]
+
++(@method/ <Method>)

@@ -1,0 +1,7 @@
+;; main.synth — the executable dialect
+;;
+;; Each .main file becomes a named executable.
+;; Name comes from filename. No exports.
+
+*[:Module/ +:import||:Import]
+<Process>

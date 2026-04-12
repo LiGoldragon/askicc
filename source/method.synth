@@ -3,11 +3,9 @@
 ;; (add/ :@Self U32 [^(@Self.Left + @Self.Right)])
 ;; (describe/ :@Self Quality (| (Fire) Passionate |))
 ;; (iterate/ :@Self [| ~@Out (String/ "") ^@Out |])
-;; (stub/ :@Self ___)
 
 +<param>
 ?:Type
 // [<body>]
 // (|<match>|)
 // [|<body>|]
-// ___

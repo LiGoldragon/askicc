@@ -1,28 +1,23 @@
-;; aski-trait-decl.synth — inside a trait declaration
+;; aski-trait-decl.synth — trait declaration
 ;;
-;; Entered: camelName ( at ModuleRoot
-;; Context: TraitDeclBody
-;; Closes: ) pops back to aski dialect
+;; Entered: (camelName/ at ModuleRoot → TraitDecl context
+;; Key: trait name
+;; Content: optional supertraits, then signature list
+;; Closes: )
 ;;
-;; Examples:
-;;   describe ([describe(:@Self) Quality])
-;;   compute ([add(:@Self) U32 multiply(:@Self @Factor U32) U32])
-;;   display&classify ([display(:@Self) String classify(:@Self) Category])
+;; (describe/ [(describe/ :@Self Quality)])
+;; (compute/ [(add/ :@Self U32) (multiply/ :@Self @Factor U32 U32)])
+;; (display&classify/ [(display/ :@Self String) (classify/ :@Self Category)])
 
-[
-  TraitDeclBody               SignatureList       Space
-  ;; ([sig1 sig2]) — the [ ] wrapping the signature list
-]
+;; The content is a single [ ] containing method signatures:
 
-;; ── Inside SignatureList ──
-;; Each signature is: camelName(params) ReturnType
-;; The ( after camelName opens params — handled by aski-params
+[TraitDecl/ SignatureList Space]
+;; [(sig1) (sig2)] — Luna wraps the signature list
 
-(
-  SignatureList.camelName     aski-params
-  ;; describe(:@Self) — push params dialect for signature
-)
+;; Each signature inside the list is a keyed ( ):
 
-;; ── Supertraits (before the signature list) ──
-;; display&classify — ampersand-joined trait names
-;; These are bare camelCase names, no delimiters
+(SignatureList camelName/ SigParams Space)
+;; (describe/ :@Self Quality) — method name / params + return type
+
+;; Supertraits before the [ ] are &-joined camelCase names:
+;; display&classify — parsed as trait combination, no delimiters

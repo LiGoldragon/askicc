@@ -1,26 +1,18 @@
 ;; aski-domain.synth — inside a domain variant list
 ;;
-;; Entered: PascalName ( at ModuleRoot
-;; Context: DomainVariants
-;; Children: variant names, space-separated
-;; Closes: ) pops back to aski dialect
+;; Entered: (PascalName/ at ModuleRoot → Domain context
+;; Key: domain name
+;; Content: space-separated variants
+;; Closes: )
 ;;
-;; Examples:
-;;   Element (Fire Earth Air Water)
-;;   Shape (Circle(F64) Rectangle { Width F64 Height F64 } Triangle { Base F64 Height F64 })
+;; (Element/ Fire Earth Air Water)
+;; (Shape/ (Circle/ F64) {Rectangle/ Width F64 Height F64})
 
-(
-  DomainVariants.PascalName   DataCarryingVariant None
-  ;; Circle (F64) — paren variant wrapping a type
-  ;; Some (Element) — generic data-carrying variant
-)
+;; Children are variants. Bare PascalName = UnitVariant.
+;; Keyed delimiters create sub-variants:
 
-{
-  DomainVariants.PascalName   aski-struct
-  ;; Rectangle { Width F64 Height F64 } — struct variant
-  ;; pushes aski-struct for the field list
-}
+(Domain PascalName/ DataCarrying None)
+;; (Circle/ F64) — paren variant wrapping a type
 
-;; ── Bare PascalCase names (no delimiter following) ──
-;; Fire, Earth, Air, Water → UnitVariant
-;; Resolved by AskiWorld: PascalName in DomainVariants = UnitVariant
+{Domain PascalName/ StructVariant Space}
+;; {Rectangle/ Width F64 Height F64} — struct variant with fields

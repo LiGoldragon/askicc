@@ -1,53 +1,64 @@
-;; aski.synth — module root dialect
+;; aski.synth — the aski dialect definition
 ;;
-;; The top-level dialect. Dispatches to inner dialects based on
-;; Name + delimiter at module root. Also handles the file header.
+;; Each rule uses the delimiter it defines, with / separating
+;; match condition from result:
 ;;
-;; Entered: at file start (default dialect)
-;; Context: ModuleRoot
-
-(
-  ModuleRoot                  ModuleExports       Space
-  ;; (Parser domainDecl item) — file export header
-
-  ModuleRoot.PascalName       aski-domain
-  ;; Element (...) — push domain dialect
-
-  ModuleRoot.camelName        aski-trait-decl
-  ;; describe (...) — push trait declaration dialect
-)
-
-[
-  ModuleRoot                  ModuleImports       Newline.Indent
-  ;; [Core (ParseState Token)] — file import header
-
-  ModuleRoot.camelName        aski-trait-impl
-  ;; describe [...] — push trait implementation dialect
-]
-
-{
-  ModuleRoot.PascalName       aski-struct
-  ;; Point { ... } — push struct dialect
-
-  ModuleRoot                  ModuleConstraints   Space
-  ;; {NoStd} — file constraint header
-}
-
-(|
-  ;; no (| at module root
-|)
-
-[|
-  ;; no [| at module root
-|]
-
-{|
-  ModuleRoot.PascalName       aski-ffi
-  ;; Cast {| ... |} — push FFI dialect
-|}
-
-;; ── Special top-level forms (sigil-dispatched, not delimiter) ──
+;;   (Context Preceding/ Target Separator)
 ;;
-;; !Name Type {value}   → Const declaration (Bang prefix)
-;; Main [stmts]         → Entry point (Lit "Main" + [)
-;; TypeAlias Type       → PascalName PascalName at root (no delimiter)
+;; "When ( is encountered in Context after Preceding,
+;;  push Target with Separator formatting."
+;;
+;; Header / Body: the / at file level separates dialect metadata
+;; from the transition rules.
+
+(aski/ v0.15)
+/
+
+;; ── ( ) rules ──
+
+(ModuleRoot PascalName/ Domain Space)
+(ModuleRoot camelName/ TraitDecl None)
+(DomainVariants PascalName/ DataCarrying None)
+(MatchExpr/ MatchArmPattern Space)
+(MatchBody/ MatchArmPattern Space)
+(MatchArmPattern/ OrPattern Space)
+(Expr/ Group None)
+(Expr camelName/ CallArgs Space)
+(Expr StructName/ StructConstruction Space)
+(StructConstruction PascalName/ FieldValue None)
+(TypeImplBody camelName/ MethodHead Space)
+(SignatureList camelName/ SigHead Space)
+(Expr Slash camelName/ CallArgs Space)
+(Expr Dot camelName/ CallArgs Space)
+
+;; ── [ ] rules ──
+
+[ModuleRoot camelName/ TraitImpl None]
+[TraitImplBody PascalName/ TypeImpl Newline.Indent]
+[MethodHead/ Block Newline.Indent]
+[SigHead/ SignatureList Space]
+[Expr/ InlineEval Space]
+[MatchExpr/ BacktrackArm Space]
+[MatchBody/ BacktrackArm Space]
+
+;; ── { } rules ──
+
+{ModuleRoot PascalName/ Struct Space}
+{ModuleRoot/ Constraints Space}
+{TypeRef PascalName/ TypeParams Space}
+{ModuleRoot Bang PascalName/ Const None}
+{DomainVariants PascalName/ StructVariant Space}
+
+;; ── (| |) rules ──
+
+(|MethodHead/ MatchBody Newline.Indent|)
+(|Expr/ MatchExpr Space|)
+
+;; ── [| |] rules ──
+
+[|MethodHead/ TailBlock Newline.Indent|]
+
+;; ── {| |} rules ──
+
+{|ModuleRoot PascalName/ FfiBlock Newline.Indent|}
+{|TypeRef/ TraitBound None|}

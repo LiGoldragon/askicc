@@ -1,23 +1,21 @@
 ;; aski-struct.synth — inside a struct field list
 ;;
-;; Entered: PascalName { at ModuleRoot, or PascalName { inside DomainVariants
-;; Context: StructFields
-;; Children: Field Field Field — each is PascalName TypeRef
-;; Closes: } pops back to parent dialect
+;; Entered: {PascalName/ at ModuleRoot or Domain → Struct/StructVariant context
+;; Key: struct name
+;; Content: fields as PascalName TypeRef pairs, space-separated
+;; Closes: }
 ;;
-;; Examples:
-;;   Point { Horizontal F64 Vertical F64 }
-;;   Rectangle { Width F64 Height F64 }
+;; {Point/ Horizontal F64 Vertical F64}
+;; {Rectangle/ Width F64 Height F64}
 
-{
-  StructFields.PascalName     TypeParams          Space
-  ;; Field Vec{Element} — parameterized field type
-  ;; the { inside a field's type ref opens type params
-}
+;; Fields are pairs: FieldName TypeRef
+;; TypeRef may contain parameterized types:
 
-;; ── Field structure (no delimiter transitions needed) ──
-;; Each field is: PascalName TypeRef
-;; PascalName → field name
-;; TypeRef → the type (PascalName, or PascalName{Params}, or :Name for borrowed)
-;; AskiWorld resolves: PascalName in StructFields = FieldName
-;; Next PascalName after FieldName = TypeRef
+{Struct PascalName/ TypeParams Space}
+;; Vec{Element} — { inside a field's type opens type params
+
+{|Struct/ TraitBound None|}
+;; {|display|} — trait bound in a field's type position
+
+;; Borrowed fields use : prefix on the type:
+;; {Node/ Children :Vec{Node}} — :TypeRef = borrowed

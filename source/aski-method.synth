@@ -1,39 +1,43 @@
-;; aski-method.synth — method signature + body dispatch
+;; aski-method.synth — method definition
 ;;
-;; Entered: camelName( in TypeImplBody
-;; This dialect handles: params → optional ReturnType → body
-;; The body delimiter determines which body dialect to push.
+;; Entered: (camelName/ inside TypeImpl → MethodDef context
+;; Key: method name
+;; Content: params ReturnType? Body
 ;;
-;; Examples:
-;;   add(:@Self) U32 [^(@Self.Left + @Self.Right)]
-;;   describe(:@Self) Quality (| (Fire) Passionate (Earth) Grounded |)
-;;   iterate(:@Self) [| stmts |]
-;;   stub(:@Self) ___
+;; The content after / has a fixed structure:
+;;   1. Params (sigil-prefixed: :@Self, ~@Name, @Name Type, etc.)
+;;   2. Optional ReturnType (PascalName or parameterized type)
+;;   3. Body (one of four forms, determined by delimiter)
+;;
+;; (add/ :@Self U32 [^(@Self.Left + @Self.Right)])
+;; (describe/ :@Self Quality (| (Fire) Passionate (Earth) Grounded |))
+;; (iterate/ :@Self [| stmts |])
+;; (stub/ :@Self ___)
 
-;; ── Params already handled by aski-params ──
-;; The ( that entered this dialect pushes aski-params.
-;; After ) closes params, we're back here for ReturnType + body.
+;; Body forms — the delimiter after params+rettype determines the body:
 
-;; ── Body dispatch ──
-;; After params close and optional ReturnType, the next delimiter
-;; determines the body form:
+[MethodDef/ Block Newline.Indent]
+;; [stmts] — block body
 
-[
-  MethodHead                  aski-body           Newline.Indent
-  ;; name(params) Type [stmts] — block body
-  ;; name(params) [stmts] — block body (no return type)
-]
+(|MethodDef/ MatchBody Newline.Indent|)
+;; (| arms |) — match dispatch body
 
-(|
-  MethodHead                  aski-match          Newline.Indent
-  ;; name(params) Type (| arms |) — match dispatch body
-|)
+[|MethodDef/ TailBlock Newline.Indent|]
+;; [| stmts |] — tail-recursive body
 
-[|
-  MethodHead                  aski-body           Newline.Indent
-  ;; name(params) Type [| stmts |] — tail-recursive body
-|]
+;; ___ (Stub token) — no body, no delimiter
 
-;; ── Stub ──
-;; ___ (Stub token) means unimplemented — no body dialect pushed.
-;; AskiWorld sees Stub token after MethodHead and creates a Stub node.
+;; ── Param forms (inside the method, before ReturnType/Body) ──
+;; Parsed by sigil prefix, no delimiters needed:
+;;
+;;   :@Self           → BorrowSelf
+;;   ~@Self           → MutBorrowSelf
+;;   @Self            → OwnedSelf
+;;   :@Name           → BorrowParam
+;;   ~@Name           → MutBorrowParam
+;;   @Name TypeRef    → NamedParam
+;;   @Name            → OwnedParam
+;;
+;; Params end when the parser sees a delimiter (body) or
+;; PascalName that is a known type (ReturnType).
+;; AskiWorld.isType resolves this boundary.

@@ -1,25 +1,18 @@
-;; aski-type-impl.synth — inside a type implementation block
+;; aski-type-impl.synth — type implementation block
 ;;
-;; Entered: PascalName [ inside TraitImplBody
-;; Context: TypeImplBody
-;; Children: method definitions, newline-separated
-;; Closes: ] pops back to aski-trait-impl dialect
+;; Entered: [PascalName/ inside TraitImpl → TypeImpl context
+;; Key: type name
+;; Content: method definitions, newline.indent separated
+;; Closes: ]
 ;;
-;; Examples:
-;;   Element [
-;;     describe(:@Self) Quality (| arms |)
-;;     classify(:@Self) Category [stmts]
-;;   ]
+;; Element [
+;;   (describe/ :@Self Quality (| (Fire) Passionate (Earth) Grounded |))
+;;   (classify/ :@Self Category [^Category/Primary])
+;; ]
 
-;; ── Method definitions ──
-;; Each method starts with camelName( — push aski-method
+;; Each method is a keyed ( ):
 
-(
-  TypeImplBody.camelName      aski-method
-  ;; describe( — push method dialect for params + body
-)
+(TypeImpl camelName/ MethodDef None)
+;; (describe/ :@Self Quality body) — method name / params rettype body
 
-;; ── Structure ──
-;; TypeImplBody contains method definitions, newline.indent separated.
-;; Each method is: camelName(params) [ReturnType] body
-;; The camelName( triggers push to aski-method dialect.
+;; The method's content is parsed by aski-method dialect.

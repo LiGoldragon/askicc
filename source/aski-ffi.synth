@@ -1,34 +1,26 @@
-;; aski-ffi.synth — inside an FFI block
+;; aski-ffi.synth — FFI block
 ;;
-;; Entered: PascalName {| at ModuleRoot
-;; Context: FfiBlock
-;; Children: FFI function declarations, newline.indent separated
-;; Closes: |} pops back to aski dialect
+;; Entered: {|PascalName/ at ModuleRoot → FfiBlock context
+;; Key: library name
+;; Content: FFI function declarations, newline.indent separated
+;; Closes: |}
 ;;
-;; Examples:
-;;   Cast {|
-;;     toF32(@Self) F32
-;;     toU32(@Self) U32
-;;     toI64(@Self) I64
-;;   |}
-;;   Std {|
-;;     len(:@Self) U32
-;;     clone(:@Self) Self
-;;   |}
+;; {|Cast/
+;;   (toF32/ @Self F32)
+;;   (toU32/ @Self U32)
+;;   (toI64/ @Self I64)
+;; |}
+;;
+;; {|Std/
+;;   (len/ :@Self U32)
+;;   (clone/ :@Self Self)
+;;   (toString/ :@Self String)
+;; |}
 
-(
-  FfiBlock.camelName          aski-params
-  ;; toF32(@Self) — FFI function params
-  ;; Each FFI function is: camelName(params) ReturnType
-  ;; Same param dialect as methods — no body follows.
-)
+;; Each FFI function is a keyed ( ):
 
-;; ── FFI function structure ──
-;;
-;; Each line: camelName(params) ReturnType
-;; The camelName is the aski name.
-;; Rust extern name is derived via toSnake (automatic).
-;; Only specify extern name when it differs from convention.
-;;
-;; AskiWorld registers each function name in known_ffi
-;; so that aski-expr can resolve .method calls without parens.
+(FfiBlock camelName/ FfiFunc Space)
+;; (toF32/ @Self F32) — function name / params + return type
+
+;; Rust extern name derived via toSnake from the aski name.
+;; AskiWorld registers each name in known_ffi.

@@ -1,0 +1,42 @@
+;; aski-module.synth — file header (before /)
+;;
+;; Every aski file has: header / body
+;; The / at file level separates module metadata from declarations.
+;;
+;; Header has three optional sections in order:
+;;   (Module/ exports)        — Sol: what this module IS
+;;   [Import/ dependencies]   — Luna: what it reflects/uses
+;;   {Constraint/ flags}      — Saturn: structural constraints
+;;
+;; (Parser/ domainDecl structDecl item)
+;; [Import/ Core (ParseState Token) Ast (Item Expr)]
+;; {Constraint/ NoStd}
+;; /
+;; (Element/ Fire Earth Air Water)
+;; {Point/ X F64 Y F64}
+;; ...
+
+;; ── Header sections ──
+
+(ModuleRoot Module/ ModuleExports Space)
+;; (Module/ Parser domainDecl item) — bare names = exports
+;; First PascalName after Module/ is the module name.
+;; Remaining names are exported symbols.
+
+[ModuleRoot Import/ ModuleImports Newline.Indent]
+;; [Import/ Core (ParseState Token) Ast (Item Expr)]
+;; Each import: ModuleName (items) or ModuleName
+
+{ModuleRoot Constraint/ ModuleConstraints Space}
+;; {Constraint/ NoStd} — compilation constraints
+
+;; ── Inside ModuleImports ──
+
+(ModuleImports PascalName/ ImportItems Space)
+;; (ParseState Token) — items imported from a module
+;; The PascalName preceding this ( is the module name.
+
+;; ── The / separator ──
+;; After the header sections, a bare / at file level signals
+;; the start of the body. Everything after / is declarations
+;; parsed by the aski root dialect.

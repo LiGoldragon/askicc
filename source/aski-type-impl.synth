@@ -1,18 +1,14 @@
-;; aski-type-impl.synth — type implementation block
-;;
-;; Entered: [PascalName/ inside TraitImpl → TypeImpl context
-;; Key: type name
-;; Content: method definitions, newline.indent separated
-;; Closes: ]
+;; aski-type-impl.synth — inside [PascalName/ methods]
 ;;
 ;; Element [
-;;   (describe/ :@Self Quality (| (Fire) Passionate (Earth) Grounded |))
+;;   (describe/ :@Self Quality (| ... |))
 ;;   (classify/ :@Self Category [^Category/Primary])
 ;; ]
 
-;; Each method is a keyed ( ):
+(CtxKind/ TypeImpl MethodDef)
 
-(TypeImpl camelName/ MethodDef None)
-;; (describe/ :@Self Quality body) — method name / params rettype body
+/
 
-;; The method's content is parsed by aski-method dialect.
+(LParen TypeImpl camelName/ MethodDef None)
+;; (describe/ :@Self Quality body) — method definition
+;; → push aski-method

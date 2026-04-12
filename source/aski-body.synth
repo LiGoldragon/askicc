@@ -1,8 +1,4 @@
-;; aski-body.synth — method block body
-;;
-;; Entered: [ after method params/rettype → Block context
-;; Content: statements, newline.indent separated
-;; Closes: ] pops back to method → type-impl
+;; aski-body.synth — inside [stmts] or [| stmts |]
 ;;
 ;; [
 ;;   @Radius (Radius/ (Value/ 5.0))
@@ -11,32 +7,33 @@
 ;;   ^@Counter
 ;; ]
 
-;; Expression delimiters inside statements:
+(CtxKind/ Block)
 
-(Block/ Group None)
-;; (expr) — grouped expression in statement
+/
 
-(Block camelName/ CallArgs Space)
-;; .method(args) — method call args
+;; Expression delimiters inside statements → push aski-expr:
 
-(Block StructName/ StructConstruction Space)
+(LParen Block/ Group None)
+;; (expr) — grouped expression
+
+(LParen Block camelName/ CallArgs Space)
+;; .method(args)
+
+(LParen Block PascalName/ StructConstruction Space)
 ;; (Point/ (X/ 1) (Y/ 2)) — struct construction
+;; AskiWorld checks .isStruct to distinguish from domain ref
 
-[Block/ InlineEval Space]
-;; [@Idx + 1] — inline eval
+(LBracket Block/ InlineEval Space)
+;; [expr] — inline eval
 
-(|Block/ MatchExpr Space|)
-;; (| target/ arms |) — inline match in statement
+(CompositionOpen Block/ MatchExpr Space)
+;; (| target/ arms |) — inline match → push aski-match
 
-;; ── Statement forms (sigil-dispatched, no synth rules needed) ──
-;;
-;; @Name (TypeRef/ args)         → SubTypeNew
-;; @Name/new(args)               → SameTypeNew
-;; @Name.new(args)               → DeferredNew
-;; @Name TypeRef                 → SubTypeDecl
-;; ~@Name (TypeRef/ args)        → MutableNew
-;; ~@Name.set(expr)              → MutableSet
-;; ~@Name.camelName(args)        → MutableMethodCall
-;; ^expr                         → Return
-;; #expr.name([body])            → Iteration
-;; expr                          → ExprStmt
+;; Statements are sigil-dispatched (no transitions needed):
+;;   @Name (Type/ args)           → SubTypeNew
+;;   @Name/new(args)              → SameTypeNew
+;;   ~@Name (Type/ args)          → MutableNew
+;;   ~@Name.set(expr)             → MutableSet
+;;   ^expr                        → Return
+;;   #expr.name [body]            → Iteration
+;;   expr                         → ExprStmt

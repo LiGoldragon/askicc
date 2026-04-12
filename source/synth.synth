@@ -1,0 +1,33 @@
+;; synth.synth — synth defines itself
+;;
+;; Every rule: (Token Context Preceding*/ Target Separator)
+;; AskiWorld loads these into its dialect index.
+
+/
+
+;; ── AskiWorld types populated by synth ──
+
+(Dialect/ Name String Transitions Vec{Transition})
+
+(Transition/ Token TokenKind Context CtxKind
+             Preceding Vec{PrecedingKind}
+             Target CtxKind Separator SeparatorKind)
+
+(TokenKind/ LParen LBracket LBrace
+            CompositionOpen IterOpen TraitBoundOpen)
+
+(PrecedingKind/ PascalName camelName
+                Bang Dot Slash At Hash)
+
+(SeparatorKind/ Space Newline Newline.Indent None)
+
+(CtxKind/ DialectBody Transition)
+
+;; ── Synth's own transitions ──
+
+(LParen DialectBody/ Transition None)
+(LBracket DialectBody/ Transition None)
+(LBrace DialectBody/ Transition None)
+(CompositionOpen DialectBody/ Transition None)
+(IterOpen DialectBody/ Transition None)
+(TraitBoundOpen DialectBody/ Transition None)

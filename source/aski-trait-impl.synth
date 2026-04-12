@@ -1,21 +1,10 @@
-;; aski-trait-impl.synth — trait implementation
-;;
-;; Entered: [camelName/ at ModuleRoot → TraitImpl context
-;; Key: trait name
-;; Content: type implementations
-;; Closes: ]
+;; aski-trait-impl.synth — inside [camelName/ TypeImpls]
 ;;
 ;; [describe/ Element [(describe/ :@Self Quality (| ... |))]]
-;; [compute/ Addition [(add/ :@Self U32 [^(@Self.Left + @Self.Right)])]]
 
-;; Content is one or more type impls.
-;; Each type impl is PascalName followed by [ methods ]:
+(CtxKind/ TraitImpl TypeImpl)
 
-[TraitImpl PascalName/ TypeImpl Newline.Indent]
-;; Element [(methods)] — type name / method definitions
+/
 
-;; Multiple types can implement the same trait:
-;; [describe/
-;;   Element [(describe/ :@Self Quality (| ... |))]
-;;   Point   [(describe/ :@Self String [^"point"])]
-;; ]
+(LBracket TraitImpl PascalName/ TypeImpl Newline.Indent)
+;; Element [(methods)] — type impl inside trait impl

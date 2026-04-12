@@ -1,41 +1,24 @@
-;; aski-match.synth — match expressions and bodies
+;; aski-match.synth — inside (| target/ arms |)
 ;;
-;; Entered: (| from method (MatchBody) or expr (MatchExpr)
-;; MatchBody: (| arms |) — no target, just arms
-;; MatchExpr: (| target/ arms |) — target before /, arms after
-;; Closes: |)
-;;
-;; MatchBody:
-;;   (| (Fire) Passionate (Earth) Grounded |)
-;;
-;; MatchExpr:
-;;   (| @Idx == 0/ (True) @Entry.Name (False) @Self.lookup(@Name [@Idx + 1]) |)
+;; MatchBody: (| (Fire) Passionate (Earth) Grounded |)
+;; MatchExpr: (| @Idx == 0/ (True) @Entry.Name (False) @Self.lookup |)
 
-;; ── Arm patterns ──
+(CtxKind/ MatchBody MatchExpr CommitArmPattern BacktrackArmPattern OrPattern)
 
-(MatchBody/ CommitArmPattern Space)
-;; (patterns) result — commit arm in match body
+/
 
-(MatchExpr/ CommitArmPattern Space)
-;; (patterns) result — commit arm in match expr (after target/)
+;; Arm patterns:
 
-[MatchBody/ BacktrackArmPattern Space]
+(LParen MatchBody/ CommitArmPattern Space)
+(LParen MatchExpr/ CommitArmPattern Space)
+;; (Fire) result — commit arm
+
+(LBracket MatchBody/ BacktrackArmPattern Space)
+(LBracket MatchExpr/ BacktrackArmPattern Space)
 ;; [patterns] result — backtrack arm
 
-[MatchExpr/ BacktrackArmPattern Space]
-;; [patterns] result — backtrack arm
-
-(CommitArmPattern/ OrPattern Space)
+(LParen CommitArmPattern/ OrPattern Space)
 ;; ((Fire | Air)) — nested or-pattern
 
-;; ── Inside arm patterns ──
-;; PascalName     → VariantPat (if .isVariant) or BareName
-;; "True" "False" → BoolPat
-;; @Name          → InstanceBind (destructure binding)
-;; _              → Wildcard
-;; IntLit StringLit → LiteralPat
-;; |              → or-pattern separator
-
-;; ── Arm results ──
-;; After ) or ] closes the pattern, the result is an expression
-;; parsed by aski-expr dialect.
+;; Pattern content: VariantPat, BoolPat, Wildcard, LiteralPat, InstanceBind
+;; Arm result: expression parsed by aski-expr

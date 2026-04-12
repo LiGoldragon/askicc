@@ -1,26 +1,15 @@
-;; aski-ffi.synth — FFI block
-;;
-;; Entered: {|PascalName/ at ModuleRoot → FfiBlock context
-;; Key: library name
-;; Content: FFI function declarations, newline.indent separated
-;; Closes: |}
+;; aski-ffi.synth — inside {|PascalName/ funcs|}
 ;;
 ;; {|Cast/
 ;;   (toF32/ @Self F32)
 ;;   (toU32/ @Self U32)
-;;   (toI64/ @Self I64)
-;; |}
-;;
-;; {|Std/
-;;   (len/ :@Self U32)
-;;   (clone/ :@Self Self)
-;;   (toString/ :@Self String)
 ;; |}
 
-;; Each FFI function is a keyed ( ):
+(CtxKind/ FfiBlock FfiFunc)
 
-(FfiBlock camelName/ FfiFunc Space)
-;; (toF32/ @Self F32) — function name / params + return type
+/
+
+(LParen FfiBlock camelName/ FfiFunc Space)
+;; (toF32/ @Self F32) — FFI function declaration
 
 ;; Rust extern name derived via toSnake from the aski name.
-;; AskiWorld registers each name in known_ffi.

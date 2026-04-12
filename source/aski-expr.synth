@@ -1,52 +1,36 @@
-;; aski-expr.synth — expression dialect
+;; aski-expr.synth — expression delimiters
 ;;
-;; Used inside: Block, InlineEval, CallArgs, Group, MatchArm results
-;; Pratt parser handles operator precedence — synth handles delimiters.
+;; Pratt parser handles operators. Synth handles delimiter transitions.
 
-;; ── Delimiter rules in expression context ──
+(CtxKind/ Expr Group CallArgs StructConstruction FieldValue InlineEval MatchExpr)
 
-(Expr/ Group None)
-;; (expr) — bare ( = grouped expression
+/
 
-(Expr camelName/ CallArgs Space)
-;; .method(args) — ( after camelName in postfix chain
+(LParen Expr/ Group None)
+;; (expr) — grouped expression
 
-(Expr StructName/ StructConstruction Space)
-;; (Point/ (X/ 1) (Y/ 2)) — keyed ( = struct construction
+(LParen Expr camelName/ CallArgs Space)
+;; .method(args)
 
-(StructConstruction PascalName/ FieldValue None)
-;; (X/ 1.0) — keyed ( inside struct construction = field value
+(LParen Expr PascalName/ StructConstruction Space)
+;; (Point/ (X/ 1) (Y/ 2))
 
-(Expr PascalName Slash camelName/ CallArgs Space)
+(LParen StructConstruction PascalName/ FieldValue None)
+;; (X/ 1.0)
+
+(LParen Expr Slash camelName/ CallArgs Space)
 ;; Type/method(args) — static method call
 
-(Expr At PascalName Slash/ CallArgs Space)
-;; @Name/new(args) — allocation call args
+(LParen Expr Dot camelName/ CallArgs Space)
+;; .method(args) — chained call
 
-(Expr Dot camelName/ CallArgs Space)
-;; .method(args) — chained method call
+(LParen Expr At Slash/ CallArgs Space)
+;; @Name/new(args) — allocation
 
-[Expr/ InlineEval Space]
-;; [stmts] — inline eval
+(LBracket Expr/ InlineEval Space)
+;; [@Idx + 1]
 
-(|Expr/ MatchExpr Space|)
-;; (| target/ arms |) — inline match
+(CompositionOpen Expr/ MatchExpr Space)
+;; (| target/ arms |) → push aski-match
 
-;; ── Pratt parser atoms (not synth — resolved by AskiWorld) ──
-;;
-;; @Name              → InstanceRef
-;; ^expr              → Return
-;; #coll.name([body]) → Iteration
-;; !Name              → ConstRef
-;; PascalName         → QualifiedVariant (if .isVariant) or BareName
-;; camelName          → BareName
-;; IntLit FloatLit StringLit → Literal
-;; "True" "False"     → BoolLit
-;; "StdOut" expr      → StdOut
-;; ___                → Stub
-;;
-;; ── Pratt parser operators ──
-;;
-;; Postfix: .Name .Name(args) ? .. ..=
-;; Infix:   + - * / % == != < > <= >= && ||
-;; Prefix:  ^ # ! @
+;; Atoms and operators: Pratt parser, no synth transitions

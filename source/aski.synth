@@ -1,64 +1,44 @@
-;; aski.synth — the aski dialect definition
+;; aski.synth — root dialect
 ;;
-;; Each rule uses the delimiter it defines, with / separating
-;; match condition from result:
-;;
-;;   (Context Preceding/ Target Separator)
-;;
-;; "When ( is encountered in Context after Preceding,
-;;  push Target with Separator formatting."
-;;
-;; Header / Body: the / at file level separates dialect metadata
-;; from the transition rules.
+;; Top-level item dispatch + file header.
+;; Inner dialects loaded from aski-*.synth files.
 
-(aski/ v0.15)
+(CtxKind/ ModuleRoot ModuleExports ModuleImports ModuleConstraints)
+
 /
 
-;; ── ( ) rules ──
+;; ── File header ──
 
-(ModuleRoot PascalName/ Domain Space)
-(ModuleRoot camelName/ TraitDecl None)
-(DomainVariants PascalName/ DataCarrying None)
-(MatchExpr/ MatchArmPattern Space)
-(MatchBody/ MatchArmPattern Space)
-(MatchArmPattern/ OrPattern Space)
-(Expr/ Group None)
-(Expr camelName/ CallArgs Space)
-(Expr StructName/ StructConstruction Space)
-(StructConstruction PascalName/ FieldValue None)
-(TypeImplBody camelName/ MethodHead Space)
-(SignatureList camelName/ SigHead Space)
-(Expr Slash camelName/ CallArgs Space)
-(Expr Dot camelName/ CallArgs Space)
+(LParen ModuleRoot/ ModuleExports Space)
+;; (Module/ exports)
 
-;; ── [ ] rules ──
+(LBracket ModuleRoot/ ModuleImports Newline.Indent)
+;; [Import/ deps]
 
-[ModuleRoot camelName/ TraitImpl None]
-[TraitImplBody PascalName/ TypeImpl Newline.Indent]
-[MethodHead/ Block Newline.Indent]
-[SigHead/ SignatureList Space]
-[Expr/ InlineEval Space]
-[MatchExpr/ BacktrackArm Space]
-[MatchBody/ BacktrackArm Space]
+(LBrace ModuleRoot/ ModuleConstraints Space)
+;; {Constraint/ flags}
 
-;; ── { } rules ──
+;; ── Top-level items: (Key/ ...) ──
 
-{ModuleRoot PascalName/ Struct Space}
-{ModuleRoot/ Constraints Space}
-{TypeRef PascalName/ TypeParams Space}
-{ModuleRoot Bang PascalName/ Const None}
-{DomainVariants PascalName/ StructVariant Space}
+(LParen ModuleRoot PascalName/ Domain Space)
+;; (Element/ Fire Earth) → push aski-domain
 
-;; ── (| |) rules ──
+(LParen ModuleRoot camelName/ TraitDecl None)
+;; (describe/ [...]) → push aski-trait-decl
 
-(|MethodHead/ MatchBody Newline.Indent|)
-(|Expr/ MatchExpr Space|)
+(LBracket ModuleRoot camelName/ TraitImpl None)
+;; [describe/ Type [...]] → push aski-trait-impl
 
-;; ── [| |] rules ──
+(LBrace ModuleRoot PascalName/ Struct Space)
+;; {Point/ X F64 Y F64} → push aski-struct
 
-[|MethodHead/ TailBlock Newline.Indent|]
+(LBrace ModuleRoot Bang/ Const None)
+;; {!Pi/ F64 3.14} → push aski-const
 
-;; ── {| |} rules ──
+(TraitBoundOpen ModuleRoot PascalName/ FfiBlock Newline.Indent)
+;; {|Cast/ funcs|} → push aski-ffi
 
-{|ModuleRoot PascalName/ FfiBlock Newline.Indent|}
-{|TypeRef/ TraitBound None|}
+;; ── Main entry point ──
+
+(LBracket ModuleRoot/ Main Newline.Indent)
+;; [Main/ stmts] — bare [ at root with "Main" key

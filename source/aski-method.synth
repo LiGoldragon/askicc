@@ -1,43 +1,26 @@
-;; aski-method.synth — method definition
-;;
-;; Entered: (camelName/ inside TypeImpl → MethodDef context
-;; Key: method name
-;; Content: params ReturnType? Body
-;;
-;; The content after / has a fixed structure:
-;;   1. Params (sigil-prefixed: :@Self, ~@Name, @Name Type, etc.)
-;;   2. Optional ReturnType (PascalName or parameterized type)
-;;   3. Body (one of four forms, determined by delimiter)
+;; aski-method.synth — inside (camelName/ params rettype body)
 ;;
 ;; (add/ :@Self U32 [^(@Self.Left + @Self.Right)])
 ;; (describe/ :@Self Quality (| (Fire) Passionate (Earth) Grounded |))
 ;; (iterate/ :@Self [| stmts |])
 ;; (stub/ :@Self ___)
 
-;; Body forms — the delimiter after params+rettype determines the body:
+(CtxKind/ MethodDef Block TailBlock MatchBody)
 
-[MethodDef/ Block Newline.Indent]
-;; [stmts] — block body
+/
 
-(|MethodDef/ MatchBody Newline.Indent|)
-;; (| arms |) — match dispatch body
+;; Body forms — delimiter after params+rettype determines body kind:
 
-[|MethodDef/ TailBlock Newline.Indent|]
-;; [| stmts |] — tail-recursive body
+(LBracket MethodDef/ Block Newline.Indent)
+;; [stmts] → push aski-body
 
-;; ___ (Stub token) — no body, no delimiter
+(CompositionOpen MethodDef/ MatchBody Newline.Indent)
+;; (| arms |) → push aski-match
 
-;; ── Param forms (inside the method, before ReturnType/Body) ──
-;; Parsed by sigil prefix, no delimiters needed:
-;;
-;;   :@Self           → BorrowSelf
-;;   ~@Self           → MutBorrowSelf
-;;   @Self            → OwnedSelf
-;;   :@Name           → BorrowParam
-;;   ~@Name           → MutBorrowParam
-;;   @Name TypeRef    → NamedParam
-;;   @Name            → OwnedParam
-;;
-;; Params end when the parser sees a delimiter (body) or
-;; PascalName that is a known type (ReturnType).
-;; AskiWorld.isType resolves this boundary.
+(IterOpen MethodDef/ TailBlock Newline.Indent)
+;; [| stmts |] → push aski-body (tail variant)
+
+;; Params are sigil-dispatched before the body delimiter:
+;;   :@Self ~@Self @Self :@Name ~@Name @Name TypeRef @Name
+;; ReturnType is optional PascalName before the body delimiter.
+;; ___ = Stub (no body).

@@ -1,0 +1,57 @@
+;; aski-match.synth — inside match expressions and bodies
+;;
+;; Entered: (| from aski-method (MatchBody) or aski-expr (MatchExpr)
+;; Context: MatchBody or MatchExpr
+;; Closes: |) pops back to parent dialect
+;;
+;; Examples:
+;;   (| (Fire) Passionate (Earth) Grounded (Air) Intellectual (Water) Intuitive |)
+;;   (| (@Idx == 0) (True) @Entry.Name (False) @Self.lookup(@Name [@Idx + 1]) |)
+;;   (| ((Fire | Air)) Active ((Earth | Water)) Receptive |)
+
+(
+  MatchBody                   MatchArmPattern     Space
+  ;; (Fire) — commit arm pattern in match body
+
+  MatchExpr                   MatchArmPattern     Space
+  ;; (True) — commit arm pattern in match expression
+
+  MatchArmPattern             OrPattern           Space
+  ;; ((Fire | Air)) — nested or-pattern inside arm
+)
+
+[
+  MatchBody                   BacktrackPattern    Space
+  ;; [patterns] — backtrack arm in match body
+
+  MatchExpr                   BacktrackPattern    Space
+  ;; [patterns] — backtrack arm in match expression
+
+  BacktrackPattern            DestructureBody     Space
+  ;; [elem elem / @Rest] — destructure inside backtrack
+]
+
+;; ── Match arm structure ──
+;;
+;; Each arm is: (pattern) result-expr
+;;   or:        [pattern] result-expr
+;;
+;; The pattern is parsed in MatchArmPattern context.
+;; The result expression after ) or ] uses aski-expr dialect.
+;;
+;; Inside MatchArmPattern:
+;;   PascalName    → if AskiWorld.isVariant: VariantPat
+;;                   else: BareName
+;;   "True"        → BoolTrue (pattern)
+;;   "False"       → BoolFalse (pattern)
+;;   PascalName(inner) → DataCarryingPat
+;;   Pipe          → or-pattern separator
+;;   @Name         → InstanceBind (destructure binding)
+;;   Underscore    → Wildcard
+;;   IntLit        → LiteralPat
+;;   StringLit     → LiteralPat
+;;
+;; ── MatchExpr target ──
+;; In MatchExpr, the FIRST child is the match target expression,
+;; parsed with aski-expr. Then arms follow.
+;; AskiWorld knows: first child in MatchExpr = target, rest = arms.

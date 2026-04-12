@@ -1,0 +1,53 @@
+;; aski.synth — module root dialect
+;;
+;; The top-level dialect. Dispatches to inner dialects based on
+;; Name + delimiter at module root. Also handles the file header.
+;;
+;; Entered: at file start (default dialect)
+;; Context: ModuleRoot
+
+(
+  ModuleRoot                  ModuleExports       Space
+  ;; (Parser domainDecl item) — file export header
+
+  ModuleRoot.PascalName       aski-domain
+  ;; Element (...) — push domain dialect
+
+  ModuleRoot.camelName        aski-trait-decl
+  ;; describe (...) — push trait declaration dialect
+)
+
+[
+  ModuleRoot                  ModuleImports       Newline.Indent
+  ;; [Core (ParseState Token)] — file import header
+
+  ModuleRoot.camelName        aski-trait-impl
+  ;; describe [...] — push trait implementation dialect
+]
+
+{
+  ModuleRoot.PascalName       aski-struct
+  ;; Point { ... } — push struct dialect
+
+  ModuleRoot                  ModuleConstraints   Space
+  ;; {NoStd} — file constraint header
+}
+
+(|
+  ;; no (| at module root
+|)
+
+[|
+  ;; no [| at module root
+|]
+
+{|
+  ModuleRoot.PascalName       aski-ffi
+  ;; Cast {| ... |} — push FFI dialect
+|}
+
+;; ── Special top-level forms (sigil-dispatched, not delimiter) ──
+;;
+;; !Name Type {value}   → Const declaration (Bang prefix)
+;; Main [stmts]         → Entry point (Lit "Main" + [)
+;; TypeAlias Type       → PascalName PascalName at root (no delimiter)

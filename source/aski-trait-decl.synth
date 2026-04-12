@@ -1,0 +1,28 @@
+;; aski-trait-decl.synth — inside a trait declaration
+;;
+;; Entered: camelName ( at ModuleRoot
+;; Context: TraitDeclBody
+;; Closes: ) pops back to aski dialect
+;;
+;; Examples:
+;;   describe ([describe(:@Self) Quality])
+;;   compute ([add(:@Self) U32 multiply(:@Self @Factor U32) U32])
+;;   display&classify ([display(:@Self) String classify(:@Self) Category])
+
+[
+  TraitDeclBody               SignatureList       Space
+  ;; ([sig1 sig2]) — the [ ] wrapping the signature list
+]
+
+;; ── Inside SignatureList ──
+;; Each signature is: camelName(params) ReturnType
+;; The ( after camelName opens params — handled by aski-params
+
+(
+  SignatureList.camelName     aski-params
+  ;; describe(:@Self) — push params dialect for signature
+)
+
+;; ── Supertraits (before the signature list) ──
+;; display&classify — ampersand-joined trait names
+;; These are bare camelCase names, no delimiters

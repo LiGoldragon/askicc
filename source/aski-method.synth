@@ -1,0 +1,39 @@
+;; aski-method.synth — method signature + body dispatch
+;;
+;; Entered: camelName( in TypeImplBody
+;; This dialect handles: params → optional ReturnType → body
+;; The body delimiter determines which body dialect to push.
+;;
+;; Examples:
+;;   add(:@Self) U32 [^(@Self.Left + @Self.Right)]
+;;   describe(:@Self) Quality (| (Fire) Passionate (Earth) Grounded |)
+;;   iterate(:@Self) [| stmts |]
+;;   stub(:@Self) ___
+
+;; ── Params already handled by aski-params ──
+;; The ( that entered this dialect pushes aski-params.
+;; After ) closes params, we're back here for ReturnType + body.
+
+;; ── Body dispatch ──
+;; After params close and optional ReturnType, the next delimiter
+;; determines the body form:
+
+[
+  MethodHead                  aski-body           Newline.Indent
+  ;; name(params) Type [stmts] — block body
+  ;; name(params) [stmts] — block body (no return type)
+]
+
+(|
+  MethodHead                  aski-match          Newline.Indent
+  ;; name(params) Type (| arms |) — match dispatch body
+|)
+
+[|
+  MethodHead                  aski-body           Newline.Indent
+  ;; name(params) Type [| stmts |] — tail-recursive body
+|]
+
+;; ── Stub ──
+;; ___ (Stub token) means unimplemented — no body dialect pushed.
+;; AskiWorld sees Stub token after MethodHead and creates a Stub node.

@@ -1,0 +1,35 @@
+;; aski-params.synth — inside a parameter list
+;;
+;; Entered: camelName( in TypeImplBody, SignatureList, or CallArgs
+;; Context: Params
+;; Children: param param param — space-separated
+;; Closes: ) pops back to parent dialect (continues with ReturnType + body)
+;;
+;; Examples:
+;;   (:@Self)
+;;   (~@Self @Name String @Idx I64)
+;;   (@Self)
+;;   (:@Self @Factor U32)
+
+{
+  Params                      TypeParams          Space
+  ;; Vec{Element} — parameterized type in a param's type ref
+}
+
+{|
+  Params                      TraitBound          None
+  ;; {|display|} — trait-bounded param type
+|}
+
+;; ── Parameter forms (sigil-dispatched, not delimiter) ──
+;;
+;; :@Self           → BorrowSelf (Colon At "Self")
+;; ~@Self           → MutBorrowSelf (Tilde At "Self")
+;; @Self            → OwnedSelf (At "Self")
+;; :@Name           → BorrowParam (Colon At camelName)
+;; ~@Name           → MutBorrowParam (Tilde At camelName)
+;; @Name Type       → NamedParam (At PascalName PascalName)
+;; @Name            → OwnedParam (At PascalName — type inferred)
+;;
+;; AskiWorld resolves: sigil prefix determines param kind,
+;; following PascalName (if any) is the type reference.

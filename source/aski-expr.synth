@@ -1,0 +1,81 @@
+;; aski-expr.synth — expression dialect
+;;
+;; Used inside: Block, InlineEval, CallArgs, Group, MatchArm results
+;; Handles: delimiter resolution within expressions
+;; Pratt parser handles: operator precedence (not synth's job)
+;;
+;; Examples:
+;;   @Self.Left + @Self.Right
+;;   Point(X(1.0) Y(2.0))
+;;   @Self.Name.clone
+;;   Type/method(args)
+;;   [@Idx + 1]
+;;   (| (@Idx == 0) (True) @Entry.Name (False) @Self.lookup(@Name [@Idx + 1]) |)
+
+(
+  Expr                        Group               None
+  ;; (expr) — grouped sub-expression
+
+  Expr.camelName              CallArgs            Space
+  ;; .method(arg1 arg2) — method call arguments
+
+  Expr.StructName             StructConstruction  Space
+  ;; Point(X(1) Y(2)) — struct construction
+
+  StructConstruction.PascalName  FieldValue       None
+  ;; X(1.0) — field value inside construction
+
+  Expr.PascalName.Slash.camelName  CallArgs       Space
+  ;; Type/method(args) — static method call
+
+  Expr.At.PascalName.Slash     CallArgs           Space
+  ;; @Name/new(args) — allocation call args
+
+  Expr.Dot.camelName           CallArgs           Space
+  ;; .method(args) — chained method call args
+)
+
+[
+  Expr                        InlineEval          Space
+  ;; [@Idx + 1] — inline evaluation
+]
+
+(|
+  Expr                        aski-match          Space
+  ;; (| expr arms |) — inline match expression
+|)
+
+;; ── Postfix operators (Pratt parser, not synth) ──
+;;
+;; .PascalName    → FieldAccess
+;; .camelName     → MethodCall (if AskiWorld.isFfi or isMethod or isLowerFirst)
+;; .camelName(args) → MethodCall with args
+;; ?              → ErrorProp
+;; ..expr         → RangeExclusive
+;; ..=expr        → RangeInclusive
+;;
+;; ── Infix operators (Pratt parser, not synth) ──
+;;
+;; + - * / %     → arithmetic BinOp
+;; == != < > <= >= → comparison BinOp
+;; && ||          → logical BinOp
+;;
+;; ── Prefix (sigil-dispatched) ──
+;;
+;; ^expr          → Return
+;; #coll.var([b]) → Iteration
+;; !Name          → ConstRef
+;; @Name          → InstanceRef
+;;
+;; ── Atoms (no delimiter) ──
+;;
+;; PascalName     → if AskiWorld.isVariant: QualifiedVariant
+;;                  else: BareName (type ref)
+;; camelName      → BareName
+;; Integer        → IntLit
+;; Float          → FloatLit
+;; StringLit      → StringLit
+;; "True"         → BoolTrue
+;; "False"        → BoolFalse
+;; "StdOut" expr  → StdOut
+;; ___            → Stub

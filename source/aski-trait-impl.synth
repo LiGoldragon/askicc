@@ -1,0 +1,23 @@
+;; aski-trait-impl.synth — inside a trait implementation
+;;
+;; Entered: camelName [ at ModuleRoot
+;; Context: TraitImplBody
+;; Closes: ] pops back to aski dialect
+;;
+;; Examples:
+;;   describe [Element [
+;;     describe(:@Self) Quality (| arms |)
+;;   ]]
+;;   compute [Addition [
+;;     add(:@Self) U32 [stmts]
+;;   ]]
+
+[
+  TraitImplBody.PascalName    aski-type-impl
+  ;; Element [...] — push type-impl dialect
+  ;; Addition [...] — each type gets its own impl block
+]
+
+;; ── Structure ──
+;; TraitImplBody contains one or more: PascalName [methods]
+;; Each PascalName is a type that implements this trait

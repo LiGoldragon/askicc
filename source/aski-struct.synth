@@ -1,0 +1,23 @@
+;; aski-struct.synth — inside a struct field list
+;;
+;; Entered: PascalName { at ModuleRoot, or PascalName { inside DomainVariants
+;; Context: StructFields
+;; Children: Field Field Field — each is PascalName TypeRef
+;; Closes: } pops back to parent dialect
+;;
+;; Examples:
+;;   Point { Horizontal F64 Vertical F64 }
+;;   Rectangle { Width F64 Height F64 }
+
+{
+  StructFields.PascalName     TypeParams          Space
+  ;; Field Vec{Element} — parameterized field type
+  ;; the { inside a field's type ref opens type params
+}
+
+;; ── Field structure (no delimiter transitions needed) ──
+;; Each field is: PascalName TypeRef
+;; PascalName → field name
+;; TypeRef → the type (PascalName, or PascalName{Params}, or :Name for borrowed)
+;; AskiWorld resolves: PascalName in StructFields = FieldName
+;; Next PascalName after FieldName = TypeRef

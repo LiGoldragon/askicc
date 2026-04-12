@@ -1,0 +1,57 @@
+;; aski-body.synth — inside a method block body
+;;
+;; Entered: [ after MethodHead (from aski-method)
+;; Context: Block (or TailBlock if [|)
+;; Children: statements, newline.indent separated
+;; Closes: ] (or |]) pops back to aski-method → aski-type-impl
+;;
+;; Examples:
+;;   [
+;;     @Radius/new(Value(5.0))
+;;     ~@Counter U32/new(0)
+;;     ~@Counter.set([@Counter + 1])
+;;     ^@Counter
+;;   ]
+
+;; ── Expression delimiters delegate to aski-expr ──
+;; Inside a body, expressions use aski-expr for delimiter resolution.
+;; The body dialect itself handles statement-level structure.
+
+(
+  Block.camelName             aski-expr.CallArgs  Space
+  ;; .method(args) — method call in statement position
+
+  Block.StructName            aski-expr.StructConstruction Space
+  ;; Point(X(1) Y(2)) — struct construction in statement
+
+  Block                       aski-expr.Group     None
+  ;; (expr) — grouped expression in statement
+)
+
+[
+  Block                       aski-expr.InlineEval Space
+  ;; [@Idx + 1] — inline eval in statement
+]
+
+(|
+  Block                       aski-match          Space
+  ;; (| expr (pat) result |) — inline match in statement
+|)
+
+;; ── Statement forms (sigil-dispatched) ──
+;;
+;; @Name Type/new(args)       → SubTypeNew allocation
+;; @Name/new(args)            → SameTypeNew allocation
+;; @Name.new(args)            → DeferredNew allocation
+;; @Name Type                 → SubTypeDecl (no value)
+;; ~@Name Type/new(args)      → MutableNew allocation
+;; ~@Name.set(expr)           → MutableSet
+;; ~@Name.method(args)        → MutableMethodCall
+;; ^expr                      → Return
+;; #collection.var([body])    → Iteration
+;; expr                       → ExprStmt (fallthrough)
+;;
+;; AskiWorld resolves: @ prefix = allocation, ~ prefix = mutable,
+;; ^ prefix = return, # prefix = iteration. No delimiters needed.
+;;
+;; The expression inside each statement uses aski-expr dialect.

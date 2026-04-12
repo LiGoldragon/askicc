@@ -2,5 +2,5 @@
 ;;
 ;; (Parser/ domainDecl structDecl item [Core/ ParseState Token] [Ast/ Item Expr])
 
-+@export||@Export
-*[:Module/ +:import||:Import]
++@export//@Export
+*[:Module/ +:import//:Import]

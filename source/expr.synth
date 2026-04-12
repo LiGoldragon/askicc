@@ -2,8 +2,13 @@
 ;;
 ;; Pratt parser handles operators and precedence.
 ;; Synth defines what delimiters mean inside expressions.
+;;
+;; (@Self.Left + @Self.Right)
+;; (Point/ (Horizontal/ 1.0) (Vertical/ 2.0))
+;; [@Idx + 1]
+;; (| @Idx == 0/ (True) @Entry.Name (False) @Self.lookup |)
 
-(@expr/ <Group>)
-(@Struct/ <StructConstruct>)
-[@expr/ <InlineEval>]
-(|@expr/ <Match>|)
+(<expr>)
+(:Struct/ <struct-construct>)
+[<body>]
+(|<match>|)

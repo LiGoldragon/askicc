@@ -1,12 +1,13 @@
 ;; aski.synth — the aski dialect
 ;;
-;; All six delimiters used at root:
-;;   ()    Module, Domain, TraitDecl
-;;   []    TraitImpl
-;;   {}    Struct
-;;   {||}  Const
-;;   (||)  Ffi
-;;   [||]  Process (inline executable)
+;; (Parser/ domainDecl item [Core/ ParseState Token])
+;; (Element/ Fire Earth Air Water)
+;; {Point/ Horizontal F64 Vertical F64}
+;; (describe/ [(describe/ :@Self Quality)])
+;; [describe/ Element [(describe/ :@Self Quality (| (Fire) Passionate |))]]
+;; {|Pi/ F64 3.14|}
+;; (|Cast/ (toF32/ @Self F32)|)
+;; [| @E (Element/ Fire) StdOut @E |]
 
 (@Module/ <module>)
 

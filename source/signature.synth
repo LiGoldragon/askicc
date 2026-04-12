@@ -1,0 +1,8 @@
+;; signature.synth — inside (@signature/ ...)
+;;
+;; (describe/ :@Self Quality)
+;; (add/ :@Self U32)
+;; (multiply/ :@Self @Factor U32 U32)
+
++<param>
+?:Type

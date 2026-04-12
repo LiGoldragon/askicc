@@ -4,4 +4,4 @@
 ;; (display&classify/ [(display/ :@Self String) (classify/ :@Self Category)])
 
 *:trait
-[+<signature>]
+[+(@signature/ <signature>)]

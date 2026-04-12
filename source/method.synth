@@ -2,7 +2,12 @@
 ;;
 ;; (add/ :@Self U32 [^(@Self.Left + @Self.Right)])
 ;; (describe/ :@Self Quality (| (Fire) Passionate |))
+;; (iterate/ :@Self [| ~@Out (String/ "") ^@Out |])
+;; (stub/ :@Self ___)
 
-+<Param>
-?@Type
-[<Body>] || (|<Match>|) || [|<Body>|] || ___
++<param>
+?:Type
+// [<body>]
+// (|<match>|)
+// [|<body>|]
+// ___

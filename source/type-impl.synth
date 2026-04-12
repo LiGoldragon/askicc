@@ -4,4 +4,4 @@
 ;;   (describe/ :@Self Quality (| ... |))
 ;; ]
 
-+(@method/ <Method>)
++(@method/)

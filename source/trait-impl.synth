@@ -2,4 +2,4 @@
 ;;
 ;; [describe/ Element [(describe/ :@Self Quality (| (Fire) Passionate |))]]
 
-+[:Type/ +(@method/ <method>)]
+:Type [<type-impl>]

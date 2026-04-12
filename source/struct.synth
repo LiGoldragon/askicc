@@ -2,4 +2,4 @@
 ;;
 ;; {Point/ Horizontal F64 Vertical F64}
 
-+(@Field/ :Type)
++@Field :Type

@@ -1,25 +1,13 @@
 ;; aski.synth — the aski dialect
 ;;
-;; (Parser/ domainDecl item [Core/ ParseState Token])
-;; (Element/ Fire Earth Air Water)
-;; {Point/ Horizontal F64 Vertical F64}
-;; (describe/ [(describe/ :@Self Quality)])
-;; [describe/ Element [(describe/ :@Self Quality (| (Fire) Passionate |))]]
-;; {|Pi/ F64 3.14|}
-;; (|Cast/ (toF32/ @Self F32)|)
-;; [| @E (Element/ Fire) StdOut @E |]
+;; Module header first (sequential), then declarations (ordered choice, repeating).
 
 (@Module/ <module>)
 
-*(@Domain/ <domain>)
-*(@trait/ <trait-decl>)
-
-*[@trait/ <trait-impl>]
-
-*{@Struct/ <struct>}
-
-*{|@Const/ :Type @value|}
-
-*(|@Ffi/ <ffi>|)
-
-?[|<process>|]
+// (@Domain/ <domain>)
+// (@trait/ <trait-decl>)
+// [@trait/ <trait-impl>]
+// {@Struct/ <struct>}
+// {|@Const/|}
+// (|@Ffi/ <ffi>|)
+// [|<process>|]

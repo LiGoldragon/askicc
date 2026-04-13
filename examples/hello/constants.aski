@@ -1,4 +1,4 @@
-(Constants/ MaxSigns Pi)
+{constants/ MaxSigns Pi}
 
 {|MaxSigns/ U32 12|}
 

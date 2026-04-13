@@ -11,13 +11,13 @@
 ;; #expr.name [body]            → iteration
 ;; expr                         → expression statement
 
-// @_@name :Type /_new (<expr>)
-// @_@name /_new (<expr>)
-// @_@name ._new (<expr>)
-// @_@name :Type
-// ~_~@name :Type /_new (<expr>)
-// ~_~@name .set (<expr>)
-// ~_~@name .@method (<expr>)
-// ^_<expr>
-// #_<iteration>
+// _@_@name :Type /_new (<expr>)
+// _@_@name /_new (<expr>)
+// _@_@name ._new (<expr>)
+// _@_@name :Type
+// _~@_@name :Type /_new (<expr>)
+// _~@_@name .set (<expr>)
+// _~@_@name .@method (<expr>)
+// _^_<expr>
+// _#_<iteration>
 // <expr>

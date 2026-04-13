@@ -22,20 +22,26 @@ Synth placeholders describe what goes in each position.
 
 ## Literal Escape
 
-When aski source has a sigil (`@` `:` `~` `^` `#` `!`) that would
-collide with a synth placeholder, use `_` to separate literal from
-synth:
+`_` wraps literal aski tokens. Anything between `_..._` is literal —
+matched exactly in the aski source. After the closing `_`, synth
+notation continues.
 
-| Synth | Means in aski source |
-|-------|---------------------|
-| `@Name` | Just a name (no literal sigil) |
-| `@_@Name` | Literal `@` then a name — instance allocation |
-| `:_:Name` | Literal `:` then a name — immutable borrow |
-| `~_~Name` | Literal `~` then a name — mutable borrow |
-| `^_<expr>` | Literal `^` then an expression — return |
+| Synth | Literal tokens | Then synth | Aski source |
+|-------|---------------|------------|-------------|
+| `_@_@name` | `@` | `@name` (declare) | `@myVar` |
+| `_:@_Self` | `:@` | `Self` (literal) | `:@Self` |
+| `_~@_Self` | `~@` | `Self` (literal) | `~@Self` |
+| `_:@_@name` | `:@` | `@name` (declare) | `:@myParam` |
+| `_~@_@name` | `~@` | `@name` (declare) | `~@myParam` |
+| `_^_<expr>` | `^` | `<expr>` (dialect) | `^expression` |
+| `_#_<expr>` | `#` | `<expr>` (dialect) | `#iteration` |
 
-Left of `_` = literal aski token. Right of `_` = synth placeholder.
-No `_` needed when there's no collision.
+Multi-character literals work naturally:
+- `_:@_` = literal `:` then literal `@` (two aski tokens)
+- `_@_` = literal `@` (one token)
+
+No `_` needed when there's no collision — bare `@Name` is synth,
+bare `Self` is literal.
 
 
 ## Cardinality

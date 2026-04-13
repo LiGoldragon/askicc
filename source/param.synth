@@ -8,10 +8,10 @@
 ;; @Name :Type      → named param with explicit type
 ;; @Name            → owned param (type inferred)
 
-// :@_@Self
-// ~_~@Self
-// @_@Self
-// :_:@name
-// ~_~@name
-// @_@name :Type
-// @_@name
+// _:@_Self
+// _~@_Self
+// _@_Self
+// _:@_@name
+// _~@_@name
+// _@_@name :Type
+// _@_@name

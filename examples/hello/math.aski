@@ -1,6 +1,6 @@
 {math/ Addition compute}
 
-{Addition/ Left U32 Right U32}
+{Addition/ Left: U32 Right: U32}
 
 (compute/ [(add/ :@Self U32)])
 

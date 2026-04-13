@@ -1,5 +1,12 @@
 ;; struct.synth — inside {@Struct/ ...}
 ;;
-;; {Point/ Horizontal F64 Vertical F64}
+;; {Point/ Horizontal: F64 Vertical: F64}     — explicit field: type
+;; {CodegenContext/ Sema Names: AskiNameTable} — Sema is self-typed
+;;
+;; @Field _:_:Type  = field with : type annotation
+;; @Field           = self-typed (field name IS the type)
+;;
+;; Adjacency of : to field name is checked engine-level.
 
-+@Field :Type
+// *@Field _:_ :Type
+// *@Field

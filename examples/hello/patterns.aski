@@ -1,0 +1,16 @@
+{patterns/ Token Category classify}
+
+(Token/ (Ident/ String) (Number/ I64) Newline Dot)
+
+(Category/ Name Literal Whitespace Punctuation)
+
+(classify/ [(classify/ :@Self Category)])
+
+[classify/ Token [
+  (classify/ :@Self Category (|
+    (Ident @name) Name
+    (Number @n) Literal
+    (Newline) Whitespace
+    (Dot) Punctuation
+  |))
+]]

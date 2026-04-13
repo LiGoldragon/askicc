@@ -1,8 +1,11 @@
 ;; ffi.synth — inside (|@Ffi/ ...|)
 ;;
-;; (|Cast/
-;;   (toF32/ @Self F32)
-;;   (toU32/ @Self U32)
+;; (|Logos/
+;;   (lex/ @source String Vec<Token>)
+;;   (readFile/ @path String String)
 ;; |)
+;;
+;; Each (@foreignFunction/) delegates to engine parse_method_content
+;; for params + optional return type (no body).
 
-+(@foreignFunction/ +<Param> :Type)
++(@foreignFunction/)

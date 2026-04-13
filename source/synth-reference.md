@@ -91,6 +91,30 @@ bottom — first match wins. This is the ONLY place where ordered
 choice exists in the system.
 
 
+## Cardinality on Ordered Choice
+
+Each `//` alternative can have its own cardinality prefix, which
+controls how many times the engine allows that alternative to match
+in a looping context (e.g., root-level file parsing):
+
+```
+// *(@Domain/ <domain>)     ;; zero or more domains per file
+// *(@trait/ <trait-decl>)   ;; zero or more trait declarations
+// ?[|<process>|]            ;; at most one process block per file
+```
+
+| Prefix | Meaning |
+|--------|---------|
+| `*` | Zero or more (can repeat, no limit) |
+| `+` | One or more (must appear at least once) |
+| `?` | Optional (at most one) |
+| (none) | Default: zero or more |
+
+The engine tracks a match count per alternative. When an alternative
+reaches its cardinality limit, it is skipped. After the loop ends,
+alternatives with `+` cardinality that never matched cause an error.
+
+
 ## Two Parsing Modes
 
 1. **Sequential** — rules without `//`. All apply in order.
@@ -125,7 +149,7 @@ A rule wrapped in `()` defines what `()` means. A rule wrapped in
 {@Struct/ <struct>}       ;; { with Struct key → push struct dialect
 (|@Ffi/ <ffi>|)          ;; (| with Ffi key → push ffi dialect
 [|<process>|]             ;; [| bare → push process dialect
-{|@Const/ :Type @value|} ;; {| with Const key → const (terminal)
+{|@Const/|}              ;; {| with Const key → const (engine-parsed)
 ```
 
 
@@ -188,15 +212,15 @@ Dialect {
 
 Rule =
     Sequential { items: Vec<Item> }
-    OrderedChoice { alternatives: Vec<Alternative> }
+    OrderedChoice { alternatives: Vec<ChoiceAlternative> }
+
+ChoiceAlternative = { items: Vec<Item>, cardinality: Card }
 
 Item =
     Placeholder { sigil, casing, name }
     DelimiterRule { delimiter, key, target }
     DialectRef { name }
     Literal { token }
-
-Alternative = Vec<Item>
 ```
 
 The engine walks the rules. Sequential items must all match in order.

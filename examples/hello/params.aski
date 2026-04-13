@@ -1,0 +1,11 @@
+(Params/ Addition multiply)
+
+{Addition/ Left U32 Right U32}
+
+(multiply/ [(multiply/ :@Self @Factor U32 U32)])
+
+[multiply/ Addition [
+  (multiply/ :@Self @Factor U32 U32 [
+    ^(@Self.Left * @Factor + @Self.Right * @Factor)
+  ])
+]]

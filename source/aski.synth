@@ -1,13 +1,14 @@
 ;; aski.synth — the aski dialect
 ;;
 ;; Module header first (sequential), then declarations (ordered choice, repeating).
+;; Each alternative has explicit cardinality: * = zero or more, ? = at most one.
 
 (@Module/ <module>)
 
-// (@Domain/ <domain>)
-// (@trait/ <trait-decl>)
-// [@trait/ <trait-impl>]
-// {@Struct/ <struct>}
-// {|@Const/|}
-// (|@Ffi/ <ffi>|)
-// [|<process>|]
+// *(@Domain/ <domain>)
+// *(@trait/ <trait-decl>)
+// *[@trait/ <trait-impl>]
+// *{@Struct/ <struct>}
+// *{|@Const/|}
+// *(|@Ffi/ <ffi>|)
+// ?[|<process>|]

@@ -6,6 +6,6 @@
 
 +<param>
 ?:Type
-// [<body>]
-// (|<match>|)
-// [|<body>|]
+// ?[<body>]
+// ?(|<match>|)
+// ?[|<body>|]

@@ -1,0 +1,5 @@
+;; pattern.synth — inside match arm (...)
+
+// @Variant _@_@binding
+// @Variant
+// "literal"

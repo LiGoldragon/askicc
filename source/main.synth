@@ -1,10 +1,4 @@
-;; main.synth — the executable dialect
-;;
-;; .main files are standalone executables. No exports.
-;; Imports as bracket blocks, then a body of statements.
-;;
-;; [Elements/ Element Quality describe]
-;; @MyElement (Element/ Fire)
-;; StdOut @MyElement.describe
+;; main.synth — .main files
 
-*[:Module/ +:import//:Import]
+*[:Module +:import//:Import]
++<statement>

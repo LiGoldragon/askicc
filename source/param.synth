@@ -1,17 +1,9 @@
-;; param.synth — method/signature parameters
-;;
-;; :@Self           → immutable borrow of Self
-;; ~@Self           → mutable borrow of Self
-;; @Self            → owned Self
-;; :@Name           → immutable borrow (type inferred)
-;; ~@Name           → mutable borrow (type inferred)
-;; @Name :Type      → named param with explicit type
-;; @Name            → owned param (type inferred)
+;; param.synth — parameters
 
 // _:@_Self
 // _~@_Self
 // _@_Self
 // _:@_@name
 // _~@_@name
-// _@_@name :Type
+// _@_@name _:_ :Type
 // _@_@name

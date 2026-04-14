@@ -1,10 +1,4 @@
-;; body.synth — inside [ ] or [| |]
-;;
-;; [
-;;   @_@Radius (Radius/ (Value/ 5.0))
-;;   ~_~@Counter (U32/ 0)
-;;   ~_~@Counter.set [@Counter + 1]
-;;   ^_^@Counter
-;; ]
+;; body.synth — inside [...] or [|...|]
 
-+<statement>
+*<statement>
+<expr>

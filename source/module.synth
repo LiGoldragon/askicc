@@ -1,6 +1,4 @@
-;; module.synth — inside (@Module/ ...)
-;;
-;; (Parser/ domainDecl structDecl item [Core/ ParseState Token] [Ast/ Item Expr])
+;; module.synth — inside {module ...}
 
 +@export//@Export
-*[:Module/ +:import//:Import]
+*[:Module +:import//:Import]

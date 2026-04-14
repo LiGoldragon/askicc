@@ -1,0 +1,5 @@
+;; allocation.synth — after _@_ in statement
+
+// @name _:_ :Type
+// @name (<expr>)
+// @name

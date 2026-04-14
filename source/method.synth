@@ -1,11 +1,7 @@
-;; method.synth — inside (@method/ ...)
-;;
-;; (add/ :@Self U32 [^(@Self.Left + @Self.Right)])
-;; (describe/ :@Self Quality (| (Fire) Passionate |))
-;; (iterate/ :@Self [| ~@Out (String/ "") ^@Out |])
+;; method.synth — inside (method ...)
 
 +<param>
 ?:Type
-// ?[<body>]
-// ?(|<match>|)
-// ?[|<body>|]
+// [<body>]
+// (|<match>|)
+// [|<body>|]

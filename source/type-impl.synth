@@ -1,7 +1,3 @@
-;; type-impl.synth — inside [@Type/ ...]
-;;
-;; Element [
-;;   (describe/ :@Self Quality (| ... |))
-;; ]
+;; type-impl.synth — inside [Type [...]]
 
-+(@method/)
++(@method <method>)

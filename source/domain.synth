@@ -1,9 +1,5 @@
-;; domain.synth — inside (@Domain/ ...)
-;;
-;; (Element/ Fire Earth Air Water)
-;; (Shape/ Circle (Triangle/ F64) {Rectangle/ Width F64 Height F64})
-;; (Option/ (Some/ String) None)
+;; domain.synth — inside (Domain ...)
 
 // *@Variant
-// *(@Variant/ :Type)
-// *{@Variant/ <struct>}
+// *(@Variant :Type)
+// *{@Variant <struct>}

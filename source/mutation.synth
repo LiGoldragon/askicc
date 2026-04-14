@@ -1,0 +1,5 @@
+;; mutation.synth — after _~@_ in statement
+
+// @name ._method (<expr>)
+// @name _:_ :Type
+// @name (<expr>)

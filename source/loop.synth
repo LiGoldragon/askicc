@@ -1,0 +1,4 @@
+;; loop.synth — inside {|...|}  in body context
+
+?<expr>
++<statement>

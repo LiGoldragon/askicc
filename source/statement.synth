@@ -1,23 +1,9 @@
-;; statement.synth — one statement inside a body
-;;
-;; @Name (Type/ args)           → sub-type allocation
-;; @Name/new(args)              → same-type allocation
-;; @Name.new(args)              → deferred allocation
-;; @Name :Type                  → sub-type declaration
-;; ~@Name (Type/ args)          → mutable allocation
-;; ~@Name.set(expr)             → mutable set
-;; ~@Name.method(args)          → mutable method call
-;; ^expr                        → return
-;; #expr.name [body]            → iteration
-;; expr                         → expression statement
+;; statement.synth
 
-// _@_@name :Type /_new (<expr>)
-// _@_@name /_new (<expr>)
-// _@_@name ._new (<expr>)
-// _@_@name :Type
-// _~@_@name :Type /_new (<expr>)
-// _~@_@name .set (<expr>)
-// _~@_@name .@method (<expr>)
-// _^_<expr>
-// _#_<iteration>
+// [|<expr>|]
+// {|<expr> <body>|}
+// {|<body>|}
+// _#_<expr> [<body>]
+// _~@_<mutation>
+// _@_<allocation>
 // <expr>

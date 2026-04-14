@@ -1,5 +1,3 @@
-;; trait-decl.synth — inside (@trait/ ...)
-;;
-;; (describe/ [(describe/ :@Self Quality)])
+;; trait-decl.synth — inside (trait ...)
 
-[+(@signature/)]
+[+(@signature <signature>)]

@@ -1,11 +1,3 @@
-;; ffi.synth — inside (|@Ffi/ ...|)
-;;
-;; (|Logos/
-;;   (lex/ @source String Vec<Token>)
-;;   (readFile/ @path String String)
-;; |)
-;;
-;; Each (@foreignFunction/) delegates to engine parse_method_content
-;; for params + optional return type (no body).
+;; ffi.synth — inside (|Ffi ...|)
 
-+(@foreignFunction/)
++(@foreignFunction <signature>)

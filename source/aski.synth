@@ -1,13 +1,10 @@
-;; aski.synth — the aski dialect
-;;
-;; All declarations are ordered choice with explicit cardinality.
-;; ! = exactly one, * = zero or more, ? = at most one.
+;; aski.synth — root dialect
 
-// !{@module/ <module>}
-// *(@Domain/ <domain>)
-// *(@trait/ <trait-decl>)
-// *[@trait/ <trait-impl>]
-// *{@Struct/ <struct>}
-// *{|@Const/ :Type @value|}
-// *(|@Ffi/ <ffi>|)
+// !{@module <module>}
+// *(@Domain <domain>)
+// *(@trait <trait-decl>)
+// *[@trait <trait-impl>]
+// *{@Struct <struct>}
+// *{|@Const :Type @value|}
+// *(|@Ffi <ffi>|)
 // ?[|<process>|]

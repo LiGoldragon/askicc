@@ -1,14 +1,6 @@
-;; expr.synth — expression parsing
-;;
-;; Pratt parser handles operators and precedence.
-;; Synth defines what delimiters mean inside expressions.
-;;
-;; (@Self.Left + @Self.Right)
-;; (Point/ (Horizontal/ 1.0) (Vertical/ 2.0))
-;; [@Idx + 1]
-;; (| @Idx == 0/ (True) @Entry.Name (False) @Self.lookup |)
+;; expr.synth — expression delimiters (engine handles operators)
 
 (<expr>)
-(:Struct/ <struct-construct>)
 [<body>]
 (|<match>|)
+{|<loop>|}

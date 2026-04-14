@@ -1,6 +1,3 @@
-;; expr.synth — expression delimiters (engine handles operators)
+;; expr.synth — expression entry point
 
-(<expr>)
-[<body>]
-(|<match>|)
-{|<loop>|}
+<expr-or>

@@ -1,0 +1,3 @@
+;; expr-postfix.synth — field access, method call, try-unwrap
+
+<expr-atom> *(._@field // ._@method (<expr>*) // _?_)

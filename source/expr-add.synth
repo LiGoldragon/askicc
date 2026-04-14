@@ -1,0 +1,3 @@
+;; expr-add.synth
+
+<expr-mul> *((_+_//_-_) <expr-mul>)

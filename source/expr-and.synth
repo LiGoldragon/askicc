@@ -1,0 +1,3 @@
+;; expr-and.synth
+
+<expr-compare> *(_&&_ <expr-compare>)

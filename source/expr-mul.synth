@@ -1,0 +1,3 @@
+;; expr-mul.synth
+
+<expr-postfix> *((_*_//_%_) <expr-postfix>)

@@ -1,0 +1,3 @@
+;; expr-compare.synth
+
+<expr-add> ?((_==_//_!=_//_<_//_>_//_<=_//_>=_) <expr-add>)

@@ -1,0 +1,3 @@
+;; expr-or.synth — lowest precedence
+
+<expr-and> *(_||_ <expr-and>)

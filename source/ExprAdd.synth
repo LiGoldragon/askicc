@@ -1,3 +1,5 @@
-;; ExprAdd.synth
+;; ExprAdd.synth — addition, subtraction
 
-<ExprMul> *((_+_//_-_) <ExprMul>)
+// <ExprMul> _+_ <ExprAdd>
+// <ExprMul> _-_ <ExprAdd>
+// <ExprMul>

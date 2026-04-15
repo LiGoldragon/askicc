@@ -1,3 +1,9 @@
-;; ExprCompare.synth
+;; ExprCompare.synth — comparison (non-repeating)
 
-<ExprAdd> ?((_==_//_!=_//_<_//_>_//_<=_//_>=_) <ExprAdd>)
+// <ExprAdd> _==_ <ExprAdd>
+// <ExprAdd> _!=_ <ExprAdd>
+// <ExprAdd> _<_ <ExprAdd>
+// <ExprAdd> _>_ <ExprAdd>
+// <ExprAdd> _<=_ <ExprAdd>
+// <ExprAdd> _>=_ <ExprAdd>
+// <ExprAdd>

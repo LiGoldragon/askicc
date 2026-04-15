@@ -1,3 +1,4 @@
-;; ExprOr.synth — lowest precedence
+;; ExprOr.synth — logical or (lowest precedence)
 
-<ExprAnd> *(_||_ <ExprAnd>)
+// <ExprAnd> _||_ <ExprOr>
+// <ExprAnd>

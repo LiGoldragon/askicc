@@ -1,0 +1,526 @@
+(Kernel
+  NodeKind ParamKind ArmKind ScopeKind ExprKind TypeCategory PatElemKind
+  Node Variant Field Param Returns Scope
+  Supertrait Export Import TraitImpl Constant
+  Expr MatchArm MatchPattern GrammarRule GrammarArm GrammarPatElem
+  QualifiedName CanSee VariantOf BindingInfo TypeKind MethodOnType
+  ContainedType RecursiveType
+  World)
+
+;; ════════════════════════════════════════════════
+;; Node kinds — replaces magic strings in the kernel
+;; ════════════════════════════════════════════════
+
+NodeKind (
+  Domain Struct Trait Impl ImplBody
+  Method TailMethod MethodSig
+  Const Main TypeAlias
+  GrammarRuleNode
+  ForeignBlock ForeignFunction
+  AssocType
+)
+
+;; ════════════════════════════════════════════════
+;; Parameter kinds
+;; ════════════════════════════════════════════════
+
+ParamKind (
+  BorrowSelf MutBorrowSelf OwnedSelf
+  Owned Named Borrow MutBorrow
+)
+
+;; ════════════════════════════════════════════════
+;; Match arm kinds
+;; ════════════════════════════════════════════════
+
+ArmKind (Commit Backtrack Destructure)
+
+;; ════════════════════════════════════════════════
+;; Scope kinds
+;; ════════════════════════════════════════════════
+
+ScopeKind (Module Trait Method Block)
+
+;; ════════════════════════════════════════════════
+;; Expression kinds
+;; ════════════════════════════════════════════════
+
+ExprKind (
+  IntLit FloatLit StringLit
+  ConstRef InstanceRef BareName
+  Return Stub Match ErrorProp Yield
+  BinOp Group InlineEval FnCall MethodCall
+  SameTypeNew SubTypeNew MutableNew MutableSet SubTypeDecl DeferredNew
+  StructConstruct StructField Access
+  RangeExclusive RangeInclusive
+  StdOut ExternName
+)
+
+;; ════════════════════════════════════════════════
+;; Type category — derived
+;; ════════════════════════════════════════════════
+
+TypeCategory (Domain Struct Primitive)
+
+;; ════════════════════════════════════════════════
+;; Base relations — populated by the parser
+;; ════════════════════════════════════════════════
+
+Node {
+  Id I64
+  Kind NodeKind
+  Name String
+  Parent I64
+  SpanStart I64
+  SpanEnd I64
+  ScopeId I64
+}
+
+Variant {
+  DomainId I64
+  Ordinal I64
+  Name String
+  WrapsType String
+}
+
+Field {
+  StructId I64
+  Ordinal I64
+  Name String
+  TypeRef String
+}
+
+Param {
+  MethodId I64
+  Ordinal I64
+  Kind ParamKind
+  Name String
+  TypeRef String
+}
+
+Returns {
+  MethodId I64
+  TypeRef String
+}
+
+Scope {
+  Id I64
+  Kind ScopeKind
+  Name String
+  ParentScopeId I64
+}
+
+Supertrait {
+  TraitNodeId I64
+  SupertraitName String
+}
+
+Export {
+  ScopeId I64
+  ExportedName String
+}
+
+Import {
+  ScopeId I64
+  SourceModule String
+  ImportedName String
+}
+
+TraitImpl {
+  TraitName String
+  TypeName String
+  ImplNodeId I64
+}
+
+Constant {
+  NodeId I64
+  Name String
+  TypeRef String
+  HasValue Bool
+}
+
+Expr {
+  Id I64
+  ParentId I64
+  Kind ExprKind
+  Ordinal I64
+  Value String
+}
+
+MatchArm {
+  MatchId I64
+  Ordinal I64
+  BodyExprId I64
+  Kind ArmKind
+}
+
+MatchPattern {
+  MatchId I64
+  ArmOrdinal I64
+  PatOrdinal I64
+  Value String
+}
+
+GrammarRule {
+  NodeId I64
+  RuleName String
+}
+
+GrammarArm {
+  RuleId I64
+  Ordinal I64
+  ResultExprId I64
+}
+
+;; ════════════════════════════════════════════════
+;; Grammar pattern element kinds
+;; ════════════════════════════════════════════════
+
+PatElemKind (Terminal NonTerminal Binding BindLit Rest)
+
+GrammarPatElem {
+  RuleId I64
+  ArmOrdinal I64
+  ElemOrdinal I64
+  Kind PatElemKind
+  Name String
+}
+
+;; ════════════════════════════════════════════════
+;; Derived relations — computed by derivation rules
+;; ════════════════════════════════════════════════
+
+QualifiedName {
+  NodeId I64
+  FullPath String
+}
+
+CanSee {
+  ObserverId I64
+  VisibleId I64
+}
+
+VariantOf {
+  VariantName String
+  DomainName String
+  DomainNodeId I64
+}
+
+BindingInfo {
+  ExprId I64
+  VarName String
+  TypeName String
+}
+
+TypeKind {
+  TypeName String
+  Category TypeCategory
+}
+
+MethodOnType {
+  TypeName String
+  MethodName String
+  MethodNodeId I64
+}
+
+ContainedType {
+  ParentType String
+  ChildType String
+}
+
+RecursiveType {
+  ParentType String
+  ChildType String
+}
+
+OperatorImpl {
+  TraitName String
+  TypeName String
+  RustImport String
+  OutputType String
+}
+
+RecursiveField {
+  StructName String
+  FieldName String
+}
+
+MutableBinding {
+  ExprId I64
+  VarName String
+  TypeName String
+}
+
+;; ════════════════════════════════════════════════
+;; World — holds all relations
+;; ════════════════════════════════════════════════
+
+World {
+  ;; Base relations
+  Nodes Vec{Node}
+  Variants Vec{Variant}
+  Fields Vec{Field}
+  Params Vec{Param}
+  Returns Vec{Returns}
+  Scopes Vec{Scope}
+  Supertraits Vec{Supertrait}
+  Exports Vec{Export}
+  Imports Vec{Import}
+  TraitImpls Vec{TraitImpl}
+  Constants Vec{Constant}
+  Exprs Vec{Expr}
+  MatchArms Vec{MatchArm}
+  MatchPatterns Vec{MatchPattern}
+  GrammarRules Vec{GrammarRule}
+  GrammarArms Vec{GrammarArm}
+  GrammarPatElems Vec{GrammarPatElem}
+  ;; Derived relations
+  QualifiedNames Vec{QualifiedName}
+  CanSees Vec{CanSee}
+  VariantOfs Vec{VariantOf}
+  BindingInfos Vec{BindingInfo}
+  TypeKinds Vec{TypeKind}
+  MethodOnTypes Vec{MethodOnType}
+  ContainedTypes Vec{ContainedType}
+  RecursiveTypes Vec{RecursiveType}
+  OperatorImpls Vec{OperatorImpl}
+  RecursiveFields Vec{RecursiveField}
+  MutableBindings Vec{MutableBinding}
+}
+
+;; ════════════════════════════════════════════════
+;; Derivation trait and implementation
+;; ════════════════════════════════════════════════
+;;
+;; The derive trait declares all derivation methods.
+;; askic reads the trait impl structure and generates
+;; the Rust derive methods. Method bodies below are
+;; stubs — codegen emits the actual Rust implementations
+;; from the World relations.
+
+derive ([
+  derive(~@Self)
+  deriveVariantOf(~@Self)
+  deriveTypeKind(~@Self)
+  deriveBindingInfo(~@Self)
+  deriveMethodOnType(~@Self)
+  deriveContainedType(~@Self)
+  deriveOperatorImpl(~@Self)
+  deriveRecursiveField(~@Self)
+  deriveMutableBinding(~@Self)
+  deriveQualifiedNames(~@Self)
+  deriveCanSee(~@Self)
+  deriveRecursiveType(~@Self)
+])
+
+derive [World [
+
+  ;; Top-level: calls all rules in order
+  derive(~@Self) [
+    ~@Self.deriveVariantOf
+    ~@Self.deriveTypeKind
+    ~@Self.deriveBindingInfo
+    ~@Self.deriveMethodOnType
+    ~@Self.deriveContainedType
+    ~@Self.deriveOperatorImpl
+    ~@Self.deriveMutableBinding
+    ~@Self.deriveQualifiedNames
+    ~@Self.deriveCanSee
+    ~@Self.deriveRecursiveType
+    ~@Self.deriveRecursiveField
+  ]
+
+  ;; ── VariantOf ──
+  ;; Each variant maps to its owning domain name and node id.
+  deriveVariantOf(~@Self) [
+    ~@Self.VariantOfs.set(
+      @Self.Nodes.filter(@Node.Kind == Domain)
+        .flatMap(@Self.Variants.filter(@Variant.DomainId == @Node.Id)
+          .map(VariantOf(
+            VariantName(@Variant.Name)
+            DomainName(@Node.Name)
+            DomainNodeId(@Node.Id)))))
+  ]
+
+  ;; ── TypeKind ──
+  ;; Domain nodes → Domain category. Struct nodes → Struct category.
+  deriveTypeKind(~@Self) [
+    ~@Self.TypeKinds.set(
+      @Self.Nodes.filter(@Node.Kind == Domain)
+        .map(TypeKind(TypeName(@Node.Name) Category(Domain)))
+      .chain(
+        @Self.Nodes.filter(@Node.Kind == Struct)
+          .map(TypeKind(TypeName(@Node.Name) Category(Struct)))))
+  ]
+
+  ;; ── BindingInfo ──
+  ;; Parse "Var:Type" encoding from SubTypeNew exprs.
+  ;; SameTypeNew: value is just the type name (var = type).
+  deriveBindingInfo(~@Self) [
+    ~@Self.BindingInfos.set(
+      @Self.Exprs.filter(@Expr.Kind == SubTypeNew)
+        .filter(@Expr.Value.contains(":"))
+        .map(BindingInfo(
+          ExprId(@Expr.Id)
+          VarName(@Expr.Value.beforeColon)
+          TypeName(@Expr.Value.afterColon)))
+      .chain(
+        @Self.Exprs.filter(@Expr.Kind == SameTypeNew)
+          .filter(@Expr.Value.contains(":") == False)
+          .map(BindingInfo(
+            ExprId(@Expr.Id)
+            VarName(@Expr.Value)
+            TypeName(@Expr.Value)))))
+  ]
+
+  ;; ── MethodOnType ──
+  ;; Methods whose parent is a TraitImpl's impl_body node.
+  deriveMethodOnType(~@Self) [
+    ~@Self.MethodOnTypes.set(
+      @Self.TraitImpls.flatMap(
+        @Self.Nodes
+          .filter(@Node.Kind == Method || @Node.Kind == TailMethod)
+          .filter(@Node.Parent == @TraitImpl.ImplNodeId)
+          .map(MethodOnType(
+            TypeName(@TraitImpl.TypeName)
+            MethodName(@Node.Name)
+            MethodNodeId(@Node.Id)))))
+  ]
+
+  ;; ── ContainedType ──
+  ;; From struct fields and domain variant wraps.
+  deriveContainedType(~@Self) [
+    ~@Self.ContainedTypes.set(
+      @Self.Nodes.filter(@Node.Kind == Struct)
+        .flatMap(@Self.Fields.filter(@Field.StructId == @Node.Id)
+          .map(ContainedType(ParentType(@Node.Name) ChildType(@Field.TypeRef))))
+      .chain(
+        @Self.Nodes.filter(@Node.Kind == Domain)
+          .flatMap(@Self.Variants
+            .filter(@Variant.DomainId == @Node.Id)
+            .filter(@Variant.WrapsType != "")
+            .map(ContainedType(ParentType(@Node.Name) ChildType(@Variant.WrapsType))))))
+  ]
+
+  ;; ── OperatorImpl ──
+  ;; Detect trait impls for operator traits (add, sub, mul, div, rem, neg, not, index).
+  ;; Maps to std::ops import and infers Output type from the first method's return.
+  deriveOperatorImpl(~@Self) [
+    ~@Self.OperatorImpls.set(
+      @Self.TraitImpls
+        .filter(@TraitImpl.TraitName == "add" || @TraitImpl.TraitName == "sub"
+             || @TraitImpl.TraitName == "mul" || @TraitImpl.TraitName == "div"
+             || @TraitImpl.TraitName == "rem" || @TraitImpl.TraitName == "neg"
+             || @TraitImpl.TraitName == "not" || @TraitImpl.TraitName == "index")
+        .map(OperatorImpl(
+          TraitName(@TraitImpl.TraitName)
+          TypeName(@TraitImpl.TypeName)
+          RustImport(@TraitImpl.TraitName)
+          OutputType(@TraitImpl.TypeName))))
+  ]
+
+  ;; ── RecursiveField ──
+  ;; Fields whose type recursively contains the parent struct (need Box<T>).
+  deriveRecursiveField(~@Self) [
+    ~@Self.RecursiveFields.set(
+      @Self.Nodes.filter(@Node.Kind == Struct)
+        .flatMap(@Self.Fields.filter(@Field.StructId == @Node.Id)
+          .flatMap(@Self.RecursiveTypes
+            .filter(@Reach.ParentType == @Node.Name)
+            .filter(@Reach.ChildType == @Node.Name)
+            .map(RecursiveField(
+              StructName(@Node.Name)
+              FieldName(@Field.Name))))))
+  ]
+
+  ;; ── MutableBinding ──
+  ;; MutableNew and MutableSet exprs → binding info for mut variables.
+  deriveMutableBinding(~@Self) [
+    ~@Self.MutableBindings.set(
+      @Self.Exprs.filter(@Expr.Kind == MutableNew)
+        .filter(@Expr.Value.contains(":"))
+        .map(MutableBinding(
+          ExprId(@Expr.Id)
+          VarName(@Expr.Value.beforeColon)
+          TypeName(@Expr.Value.afterColon)))
+      .chain(
+        @Self.Exprs.filter(@Expr.Kind == MutableNew)
+          .filter(@Expr.Value.contains(":") == False)
+          .map(MutableBinding(
+            ExprId(@Expr.Id)
+            VarName(@Expr.Value)
+            TypeName(@Expr.Value)))))
+  ]
+
+  ;; ── QualifiedName (fixed-point) ──
+  ;; Top-level without scope: just the name.
+  ;; Top-level with scope: "scope::name".
+  ;; Children: "parent_qn::name" — walks parent chain.
+  deriveQualifiedNames(~@Self) [|
+    ~@Self.QualifiedNames.set(
+      @Self.Nodes.filter(@Node.Parent == 0)
+        .filter(@Node.ScopeId == 0)
+        .map(QualifiedName(NodeId(@Node.Id) FullPath(@Node.Name)))
+      .chain(
+        @Self.Nodes.filter(@Node.Parent == 0)
+          .filter(@Node.ScopeId != 0)
+          .flatMap(@Self.Scopes.filter(@Scope.Id == @Node.ScopeId)
+            .map(QualifiedName(NodeId(@Node.Id) FullPath("$@Scope.Name::$@Node.Name"))))))
+    @NewChildren Vec{QualifiedName}/new(
+      @Self.Nodes.filter(@Node.Parent != 0)
+        .flatMap(@Self.QualifiedNames.filter(@QualifiedName.NodeId == @Node.Parent)
+          .map(QualifiedName(NodeId(@Node.Id) FullPath("$@QualifiedName.FullPath::$@Node.Name")))))
+    ~@Self.QualifiedNames.extend(@NewChildren)
+    ^(| @NewChildren.count
+      (0) @Self
+      (_) @Self.deriveQualifiedNames
+    |)
+  |]
+
+  ;; ── CanSee (fixed-point) ──
+  ;; Self, siblings, imports, inherited from parent.
+  deriveCanSee(~@Self) [|
+    ~@Self.CanSees.set(
+      @Self.Nodes.map(CanSee(ObserverId(@Node.Id) VisibleId(@Node.Id)))
+      .chain(
+        @Self.Nodes.flatMap(
+          @Self.Nodes
+            .filter(@Other.Parent == @Node.Parent)
+            .filter(@Other.Id != @Node.Id)
+            .map(CanSee(ObserverId(@Node.Id) VisibleId(@Other.Id)))))
+      .chain(
+        @Self.Nodes.filter(@Node.ScopeId != 0)
+          .flatMap(@Self.Imports.filter(@Import.ScopeId == @Node.ScopeId)
+            .flatMap(@Self.Nodes.filter(@Target.Name == @Import.ImportedName)
+              .map(CanSee(ObserverId(@Node.Id) VisibleId(@Target.Id)))))))
+    @NewEdges Vec{CanSee}/new(
+      @Self.Nodes.filter(@Node.Parent != 0)
+        .flatMap(@Self.CanSees.filter(@Edge.ObserverId == @Node.Parent)
+          .map(CanSee(ObserverId(@Node.Id) VisibleId(@Edge.VisibleId)))))
+    ~@Self.CanSees.extend(@NewEdges)
+    ^(| @NewEdges.count
+      (0) @Self
+      (_) @Self.deriveCanSee
+    |)
+  |]
+
+  ;; ── RecursiveType (fixed-point) ──
+  ;; Transitive closure of ContainedType.
+  deriveRecursiveType(~@Self) [|
+    ~@Self.RecursiveTypes.set(
+      @Self.ContainedTypes.map(RecursiveType(
+        ParentType(@ContainedType.ParentType)
+        ChildType(@ContainedType.ChildType))))
+    @NewEdges Vec{RecursiveType}/new(
+      @Self.ContainedTypes.flatMap(
+        @Self.RecursiveTypes.filter(@Reach.ParentType == @ContainedType.ChildType)
+          .map(RecursiveType(
+            ParentType(@ContainedType.ParentType)
+            ChildType(@Reach.ChildType)))))
+    ~@Self.RecursiveTypes.extend(@NewEdges)
+    ^(| @NewEdges.count
+      (0) @Self
+      (_) @Self.deriveRecursiveType
+    |)
+  |]
+]]

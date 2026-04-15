@@ -2,8 +2,7 @@
 
 // _@_@Name
 // @Variant
-// @Value
-// "literal"
+// @Literal
 // (<Expr>)
 // [<Body>]
 // (|<Match>|)

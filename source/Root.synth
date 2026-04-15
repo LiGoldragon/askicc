@@ -9,7 +9,7 @@
 // *(@trait <TraitDecl>)
 // *[@trait <TraitImpl>]
 // *{@Struct <Struct>}
-// *{|@Const <Type> @Value|}
+// *{|@Const <Type> @Literal|}
 // *(|@Ffi <Ffi>|)
 // ?[|<Process>|]
 // *@Newtype <Type>

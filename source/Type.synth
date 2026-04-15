@@ -1,0 +1,17 @@
+;; Type.synth — type expressions
+;;
+;; Dispatched to from any position expecting a type.
+;; Handles simple types, applied types, instances of
+;; applied types, and generic type parameters.
+
+;; instance of applied type: @[Vec Element], @[Vec $Clone&Debug]
+// _@_[<TypeApplication>]
+
+;; applied type: [Vec Element], [Option $Value]
+// [<TypeApplication>]
+
+;; type parameter: $Value, $Clone&Debug
+// _$_<GenericParam>
+
+;; simple type reference: Element, U32
+// @Type

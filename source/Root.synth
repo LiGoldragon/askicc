@@ -8,6 +8,6 @@
 // *(@trait <TraitDecl>)
 // *[@trait <TraitImpl>]
 // *{@Struct <Struct>}
-// *{|@Const :Type @value|}
+// *{|@Const <Type> @Value|}
 // *(|@Ffi <Ffi>|)
 // ?[|<Process>|]

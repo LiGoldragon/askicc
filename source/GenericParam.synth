@@ -1,0 +1,10 @@
+;; GenericParam.synth — after $ sigil
+;;
+;; A type parameter. Either a bare named slot ($Value) or
+;; a bounded parameter where the bounds ARE the name ($Clone&Debug).
+
+;; bounded: $Clone&Debug, $Clone&Debug&Display
+// @Bound +(_&_ @Bound)
+
+;; bare: $Value, $Output, $Failure
+// @Param

@@ -1,5 +1,19 @@
 ;; Domain.synth — inside (Domain ...)
+;;
+;; Variants: bare, data-carrying, struct, with type application.
+;; Recursive nesting via piped delimiters.
 
+;; bare variant
 // *@Variant
-// *(@Variant :Type)
+
+;; data-carrying variant: (Variant Type), (Variant [Vec Type]), (Variant $Param)
+// *(@Variant <Type>)
+
+;; struct variant: {Variant (Field Type) ...}
 // *{@Variant <Struct>}
+
+;; nested domain definition: (| InnerDomain A B C |)
+// *(|@Domain <Domain>|)
+
+;; nested struct definition: {| InnerStruct (Field Type) |}
+// *{|@Struct <Struct>|}

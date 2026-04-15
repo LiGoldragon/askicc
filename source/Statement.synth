@@ -5,5 +5,5 @@
 // {|<Body>|}
 // _#_<Expr> [<Body>]
 // _~@_<Mutation>
-// _@_<Allocation>
+// _@_<Instance>
 // <Expr>

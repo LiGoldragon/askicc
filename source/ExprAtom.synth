@@ -1,8 +1,8 @@
 ;; ExprAtom.synth — leaf expressions
 
-// _@_@name
+// _@_@Name
 // @Variant
-// @value
+// @Value
 // "literal"
 // (<Expr>)
 // [<Body>]

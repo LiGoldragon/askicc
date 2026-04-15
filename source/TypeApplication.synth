@@ -1,0 +1,7 @@
+;; TypeApplication.synth — inside [...]
+;;
+;; A type constructor applied to one or more type arguments.
+;; Each argument recurses to Type.synth, so nested applications,
+;; generic parameters, and simple types all compose naturally.
+
+@Constructor +<Type>

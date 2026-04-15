@@ -1,9 +1,9 @@
-;; param.synth — parameters
+;; Param.synth — parameters
 
 // _:@_Self
 // _~@_Self
 // _@_Self
-// _:@_@name
-// _~@_@name
-// _@_@name _:_ :Type
-// _@_@name
+// _:@_@Name <Type>
+// _~@_@Name <Type>
+// _@_@Name <Type>
+// _@_@Name

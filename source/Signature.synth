@@ -1,4 +1,4 @@
 ;; Signature.synth — inside (signature ...)
 
 +<Param>
-?:Type
+?<Type>

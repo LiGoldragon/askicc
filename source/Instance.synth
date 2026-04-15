@@ -1,0 +1,7 @@
+;; Instance.synth — after _@_ in statement
+;;
+;; @ declares a type instance. PascalCase name = the type.
+
+// @Name (<Expr>)
+// @Name <Type>
+// @Name

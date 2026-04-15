@@ -1,4 +1,16 @@
 ;; Struct.synth — inside {Struct ...}
+;;
+;; Fields: self-typed (bare) or explicitly typed with ().
+;; Type application via []. Recursive nesting via piped delimiters.
 
-// *@Field _:_ :Type
+;; typed field: (Items [Vec Item]), (Count U32)
+// *(@Field <Type>)
+
+;; self-typed field: Name, Status (field name IS the type)
 // *@Field
+
+;; nested domain definition: (| Status Active Inactive Done |)
+// *(|@Domain <Domain>|)
+
+;; nested struct definition: {| Config (Timeout U32) |}
+// *{|@Struct <Struct>|}

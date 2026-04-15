@@ -1,4 +1,4 @@
-;; Loop.synth — inside {|...|} in body context
+;; Loop.synth — inside {...} in body context
 
-?<Expr>
+_?_<Expr>
 +<Statement>

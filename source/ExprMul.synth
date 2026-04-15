@@ -1,5 +1,5 @@
 ;; ExprMul.synth — multiplication, modulo
 
 // <ExprPostfix> _*_ <ExprMul>
-// <ExprPostfix> _%_ <ExprMul>
+// <ExprPostfix> % <ExprMul>
 // <ExprPostfix>

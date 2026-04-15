@@ -1,4 +1,4 @@
 ;; ExprAnd.synth — logical and
 
-// <ExprCompare> _&&_ <ExprAnd>
+// <ExprCompare> && <ExprAnd>
 // <ExprCompare>

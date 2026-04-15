@@ -1,42 +1,25 @@
-# synthc — Synth Dialect Definitions
+# synthc — Stage 1: Synth Compiler
 
-The 28 synth dialect files that define the entire aski v0.16 language.
-Synth IS the grammar — no engine special cases.
+Reads .synth dialect files + .aski source. Builds a fully-explicit
+data-tree. Derives per-kind enums from discovered symbol names.
+
+## What synthc Does
+
+Stage 1 of the pipeline. Reads two inputs:
+1. The 28 .synth dialect files in `source/` (the grammar)
+2. The .aski source from askic (the code)
+
+From these it generates a data-tree — every construct, every name,
+every relationship spelled out. The symbol names become variant names
+of derived enums. The enums come FROM the data, not from a hand-written
+list. This data-tree is the foundation of askic's parsing state machine.
 
 ## Directory Structure
 
 ```
-source/
-  aski.synth          — root dialect (module, domain, trait, struct, const, ffi, process)
-  module.synth        — module header (exports, imports)
-  domain.synth        — domain variants (nullary, data, struct)
-  struct.synth        — struct fields (typed, self-typed)
-  trait-decl.synth    — trait declarations with signatures
-  trait-impl.synth    — trait implementations per type
-  type-impl.synth     — methods inside a type impl
-  method.synth        — method params, return type, body
-  signature.synth     — trait signature (params + return type)
-  param.synth         — parameter forms (borrow, mut, owned, named)
-  body.synth          — statements + tail expression
-  statement.synth     — early return, loop, iteration, mutation, allocation, expr
-  loop.synth          — conditional and infinite loops
-  allocation.synth    — typed, initialized, bare allocations
-  mutation.synth      — method-call, type, init mutations
-  match.synth         — match arms
-  pattern.synth       — variant, literal, wildcard, or patterns
-  ffi.synth           — FFI declarations
-  main.synth          — main entry point
-  process.synth       — process declarations
-  expr.synth          — expression entry (→ expr-or)
-  expr-or.synth       — || precedence
-  expr-and.synth      — && precedence
-  expr-compare.synth  — == != < > <= >= precedence
-  expr-add.synth      — + - precedence
-  expr-mul.synth      — * % precedence
-  expr-postfix.synth  — .field .method() ? precedence
-  expr-atom.synth     — literals, refs, groups, inline eval, struct construct
-
-examples/hello/       — example .aski files using the v0.16 syntax
+source/           28 .synth dialect files (the grammar data)
+examples/hello/   example .aski files demonstrating v0.16 syntax
+v015_reference/   old kernel.aski + generated Rust (reference only)
 ```
 
 ## Dialect Tree

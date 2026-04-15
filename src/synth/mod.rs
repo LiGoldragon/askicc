@@ -1,2 +1,1 @@
-pub mod types;
-pub mod loader;
+;; synth module — to be reimplemented per spec/synth.md

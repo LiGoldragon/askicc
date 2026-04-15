@@ -1,1 +1,1 @@
-pub mod tokens;
+;; engine module — to be reimplemented per spec/synth.md

@@ -2,8 +2,9 @@
 
 // _@_@Name
 // @Variant
+// @Type/@Variant
+// @Type/@method(<Expr>)
 // @Literal
 // [<Body>]
 // (|<Match>|)
 // {<Loop>}
-// {|<Expr> [<Body>]|}

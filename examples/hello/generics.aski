@@ -1,13 +1,13 @@
-{generics/ Container Item process}
+{generics Container Item process}
 
-(Item/ (Text/ String) (Number/ I64) Empty)
+(Item (Text String) (Number I64) Empty)
 
-{Container/ Items: Vec<Item> Count: U32}
+{Container Items: Vec<Item> Count: U32}
 
-(process/ [(transform/ :@Self @items Vec<Item> Vec<Item>)])
+(process [(transform :@Self @items Vec<Item> Vec<Item>)])
 
-[process/ Container [
-  (transform/ :@Self @items Vec<Item> Vec<Item> [
+[process Container [
+  (transform :@Self @items Vec<Item> Vec<Item> [
     ^@items
   ])
 ]]

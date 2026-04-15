@@ -1,12 +1,12 @@
-{ffitest/ Token lex readFile}
+{ffitest Token lex readFile}
 
-(Token/ (Ident/ String) (Number/ I64) Newline)
+(Token (Ident String) (Number I64) Newline)
 
-(|Lexer/
-  (lex/ @source String Vec<Token>)
+(|Lexer
+  (lex @source String Vec<Token>)
 |)
 
-(|FileSystem/
-  (readToString/ @path String String)
-  (writeString/ @path String @content String)
+(|FileSystem
+  (readToString @path String String)
+  (writeString @path String @content String)
 |)

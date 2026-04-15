@@ -1,10 +1,10 @@
-;; expr-atom.synth — leaf expressions
+;; ExprAtom.synth — leaf expressions
 
 // _@_@name
 // @Variant
 // @value
 // "literal"
-// (<expr>)
-// [<body>]
-// (|<match>|)
-// {|<loop>|}
+// (<Expr>)
+// [<Body>]
+// (|<Match>|)
+// {|<Loop>|}

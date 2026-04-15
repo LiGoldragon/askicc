@@ -1,5 +1,5 @@
-;; mutation.synth — after _~@_ in statement
+;; Mutation.synth — after _~@_ in statement
 
-// @name ._method (<expr>)
+// @name ._method (<Expr>)
 // @name _:_ :Type
-// @name (<expr>)
+// @name (<Expr>)

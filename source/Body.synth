@@ -1,4 +1,4 @@
-;; body.synth — inside [...] or [|...|]
+;; Body.synth — inside [...] or [|...|]
 
-*<statement>
-<expr>
+*<Statement>
+<Expr>

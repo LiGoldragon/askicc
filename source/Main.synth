@@ -1,4 +1,4 @@
-;; main.synth — .main files
+;; Main.synth — .main files
 
 *[:Module +:import//:Import]
-+<statement>
++<Statement>

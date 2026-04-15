@@ -1,9 +1,9 @@
-;; statement.synth
+;; Statement.synth
 
-// [|<expr>|]
-// {|<expr> <body>|}
-// {|<body>|}
-// _#_<expr> [<body>]
-// _~@_<mutation>
-// _@_<allocation>
-// <expr>
+// [|<Expr>|]
+// {|<Expr> <Body>|}
+// {|<Body>|}
+// _#_<Expr> [<Body>]
+// _~@_<Mutation>
+// _@_<Allocation>
+// <Expr>

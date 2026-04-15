@@ -1,0 +1,13 @@
+;; Root.synth — root dialect
+;;
+;; First () is the module (required, order-derived).
+;; Remaining constructs are delimiter + casing driven.
+
+(@Module <Module>)
+// *(@Domain <Domain>)
+// *(@trait <TraitDecl>)
+// *[@trait <TraitImpl>]
+// *{@Struct <Struct>}
+// *{|@Const :Type @value|}
+// *(|@Ffi <Ffi>|)
+// ?[|<Process>|]

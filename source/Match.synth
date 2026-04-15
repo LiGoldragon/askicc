@@ -1,4 +1,4 @@
-;; match.synth — inside (|...|)
+;; Match.synth — inside (|...|)
 
-?<expr>
-+(<pattern> <expr>)
+?<Expr>
++(<Pattern> <Expr>)

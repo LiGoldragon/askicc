@@ -1,5 +1,5 @@
-;; domain.synth — inside (Domain ...)
+;; Domain.synth — inside (Domain ...)
 
 // *@Variant
 // *(@Variant :Type)
-// *{@Variant <struct>}
+// *{@Variant <Struct>}

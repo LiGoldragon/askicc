@@ -1,7 +1,7 @@
-;; method.synth — inside (method ...)
+;; Method.synth — inside (method ...)
 
-+<param>
++<Param>
 ?:Type
-// [<body>]
-// (|<match>|)
-// [|<body>|]
+// [<Body>]
+// (|<Match>|)
+// [|<Body>|]

@@ -368,28 +368,33 @@ mod tests {
     use super::*;
 
     #[test]
-    fn load_aski_synth() {
+    fn load_root_synth() {
         let source = r#"
-;; aski.synth
-// !{@module <module>}
-// *(@Domain <domain>)
-// *(@trait <trait-decl>)
-// *[@trait <trait-impl>]
-// *{@Struct <struct>}
+;; Root.synth
+(@Module <Module>)
+// *(@Domain <Domain>)
+// *(@trait <TraitDecl>)
+// *[@trait <TraitImpl>]
+// *{@Struct <Struct>}
 // *{|@Const :Type @value|}
-// *(|@Ffi <ffi>|)
-// ?[|<process>|]
+// *(|@Ffi <Ffi>|)
+// ?[|<Process>|]
 "#;
-        let dialect = load_dialect("Aski", source).unwrap();
-        assert_eq!(dialect.name, "Aski");
-        // Pure ordered choice (8 alternatives, no sequential)
-        assert_eq!(dialect.rules.len(), 1);
+        let dialect = load_dialect("Root", source).unwrap();
+        assert_eq!(dialect.name, "Root");
+        // Sequential module + ordered choice for the rest
+        assert_eq!(dialect.rules.len(), 2);
         match &dialect.rules[0] {
+            Rule::Sequential(items) => {
+                assert!(!items.is_empty());
+            }
+            _ => panic!("expected Sequential for module"),
+        }
+        match &dialect.rules[1] {
             Rule::OrderedChoice(alts) => {
-                assert_eq!(alts.len(), 8);
-                assert_eq!(alts[0].cardinality, Card::One);        // !{@module}
-                assert_eq!(alts[1].cardinality, Card::ZeroOrMore); // *(@Domain)
-                assert_eq!(alts[7].cardinality, Card::Optional);   // ?[|<process>|]
+                assert_eq!(alts.len(), 7);
+                assert_eq!(alts[0].cardinality, Card::ZeroOrMore); // *(@Domain)
+                assert_eq!(alts[6].cardinality, Card::Optional);   // ?[|<Process>|]
             }
             _ => panic!("expected OrderedChoice"),
         }

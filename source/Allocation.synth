@@ -1,5 +1,5 @@
-;; allocation.synth — after _@_ in statement
+;; Allocation.synth — after _@_ in statement
 
 // @name _:_ :Type
-// @name (<expr>)
+// @name (<Expr>)
 // @name

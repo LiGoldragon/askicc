@@ -1,4 +1,4 @@
-;; struct.synth — inside {Struct ...}
+;; Struct.synth — inside {Struct ...}
 
 // *@Field _:_ :Type
 // *@Field

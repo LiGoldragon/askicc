@@ -1,3 +1,3 @@
-;; expr-and.synth
+;; ExprAnd.synth
 
-<expr-compare> *(_&&_ <expr-compare>)
+<ExprCompare> *(_&&_ <ExprCompare>)

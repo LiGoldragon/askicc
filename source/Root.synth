@@ -2,6 +2,7 @@
 ;;
 ;; First () is the module (required, order-derived).
 ;; Remaining constructs are delimiter + casing driven.
+;; Newtypes are undelimited: PascalCase followed by Type.
 
 (@Module <Module>)
 // *(@Domain <Domain>)
@@ -11,3 +12,4 @@
 // *{|@Const <Type> @Value|}
 // *(|@Ffi <Ffi>|)
 // ?[|<Process>|]
+// *@Newtype <Type>

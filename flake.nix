@@ -1,5 +1,5 @@
 {
-  description = "synthc — Stage 1: synth dialect compiler";
+  description = "askicc — bootstrap compiler: .synth grammar + core aski definitions";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -27,13 +27,13 @@
 
       commonArgs = {
         inherit src;
-        pname = "synthc";
+        pname = "askicc";
         version = "0.16.0";
       };
 
       cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 
-      synthc = craneLib.buildPackage (commonArgs // {
+      askicc = craneLib.buildPackage (commonArgs // {
         inherit cargoArtifacts;
       });
 
@@ -45,12 +45,12 @@
 
     in {
       packages.${system} = {
-        default = synthc;
-        inherit synthc synth-dialect;
+        default = askicc;
+        inherit askicc synth-dialect;
       };
 
       checks.${system} = {
-        build = synthc;
+        build = askicc;
         cargo-tests = craneLib.cargoTest (commonArgs // {
           inherit cargoArtifacts;
         });

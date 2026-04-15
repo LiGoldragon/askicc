@@ -1,8 +1,8 @@
 [package]
-name = "synthc"
+name = "askicc"
 version = "0.16.0"
 edition = "2021"
-description = "synthc — Stage 1: reads .synth + .aski, builds data-tree, derives enums"
+description = "askicc — bootstrap compiler: reads .synth grammar + askic's .aski anatomy, builds data-tree, derives enums"
 
 [dependencies]
 logos = "0.14"

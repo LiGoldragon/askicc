@@ -1,5 +1,5 @@
 {
-  description = "askicc — bootstrap compiler: .synth grammar + core aski definitions";
+  description = "askicc — bootstrap compiler: .synth grammar + aski-core anatomy";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -8,14 +8,20 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     crane.url = "github:ipetkov/crane";
+    aski-core = {
+      url = "github:LiGoldragon/aski-core";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, fenix, crane, ... }:
+  outputs = { self, nixpkgs, fenix, crane, aski-core, ... }:
     let
       system = "x86_64-linux";
       pkgs = nixpkgs.legacyPackages.${system};
       toolchain = fenix.packages.${system}.stable.toolchain;
       craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
+
+      aski-core-data = aski-core.packages.${system}.aski-core;
 
       src = pkgs.lib.cleanSourceWith {
         src = ./.;
@@ -29,6 +35,7 @@
         inherit src;
         pname = "askicc";
         version = "0.16.0";
+        ASKI_CORE = "${aski-core-data}";
       };
 
       cargoArtifacts = craneLib.buildDepsOnly commonArgs;
@@ -58,6 +65,7 @@
 
       devShells.${system}.default = craneLib.devShell {
         packages = [ pkgs.rust-analyzer ];
+        ASKI_CORE = "${aski-core-data}";
       };
     };
 }

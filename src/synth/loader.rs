@@ -380,8 +380,8 @@ mod tests {
 // *(|@Ffi <ffi>|)
 // ?[|<process>|]
 "#;
-        let dialect = load_dialect("aski", source).unwrap();
-        assert_eq!(dialect.name, "aski");
+        let dialect = load_dialect("Aski", source).unwrap();
+        assert_eq!(dialect.name, "Aski");
         // Pure ordered choice (8 alternatives, no sequential)
         assert_eq!(dialect.rules.len(), 1);
         match &dialect.rules[0] {

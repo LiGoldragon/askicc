@@ -1,4 +1,4 @@
-{patterns Token Category classify}
+(patterns Token Category classify)
 
 (Token (Ident String) (Number I64) Newline Dot)
 
@@ -8,8 +8,8 @@
 
 [classify Token [
   (classify :@Self Category (|
-    (Ident @name) Name
-    (Number @n) Literal
+    (Ident @Name) Name
+    (Number @N) Literal
     (Newline) Whitespace
     (Dot) Punctuation
   |))

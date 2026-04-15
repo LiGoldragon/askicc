@@ -1,5 +1,5 @@
-{constants MaxSigns Pi}
+(constants MaxSigns Pi)
 
-{|MaxSigns U32 12|}
+{| MaxSigns U32 12 |}
 
-{|Pi F64 3.14159265358979|}
+{| Pi F64 3.14159265358979 |}

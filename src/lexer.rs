@@ -30,14 +30,6 @@ pub enum Token {
     #[token("|]")]
     RPipeBracket,
 
-    #[token("..=")]
-    RangeInclusive,
-
-    #[token("..")]
-    RangeExclusive,
-
-    #[token("___")]
-    Stub,
 
     // === Delimiters ===
     #[token("(")]
@@ -86,17 +78,10 @@ pub enum Token {
     #[token("?")]
     Question,
 
-    #[token("!")]
-    Bang,
-
-    #[token("#")]
-    Hash,
 
     #[token("|")]
     Pipe,
 
-    #[token("'")]
-    Tick,
 
     #[token(":")]
     Colon,
@@ -120,8 +105,6 @@ pub enum Token {
     #[token("==")]
     DoubleEquals,
 
-    #[token("=")]
-    Equals,
 
     #[token("!=")]
     NotEqual,
@@ -138,16 +121,7 @@ pub enum Token {
     #[token("||")]
     LogicalOr,
 
-    #[token(",")]
-    Comma,
 
-    // === Bare underscore (wildcard in match patterns) ===
-    #[token("_")]
-    Underscore,
-
-    // === Underscore-number suffix (for disambiguation) ===
-    #[regex(r"_[0-9]+", |lex| lex.slice()[1..].parse::<u32>().ok(), priority = 3)]
-    OrdinalSuffix(u32),
 
     // === PascalCase identifier (starts with uppercase) ===
     #[regex(r"[A-Z][a-zA-Z0-9]*", |lex| lex.slice().to_string())]
@@ -202,9 +176,6 @@ impl std::fmt::Display for Token {
             Token::RPipeParen => write!(f, "|)"),
             Token::LBracketPipe => write!(f, "[|"),
             Token::RPipeBracket => write!(f, "|]"),
-            Token::RangeInclusive => write!(f, "..="),
-            Token::RangeExclusive => write!(f, ".."),
-            Token::Stub => write!(f, "___"),
             Token::LParen => write!(f, "("),
             Token::RParen => write!(f, ")"),
             Token::LBracket => write!(f, "["),
@@ -220,10 +191,7 @@ impl std::fmt::Display for Token {
             Token::Ampersand => write!(f, "&"),
             Token::Tilde => write!(f, "~"),
             Token::Question => write!(f, "?"),
-            Token::Bang => write!(f, "!"),
-            Token::Hash => write!(f, "#"),
             Token::Pipe => write!(f, "|"),
-            Token::Tick => write!(f, "'"),
             Token::Colon => write!(f, ":"),
             Token::Plus => write!(f, "+"),
             Token::Minus => write!(f, "-"),
@@ -231,15 +199,11 @@ impl std::fmt::Display for Token {
             Token::Slash => write!(f, "/"),
             Token::Percent => write!(f, "%"),
             Token::DoubleEquals => write!(f, "=="),
-            Token::Equals => write!(f, "="),
             Token::NotEqual => write!(f, "!="),
             Token::GreaterThanOrEqual => write!(f, ">="),
             Token::LessThanOrEqual => write!(f, "<="),
             Token::LogicalAnd => write!(f, "&&"),
             Token::LogicalOr => write!(f, "||"),
-            Token::Comma => write!(f, ","),
-            Token::Underscore => write!(f, "_"),
-            Token::OrdinalSuffix(n) => write!(f, "_{n}"),
             Token::PascalIdent(s) => write!(f, "{s}"),
             Token::CamelIdent(s) => write!(f, "{s}"),
             Token::Float(v) => write!(f, "{}", v),

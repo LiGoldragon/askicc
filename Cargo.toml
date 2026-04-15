@@ -1,0 +1,13 @@
+[package]
+name = "synthc"
+version = "0.16.0"
+edition = "2021"
+description = "synthc — Stage 1: reads .synth + .aski, builds data-tree, derives enums"
+
+[dependencies]
+logos = "0.14"
+rkyv = { version = "0.8", default-features = false, features = [
+    "little_endian",
+    "pointer_width_32",
+    "alloc",
+] }

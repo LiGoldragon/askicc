@@ -3,7 +3,7 @@
 // [|<Expr>|]
 // {|<Expr> <Body>|}
 // {|<Body>|}
-// _#_<Expr> [<Body>]
+// {<Expr> [<Body>]}
 // _~@_<Mutation>
 // _@_<Instance>
 // <Expr>

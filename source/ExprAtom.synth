@@ -3,7 +3,6 @@
 // _@_@Name
 // @Variant
 // @Literal
-// (<Expr>)
 // [<Body>]
 // (|<Match>|)
 // {|<Loop>|}

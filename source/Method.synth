@@ -1,7 +1,12 @@
 ;; Method.synth — inside (method ...)
+;;
+;; Parameters, optional return type, then body.
+;; Body can be any process delimiter directly.
 
 +<Param>
 ?<Type>
 // [<Body>]
 // (|<Match>|)
-// [|<Body>|]
+// [|<Loop>|]
+// {|<Expr> [<Body>]|}
+// {<StructConstruct>}

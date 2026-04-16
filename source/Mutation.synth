@@ -1,4 +1,4 @@
 ;; Mutation.synth — after _~@_ in statement
 
-// @Name.@method(+<Expr>)
-// @Name (<Expr>)
+// :Instance.:method(+<Expr>)
+// :Instance (<Expr>)

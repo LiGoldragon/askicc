@@ -1,6 +1,6 @@
 /// Synth token types — resolved to aski-core typed enums at lex time.
 
-use aski_core::{DeclareLabel, DialectKind, LiteralToken, DelimKind};
+use aski_core::{Label, LabelKind, Binding, Casing, DialectKind, LiteralToken, KeywordToken, DelimKind};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SynthToken {
@@ -8,10 +8,10 @@ pub enum SynthToken {
     OneOrMore,                       // + (synth cardinality)
     ZeroOrMore,                      // * (synth cardinality)
     Optional,                        // ? (synth cardinality)
-    Declare(DeclareLabel),           // @Label — resolved at lex time
+    Label(Label),                    // @Label (declare) or :Label (reference)
+    Keyword(KeywordToken),           // bare keyword (Self, Main)
     DialectRef(DialectKind),         // <Name> — resolved at lex time
     Literal(LiteralToken),           // _X_ or bare operator — resolved at lex time
-    BareIdent(DeclareLabel),         // bare PascalCase/camelCase (e.g. Self after _@_)
     StringLit,                       // "literal"
     Open(DelimKind),                 // ( [ { (| [| {|
     Close(DelimKind),                // ) ] } |) |] |}

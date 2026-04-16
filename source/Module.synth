@@ -1,4 +1,5 @@
 ;; Module.synth — inside (Module ...)
 
-+@Export//@Export
-*[:Module +:Import//:Import]
+*@ObjectExport
+*@actionExport
+*[:Module *:ObjectImport *:actionImport]

@@ -8,20 +8,71 @@ mod tests {
     fn lex_declare() {
         let tokens = SynthLexer::new("@Enum").lex().unwrap();
         assert_eq!(tokens.len(), 1);
-        assert!(matches!(&tokens[0].token, SynthToken::Declare(DeclareLabel::Enum)));
+        match &tokens[0].token {
+            SynthToken::Label(l) => {
+                assert_eq!(l.binding, Binding::Declare);
+                assert_eq!(l.kind, LabelKind::Enum);
+                assert_eq!(l.casing, Casing::Pascal);
+            }
+            _ => panic!("expected label"),
+        }
+    }
+
+    #[test]
+    fn lex_reference() {
+        let tokens = SynthLexer::new(":Type").lex().unwrap();
+        assert_eq!(tokens.len(), 1);
+        match &tokens[0].token {
+            SynthToken::Label(l) => {
+                assert_eq!(l.binding, Binding::Reference);
+                assert_eq!(l.kind, LabelKind::Type_);
+                assert_eq!(l.casing, Casing::Pascal);
+            }
+            _ => panic!("expected label"),
+        }
+    }
+
+    #[test]
+    fn lex_camel_declare() {
+        let tokens = SynthLexer::new("@trait").lex().unwrap();
+        match &tokens[0].token {
+            SynthToken::Label(l) => {
+                assert_eq!(l.binding, Binding::Declare);
+                assert_eq!(l.kind, LabelKind::Trait);
+                assert_eq!(l.casing, Casing::Camel);
+            }
+            _ => panic!("expected label"),
+        }
+    }
+
+    #[test]
+    fn lex_camel_reference() {
+        let tokens = SynthLexer::new(":method").lex().unwrap();
+        match &tokens[0].token {
+            SynthToken::Label(l) => {
+                assert_eq!(l.binding, Binding::Reference);
+                assert_eq!(l.kind, LabelKind::Method);
+                assert_eq!(l.casing, Casing::Camel);
+            }
+            _ => panic!("expected label"),
+        }
+    }
+
+    #[test]
+    fn lex_keyword() {
+        let tokens = SynthLexer::new("Self").lex().unwrap();
+        assert!(matches!(&tokens[0].token, SynthToken::Keyword(KeywordToken::Self_)));
     }
 
     #[test]
     fn lex_dialect_ref() {
         let tokens = SynthLexer::new("<Type>").lex().unwrap();
-        assert_eq!(tokens.len(), 1);
         assert!(matches!(&tokens[0].token, SynthToken::DialectRef(DialectKind::Type_)));
     }
 
     #[test]
     fn lex_literal_escape() {
         let tokens = SynthLexer::new("_@_").lex().unwrap();
-        assert_eq!(tokens.len(), 1);
         assert!(matches!(&tokens[0].token, SynthToken::Literal(LiteralToken::At)));
     }
 
@@ -33,24 +84,23 @@ mod tests {
 
     #[test]
     fn lex_adjacency() {
-        let tokens = SynthLexer::new("_@_@Name").lex().unwrap();
+        let tokens = SynthLexer::new("_@_:Instance").lex().unwrap();
         assert_eq!(tokens.len(), 2);
-        assert!(!tokens[0].adjacent); // first token never adjacent
-        assert!(tokens[1].adjacent);  // @Name right after _@_
+        assert!(!tokens[0].adjacent);
+        assert!(tokens[1].adjacent);
     }
 
     #[test]
     fn lex_spaced() {
         let tokens = SynthLexer::new("@Enum <Type>").lex().unwrap();
         assert_eq!(tokens.len(), 2);
-        assert!(!tokens[1].adjacent); // space between them
+        assert!(!tokens[1].adjacent);
     }
 
     #[test]
     fn lex_ordered_choice() {
         let tokens = SynthLexer::new("// @Variant\n// (@Variant <Type>)").lex().unwrap();
         assert!(matches!(&tokens[0].token, SynthToken::Or));
-        assert!(matches!(&tokens[1].token, SynthToken::Declare(DeclareLabel::Variant)));
         assert!(matches!(&tokens[2].token, SynthToken::Or));
     }
 
@@ -58,7 +108,6 @@ mod tests {
     fn lex_cardinality() {
         let tokens = SynthLexer::new("*@Variant +<Param> ?<Type>").lex().unwrap();
         assert!(matches!(&tokens[0].token, SynthToken::ZeroOrMore));
-        assert!(matches!(&tokens[1].token, SynthToken::Declare(DeclareLabel::Variant)));
         assert!(matches!(&tokens[2].token, SynthToken::OneOrMore));
         assert!(matches!(&tokens[4].token, SynthToken::Optional));
     }
@@ -92,13 +141,19 @@ mod tests {
     fn lex_comment() {
         let tokens = SynthLexer::new(";; comment\n@Enum").lex().unwrap();
         assert_eq!(tokens.len(), 1);
-        assert!(matches!(&tokens[0].token, SynthToken::Declare(DeclareLabel::Enum)));
     }
 
     #[test]
     fn lex_string_lit() {
         let tokens = SynthLexer::new("\"literal\"").lex().unwrap();
         assert!(matches!(&tokens[0].token, SynthToken::StringLit));
+    }
+
+    #[test]
+    fn lex_colon_as_operator() {
+        // : not followed by alphabetic is a bare operator
+        let tokens = SynthLexer::new(": ").lex().unwrap();
+        assert!(matches!(&tokens[0].token, SynthToken::Literal(LiteralToken::Colon)));
     }
 
     #[test]

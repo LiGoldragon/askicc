@@ -2,7 +2,7 @@
 ;;
 ;; @ declares a type instance. PascalCase name = the type.
 ;; Optional (Type) annotation before the expression.
-;; Bare @Name in expression position is a reference (ExprAtom).
+;; Bare @Instance in expression position is a reference (ExprAtom).
 
-// @Name (<Type>) <Expr>
-// @Name <Expr>
+// @Instance (<Type>) <Expr>
+// @Instance <Expr>

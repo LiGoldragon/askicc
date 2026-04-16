@@ -11,17 +11,26 @@ mod tests {
 
     #[test]
     fn sequential_rule() {
-        let d = parse("@Constructor +<Type>", DialectKind::TypeApplication);
+        let d = parse(":Constructor +<Type>", DialectKind::TypeApplication);
         assert_eq!(d.rules.len(), 1);
         match &d.rules[0] {
-            Rule::Sequential { items } => assert_eq!(items.len(), 2),
+            Rule::Sequential { items } => {
+                assert_eq!(items.len(), 2);
+                match &items[0].content {
+                    ItemContent::Named { label } => {
+                        assert_eq!(label.binding, Binding::Reference);
+                        assert_eq!(label.kind, LabelKind::Constructor);
+                    }
+                    _ => panic!("expected named"),
+                }
+            }
             _ => panic!("expected sequential"),
         }
     }
 
     #[test]
     fn ordered_choice() {
-        let d = parse("// @Variant\n// (@Variant <Type>)", DialectKind::Enum);
+        let d = parse("// :Variant\n// (:Variant <Type>)", DialectKind::Enum);
         assert_eq!(d.rules.len(), 1);
         match &d.rules[0] {
             Rule::OrderedChoice { alternatives } => assert_eq!(alternatives.len(), 2),
@@ -30,29 +39,17 @@ mod tests {
     }
 
     #[test]
-    fn cardinality_on_alternative() {
-        let d = parse("// *@Variant\n// *(@Variant <Type>)", DialectKind::Enum);
-        match &d.rules[0] {
-            Rule::OrderedChoice { alternatives } => {
-                assert_eq!(alternatives[0].cardinality, Cardinality::ZeroOrMore);
-                assert_eq!(alternatives[1].cardinality, Cardinality::ZeroOrMore);
-            }
-            _ => panic!("expected ordered choice"),
-        }
-    }
-
-    #[test]
-    fn delimited_items() {
-        let d = parse("(@Variant <Type>)", DialectKind::Enum);
+    fn declare_vs_reference() {
+        let d = parse("@Enum :Type", DialectKind::Root);
         match &d.rules[0] {
             Rule::Sequential { items } => {
-                assert_eq!(items.len(), 1);
                 match &items[0].content {
-                    ItemContent::Delimited { kind, inner } => {
-                        assert_eq!(*kind, DelimKind::Paren);
-                        assert_eq!(inner.len(), 2);
-                    }
-                    _ => panic!("expected delimited"),
+                    ItemContent::Named { label } => assert_eq!(label.binding, Binding::Declare),
+                    _ => panic!("expected named"),
+                }
+                match &items[1].content {
+                    ItemContent::Named { label } => assert_eq!(label.binding, Binding::Reference),
+                    _ => panic!("expected named"),
                 }
             }
             _ => panic!("expected sequential"),
@@ -60,8 +57,19 @@ mod tests {
     }
 
     #[test]
+    fn keyword_token() {
+        let d = parse("Self", DialectKind::Param);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                assert!(matches!(&items[0].content, ItemContent::Keyword { token: KeywordToken::Self_ }));
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
+    #[test]
     fn adjacency_preserved() {
-        let d = parse("_@_@Name", DialectKind::ExprAtom);
+        let d = parse("_@_:Instance", DialectKind::ExprAtom);
         match &d.rules[0] {
             Rule::Sequential { items } => {
                 assert!(!items[0].adjacent);

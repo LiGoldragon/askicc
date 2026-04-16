@@ -31,11 +31,10 @@ impl<'a> SynthParser<'a> {
             let before = self.pos;
 
             if self.peek_token() == Some(&SynthToken::Or) {
-                self.advance(); // consume //
+                self.advance();
                 let alt = self.parse_alternative()?;
                 choice_alts.push(alt);
             } else {
-                // Flush pending ordered choice
                 if !choice_alts.is_empty() {
                     rules.push(Rule::OrderedChoice {
                         alternatives: std::mem::take(&mut choice_alts),
@@ -71,15 +70,12 @@ impl<'a> SynthParser<'a> {
         let mut items = Vec::new();
 
         while !self.at_end() {
-            // Stop at ordered choice boundary at top level
             if stop_at_or && self.peek_token() == Some(&SynthToken::Or) {
                 break;
             }
-            // Stop at closing delimiters
             if matches!(self.peek_token(), Some(SynthToken::Close(_))) {
                 break;
             }
-            // Inside delimiters, // is inline-or literal
             if !stop_at_or && self.peek_token() == Some(&SynthToken::Or) {
                 let adj = self.peek_adjacent();
                 self.advance();
@@ -99,7 +95,6 @@ impl<'a> SynthParser<'a> {
     fn parse_item(&mut self) -> Result<Item, String> {
         let adjacent = self.peek_adjacent();
 
-        // Cardinality prefix wraps the next item
         if let Some(card) = self.try_cardinality() {
             let inner = self.parse_item()?;
             return Ok(Item {
@@ -111,10 +106,10 @@ impl<'a> SynthParser<'a> {
         let token = self.advance().ok_or("unexpected end of tokens")?.token.clone();
 
         let content = match token {
-            SynthToken::Declare(label) => ItemContent::Declare { label },
+            SynthToken::Label(label) => ItemContent::Named { label },
+            SynthToken::Keyword(kw) => ItemContent::Keyword { token: kw },
             SynthToken::DialectRef(kind) => ItemContent::DialectRef { target: kind },
             SynthToken::Literal(tok) => ItemContent::Literal { token: tok },
-            SynthToken::BareIdent(label) => ItemContent::Declare { label },
             SynthToken::StringLit => ItemContent::LiteralValue,
             SynthToken::Open(kind) => {
                 let inner = self.parse_items(false)?;

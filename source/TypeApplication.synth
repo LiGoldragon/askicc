@@ -4,4 +4,4 @@
 ;; Each argument recurses to Type.synth, so nested applications,
 ;; generic parameters, and simple types all compose naturally.
 
-@Constructor +<Type>
+:Constructor +<Type>

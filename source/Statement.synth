@@ -4,7 +4,7 @@
 // [|<Expr> <Body>|]
 // [|<Body>|]
 // {|<Expr> [<Body>]|}
-// (@Name <Type>)
+// (@Type <Type>)
 // _~@_<Mutation>
 // _@_<Instance>
 // <Expr>

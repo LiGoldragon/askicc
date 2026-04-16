@@ -3,8 +3,8 @@
 ;; A type parameter. Either a bare named slot ($Value) or
 ;; a bounded parameter where the bounds ARE the name ($Clone&Debug).
 
-;; bounded: $Clone&Debug, $Clone&Debug&Display
-// @Bound +(_&_ @Bound)
+;; bounded: $Clone&Debug, $Clone&Debug&Display (recursive)
+// :Bound_&_<GenericParam>
 
 ;; bare: $Value, $Output, $Failure
-// @Param
+// @Unknown

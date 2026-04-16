@@ -2,5 +2,6 @@
 ;;
 ;; @ declares a type instance. PascalCase name = the type.
 ;; Always followed by a constructor expression.
+;; Bare @Name in expression position is a reference (ExprAtom).
 
-@Name (<Expr>)
+@Name <Expr>

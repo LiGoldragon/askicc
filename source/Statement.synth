@@ -1,9 +1,9 @@
 ;; Statement.synth
 
-// _^_<Expr>
-// [<Expr> <Body>]
-// [<Body>]
-// [|<Expr> [<Body>]|]
+// ^<Expr>
+// {<Expr> <Body>}
+// {<Body>}
+// {|<Expr> [<Body>]|}
 // _~@_<Mutation>
 // _@_<Instance>
 // <Expr>

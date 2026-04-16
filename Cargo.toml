@@ -1,13 +1,17 @@
 [package]
 name = "askicc"
-version = "0.16.0"
+version = "0.17.0"
 edition = "2021"
-description = "askicc — bootstrap compiler: reads .synth grammar + askic's .aski anatomy, builds data-tree, derives enums"
+authors = ["Li Goldragon <li@goldragon.criome.net>"]
+description = "askicc — bootstrap compiler: scoped types + dialect structures"
+
+[[bin]]
+name = "askicc"
+path = "src/main.rs"
+
+[lib]
+name = "askicc"
+path = "src/lib.rs"
 
 [dependencies]
 logos = "0.14"
-rkyv = { version = "0.8", default-features = false, features = [
-    "little_endian",
-    "pointer_width_32",
-    "alloc",
-] }

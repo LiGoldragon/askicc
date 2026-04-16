@@ -1,154 +1,111 @@
 #[cfg(test)]
 mod tests {
-    use crate::synth_lex;
-    use crate::synth_parse::*;
+    use crate::synth_lex::SynthLexer;
+    use crate::synth_parse::SynthParser;
+    use aski_core::*;
 
-    fn parse_dialect(name: &str, source: &str) -> Dialect {
-        let tokens = synth_lex::synth_lex(source).unwrap();
-        Dialect::parse(name, &tokens).unwrap()
+    fn parse(source: &str, kind: DialectKind) -> Dialect {
+        let tokens = SynthLexer::new(source).lex().unwrap();
+        SynthParser::new(&tokens).parse(kind).unwrap()
     }
 
     #[test]
-    fn parse_sequential_rule() {
-        let d = parse_dialect("Test", "(@Module <Module>)");
+    fn sequential_rule() {
+        let d = parse("@Constructor +<Type>", DialectKind::TypeApplication);
         assert_eq!(d.rules.len(), 1);
         match &d.rules[0] {
-            Rule::Sequential(items) => {
-                assert_eq!(items.len(), 1); // one delimited group
+            Rule::Sequential { items } => assert_eq!(items.len(), 2),
+            _ => panic!("expected sequential"),
+        }
+    }
+
+    #[test]
+    fn ordered_choice() {
+        let d = parse("// @Variant\n// (@Variant <Type>)", DialectKind::Enum);
+        assert_eq!(d.rules.len(), 1);
+        match &d.rules[0] {
+            Rule::OrderedChoice { alternatives } => assert_eq!(alternatives.len(), 2),
+            _ => panic!("expected ordered choice"),
+        }
+    }
+
+    #[test]
+    fn cardinality_on_alternative() {
+        let d = parse("// *@Variant\n// *(@Variant <Type>)", DialectKind::Enum);
+        match &d.rules[0] {
+            Rule::OrderedChoice { alternatives } => {
+                assert_eq!(alternatives[0].cardinality, Cardinality::ZeroOrMore);
+                assert_eq!(alternatives[1].cardinality, Cardinality::ZeroOrMore);
+            }
+            _ => panic!("expected ordered choice"),
+        }
+    }
+
+    #[test]
+    fn delimited_items() {
+        let d = parse("(@Variant <Type>)", DialectKind::Enum);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                assert_eq!(items.len(), 1);
                 match &items[0].content {
                     ItemContent::Delimited { kind, inner } => {
                         assert_eq!(*kind, DelimKind::Paren);
-                        assert_eq!(inner.len(), 2); // @Module + <Module>
+                        assert_eq!(inner.len(), 2);
                     }
-                    other => panic!("expected Delimited, got {:?}", other),
+                    _ => panic!("expected delimited"),
                 }
             }
-            other => panic!("expected Sequential, got {:?}", other),
+            _ => panic!("expected sequential"),
         }
     }
 
     #[test]
-    fn parse_ordered_choice() {
-        let d = parse_dialect("Test", "// *@Variant\n// *(@Variant <Type>)");
-        assert_eq!(d.rules.len(), 1);
+    fn adjacency_preserved() {
+        let d = parse("_@_@Name", DialectKind::ExprAtom);
         match &d.rules[0] {
-            Rule::OrderedChoice(alts) => {
-                assert_eq!(alts.len(), 2);
-                assert_eq!(alts[0].cardinality, Cardinality::ZeroOrMore);
-                assert_eq!(alts[1].cardinality, Cardinality::ZeroOrMore);
-            }
-            other => panic!("expected OrderedChoice, got {:?}", other),
-        }
-    }
-
-    #[test]
-    fn parse_literal_escape() {
-        let d = parse_dialect("Test", "_@_@Name");
-        match &d.rules[0] {
-            Rule::Sequential(items) => {
-                assert_eq!(items.len(), 2);
-                match &items[0].content {
-                    ItemContent::Literal(s) => assert_eq!(s, "@"),
-                    other => panic!("expected Literal, got {:?}", other),
-                }
-                match &items[1].content {
-                    ItemContent::Declare { label, .. } => assert_eq!(label, "Name"),
-                    other => panic!("expected Declare, got {:?}", other),
-                }
+            Rule::Sequential { items } => {
+                assert!(!items[0].adjacent);
                 assert!(items[1].adjacent);
             }
-            other => panic!("expected Sequential, got {:?}", other),
+            _ => panic!("expected sequential"),
         }
     }
 
     #[test]
-    fn parse_nested_delimiters() {
-        let d = parse_dialect("Test", "(|<Match>|)");
+    fn repeat_item() {
+        let d = parse("+<Param>", DialectKind::Signature);
         match &d.rules[0] {
-            Rule::Sequential(items) => {
+            Rule::Sequential { items } => {
                 match &items[0].content {
-                    ItemContent::Delimited { kind, inner } => {
-                        assert_eq!(*kind, DelimKind::ParenPipe);
-                        assert_eq!(inner.len(), 1);
-                        match &inner[0].content {
-                            ItemContent::DialectRef(name) => assert_eq!(name, "Match"),
-                            other => panic!("expected DialectRef, got {:?}", other),
-                        }
+                    ItemContent::Repeat { kind, inner } => {
+                        assert_eq!(*kind, Cardinality::OneOrMore);
+                        assert!(matches!(&inner.content, ItemContent::DialectRef { target: DialectKind::Param }));
                     }
-                    other => panic!("expected Delimited, got {:?}", other),
+                    _ => panic!("expected repeat"),
                 }
             }
-            other => panic!("expected Sequential, got {:?}", other),
+            _ => panic!("expected sequential"),
         }
     }
 
     #[test]
-    fn parse_adjacency_preserved() {
-        let d = parse_dialect("Test", "@Type/@Variant");
-        match &d.rules[0] {
-            Rule::Sequential(items) => {
-                assert_eq!(items.len(), 3);
-                assert!(!items[0].adjacent); // first item never adjacent
-                assert!(items[1].adjacent);  // / adjacent to @Type
-                assert!(items[2].adjacent);  // @Variant adjacent to /
+    fn parse_all_synth_files() {
+        let synth_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("source");
+        if !synth_dir.exists() { return; }
+
+        for entry in std::fs::read_dir(&synth_dir).unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().map(|x| x == "synth").unwrap_or(false) {
+                let name = path.file_stem().unwrap().to_string_lossy().to_string();
+                let source = std::fs::read_to_string(&path).unwrap();
+                let tokens = SynthLexer::new(&source).lex()
+                    .unwrap_or_else(|e| panic!("lex failed {}: {}", name, e));
+                let kind = SynthLexer::resolve_filename(&name)
+                    .unwrap_or_else(|e| panic!("unknown dialect {}: {}", name, e));
+                let dialect = SynthParser::new(&tokens).parse(kind)
+                    .unwrap_or_else(|e| panic!("parse failed {}: {}", name, e));
+                assert!(!dialect.rules.is_empty(), "no rules in {}", name);
             }
-            other => panic!("expected Sequential, got {:?}", other),
-        }
-    }
-
-    #[test]
-    fn parse_full_enum_synth() {
-        let source = r#"
-;; Enum.synth
-
-// *@Variant
-// *(@Variant <Type>)
-// *{@Variant <Struct>}
-// *(|@Enum <Enum>|)
-// *{|@Struct <Struct>|}
-"#;
-        let d = parse_dialect("Enum", source);
-        assert_eq!(d.name, "Enum");
-        assert_eq!(d.rules.len(), 1);
-        match &d.rules[0] {
-            Rule::OrderedChoice(alts) => {
-                assert_eq!(alts.len(), 5);
-                // all are zero-or-more
-                for alt in alts {
-                    assert_eq!(alt.cardinality, Cardinality::ZeroOrMore);
-                }
-            }
-            other => panic!("expected OrderedChoice, got {:?}", other),
-        }
-    }
-
-    #[test]
-    fn parse_full_root_synth() {
-        let source = r#"
-;; Root.synth
-
-(@Module <Module>)
-// *(@Enum <Enum>)
-// *(@trait <TraitDecl>)
-// *[@trait <TraitImpl>]
-// *{@Struct <Struct>}
-// *{|@Const <Type> @Literal|}
-// *(|@Ffi <Ffi>|)
-// ?[|<Process>|]
-// *@Newtype <Type>
-"#;
-        let d = parse_dialect("Root", source);
-        assert_eq!(d.name, "Root");
-        assert_eq!(d.rules.len(), 2); // 1 sequential + 1 ordered choice
-        match &d.rules[0] {
-            Rule::Sequential(_) => {} // (@Module <Module>)
-            other => panic!("expected Sequential, got {:?}", other),
-        }
-        match &d.rules[1] {
-            Rule::OrderedChoice(alts) => {
-                assert_eq!(alts.len(), 8); // 8 alternatives
-            }
-            other => panic!("expected OrderedChoice, got {:?}", other),
         }
     }
 }

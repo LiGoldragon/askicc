@@ -1,6 +1,9 @@
-pub mod lexer;
-#[cfg(test)]
-mod lexer_tests;
+/// askicc — bootstrap compiler.
+///
+/// Reads .synth dialect files → populates aski-core domain-data-tree
+/// → serializes as rkyv.
+
+pub mod synth_token;
 pub mod synth_lex;
 #[cfg(test)]
 mod synth_lex_tests;

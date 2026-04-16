@@ -3,7 +3,7 @@ name = "askicc"
 version = "0.17.0"
 edition = "2021"
 authors = ["Li Goldragon <li@goldragon.criome.net>"]
-description = "askicc — bootstrap compiler: scoped types + dialect structures"
+description = "askicc — bootstrap compiler: .synth → rkyv dialect-data-tree"
 
 [[bin]]
 name = "askicc"
@@ -14,4 +14,8 @@ name = "askicc"
 path = "src/lib.rs"
 
 [dependencies]
-logos = "0.14"
+aski-core = { path = "flake-crates/aski-core" }
+rkyv = { version = "0.8", default-features = false, features = [
+    "little_endian",
+    "alloc",
+] }

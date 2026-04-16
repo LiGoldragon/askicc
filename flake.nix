@@ -59,12 +59,9 @@
         dialect-data = pkgs.runCommand "dialect-data" {
           nativeBuildInputs = [ askicc ];
         } ''
-          mkdir -p source aski generated
+          mkdir -p source
           cp ${./source}/*.synth source/
-          cp ${./aski}/*.aski aski/
-          askicc
-          mkdir -p $out
-          cp generated/* $out/
+          askicc source $out/dialects.rkyv
         '';
 
         # Pure .synth dialect files

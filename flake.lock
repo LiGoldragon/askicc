@@ -1,18 +1,65 @@
 {
   "nodes": {
-    "aski-rs-src": {
-      "flake": false,
+    "aski-core": {
+      "inputs": {
+        "corec": "corec",
+        "crane": [
+          "crane"
+        ],
+        "fenix": [
+          "fenix"
+        ],
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
       "locked": {
-        "lastModified": 1775923511,
-        "narHash": "sha256-m7vtohDnbTP1q+iMqj2aWJsIVAXk9/t+JHvyLB50ZAo=",
+        "lastModified": 1776367047,
+        "narHash": "sha256-yvQyKzFKYfnv+JAfO4c80mnXhocjJtoX+uIZSXUBMBA=",
         "owner": "LiGoldragon",
-        "repo": "aski-rs",
-        "rev": "fb1a9d55850211df128aef8e5606e4b64f2409af",
+        "repo": "aski-core",
+        "rev": "01c9e1e13711c1c1a801fcb87757e80db0f17022",
         "type": "github"
       },
       "original": {
         "owner": "LiGoldragon",
-        "repo": "aski-rs",
+        "repo": "aski-core",
+        "type": "github"
+      }
+    },
+    "corec": {
+      "inputs": {
+        "crane": [
+          "aski-core",
+          "crane"
+        ],
+        "fenix": [
+          "aski-core",
+          "fenix"
+        ],
+        "flake-utils": [
+          "aski-core",
+          "flake-utils"
+        ],
+        "nixpkgs": [
+          "aski-core",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1776364909,
+        "narHash": "sha256-hkt0FkYJT4DGBoxhLMnLOMt2hxeIQAXuBErMSRAiSaw=",
+        "owner": "LiGoldragon",
+        "repo": "corec",
+        "rev": "48eeeda47593b2a8e7215b3a9d0da95230ebe1b0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LiGoldragon",
+        "repo": "corec",
         "type": "github"
       }
     },
@@ -52,6 +99,24 @@
         "type": "github"
       }
     },
+    "flake-utils": {
+      "inputs": {
+        "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1775126147,
@@ -70,9 +135,10 @@
     },
     "root": {
       "inputs": {
-        "aski-rs-src": "aski-rs-src",
+        "aski-core": "aski-core",
         "crane": "crane",
         "fenix": "fenix",
+        "flake-utils": "flake-utils",
         "nixpkgs": "nixpkgs"
       }
     },
@@ -90,6 +156,21 @@
         "owner": "rust-lang",
         "ref": "nightly",
         "repo": "rust-analyzer",
+        "type": "github"
+      }
+    },
+    "systems": {
+      "locked": {
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default",
         "type": "github"
       }
     }

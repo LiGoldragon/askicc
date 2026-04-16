@@ -1,7 +1,7 @@
 ;; Loop.synth — inside [|...|] in body context
-;;
-;; Conditional: [| condition statements |]
-;; Infinite: [| statements |]
 
+;; conditional: [| Condition Body |]
 // <Expr> +<Statement>
+
+;; infinite: [| Body |]
 // +<Statement>

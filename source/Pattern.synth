@@ -1,5 +1,13 @@
 ;; Pattern.synth — inside match arm (...)
 
+;; variant with binding: (Ident @Name)
 // @Variant _@_@Binding
+
+;; or-pattern: (Fire | Air)
+// @Variant +(| @Variant)
+
+;; bare variant: (Fire)
 // @Variant
+
+;; string literal: ("(")
 // "literal"

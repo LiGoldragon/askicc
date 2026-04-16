@@ -1,38 +1,50 @@
-# askicc — Bootstrap Compiler
+# askicc — Bootstrap Compiler (crate)
 
-The bootstrap compiler of the sema engine. Reads .synth grammar files
-+ aski-core .aski definitions (the language anatomy) to build a
-data-tree with derived enums.
+askicc is a Rust crate built into askic (the aski frontend).
+It does the heavy lifting at build time so askic is elegant
+at runtime.
 
-Built **once** — its binary output is what askic uses. Not re-run
-per compilation.
+Sema is the thing. Aski is one text notation. askic is the
+frontend that produces .sema. askicc is the layer inside
+askic that prepares its type system and grammar.
 
-## What askicc Does
+## What askicc Does (at build time)
 
-1. Reads the 28 PascalCase .synth dialect files in `source/`
-   (filenames = DialectKind variant names)
-2. Reads the aski-core .aski definitions (from the aski-core repo)
-3. Produces a data-tree: every construct, name, relationship
+1. Reads .synth dialect files → structured grammar data
+2. Reads askic's .aski source → scoped Rust types
+
+Both outputs are compiled into the askic binary. At runtime
+askic has no files to read except user programs.
+
+## Enum-as-Index Architecture
+
+Generated Rust types mirror aski structure exactly:
+- Enum → Rust enum (lookup: which variant?)
+- Struct → Rust struct (composite: all fields)
+- Module → Rust struct (has enums AND structs AND traits)
+
+Enums are static indexes. O(1) pattern matching. Exhaustive.
+Zero strings. The enum IS the hashmap.
 
 ## What askicc Contains
 
-- `source/` — 28 PascalCase .synth dialect files (the grammar)
-- `src/synth/loader.rs` — hardcoded .synth parser
-- `src/synth/types.rs` — Dialect, Rule, Item, Card, Delimiter
-- `src/lexer.rs` — Logos tokenizer (42 token variants)
-- `src/engine/tokens.rs` — TokenReader
-- `v016_attempt/` — previous attempt with hand-written enums (WRONG)
-- `v015_reference/` — old kernel.aski + generated Rust
+- `source/` — .synth dialect files (v0.17: Enum.synth,
+  Type.synth, TypeApplication.synth, GenericParam.synth, etc.)
+- `src/lexer.rs` — Logos tokenizer (v0.17 tokens)
+- `src/lexer_tests.rs` — tests for v0.17 syntax
+- `v016_attempt/` — discarded old code (see TERMINOLOGY.md)
 
-## The Sema Engine
+## The Layers
 
 ```
-aski-core  →  askicc  →  askic  →  semac
-(anatomy)    (bootstrap)  (compiler)  (sema gen)
+cc      (aski-core crate)  — .aski → Rust types
+askicc  (this crate)       — uses cc + .synth → scoped types + dialects
+askic   (askic crate)      — uses askicc → parser, data-tree, .sema
 ```
 
-Bootstrap = Rust. Self-hosted = all Rust rewritten in aski.
+askic depends on askicc depends on cc. One binary.
 
 ## VCS
 
 Jujutsu (`jj`) mandatory. Git is storage backend only.
+Tests in separate files. Domain = any data def (enum + struct + newtype).

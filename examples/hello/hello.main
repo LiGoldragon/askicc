@@ -1,8 +1,8 @@
-[Elements Element Quality describe]
-[Math Addition compute]
+;; hello — entry point uses [| |] process block in a module
 
-@MyElement Element/Fire
-@Sum Addition/new(3 7)
+(Hello Element Quality describe)
 
-StdOut @MyElement.describe
-StdOut @Sum.add
+[|
+  @MyElement Element/Fire
+  StdOut @MyElement.describe
+|]

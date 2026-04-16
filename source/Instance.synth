@@ -1,7 +1,8 @@
 ;; Instance.synth — after _@_ in statement
 ;;
 ;; @ declares a type instance. PascalCase name = the type.
-;; Always followed by a constructor expression.
+;; Optional (Type) annotation before the expression.
 ;; Bare @Name in expression position is a reference (ExprAtom).
 
-@Name <Expr>
+// @Name (<Type>) <Expr>
+// @Name <Expr>

@@ -1,0 +1,6 @@
+;; StructConstruct.synth — struct construction in body context
+;;
+;; Same shape as Struct definition but with values instead of types.
+;; {Point (Horizontal 3.0) (Vertical 4.0)}
+
+@Struct +(@Field <Expr>)

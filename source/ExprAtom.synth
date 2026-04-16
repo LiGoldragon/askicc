@@ -3,7 +3,7 @@
 // _@_@Name
 // @Variant
 // @Type/@Variant
-// @Type/@method(<Expr>)
+// @Type/@method(+<Expr>)
 // @Literal
 // [<Body>]
 // (|<Match>|)

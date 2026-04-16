@@ -3,6 +3,6 @@
 ;; Recurses to handle chains: @Self.Left.Value.method(X)?
 
 // <ExprPostfix>.@Field
-// <ExprPostfix>.@method(<Expr>)
+// <ExprPostfix>.@method(+<Expr>)
 // <ExprPostfix>_?_
 // <ExprAtom>

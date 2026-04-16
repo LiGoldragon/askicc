@@ -1,5 +1,6 @@
 ;; Struct.synth — inside {Struct ...}
 ;;
+;; The {} form of domain. All-of.
 ;; Fields: self-typed (bare) or explicitly typed with ().
 ;; Type application via []. Recursive nesting via piped delimiters.
 
@@ -9,8 +10,8 @@
 ;; self-typed field: Name, Status (field name IS the type)
 // *@Field
 
-;; nested domain definition: (| Status Active Inactive Done |)
-// *(|@Domain <Domain>|)
+;; nested enum: (| Status Active Inactive Done |)
+// *(|@Enum <Enum>|)
 
-;; nested struct definition: {| Config (Timeout U32) |}
+;; nested struct: {| Config (Timeout U32) |}
 // *{|@Struct <Struct>|}

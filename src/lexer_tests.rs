@@ -3,7 +3,7 @@ mod tests {
     use crate::lexer::*;
 
     #[test]
-    fn lex_domain_declaration() {
+    fn lex_enum_declaration() {
         let source = "(Element Fire Earth Air Water)";
         let tokens = lex(source).unwrap();
         let kinds: Vec<_> = tokens.iter().map(|t| &t.token).collect();

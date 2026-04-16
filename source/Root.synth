@@ -1,11 +1,11 @@
 ;; Root.synth — root dialect
 ;;
 ;; First () is the module (required, order-derived).
+;; Three domain forms: () enum, {} struct, bare newtype.
 ;; Remaining constructs are delimiter + casing driven.
-;; Newtypes are undelimited: PascalCase followed by Type.
 
 (@Module <Module>)
-// *(@Domain <Domain>)
+// *(@Enum <Enum>)
 // *(@trait <TraitDecl>)
 // *[@trait <TraitImpl>]
 // *{@Struct <Struct>}

@@ -1,10 +1,11 @@
 ;; Pattern.synth — inside match arm (...)
+;;
+;; Or-patterns use | between variants in source: (Fire | Air).
+;; The match arm handles the | separation at the Match level,
+;; not inside Pattern.
 
 ;; variant with binding: (Ident @Name)
 // @Variant _@_@Binding
-
-;; or-pattern: (Fire | Air)
-// @Variant +(| @Variant)
 
 ;; bare variant: (Fire)
 // @Variant

@@ -1,4 +1,0 @@
-;; Main.synth — .main files
-
-*[:Module +:import//:Import]
-+<Statement>

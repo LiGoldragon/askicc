@@ -82,8 +82,18 @@ pub fn synth_lex(source: &str) -> Result<Vec<SynthSpanned>, String> {
                 SynthToken::Or
             }
 
-            // dialect ref <name>
-            b'<' => {
+            // <= and >= operators (must check before < dialect ref)
+            b'<' if pos + 1 < bytes.len() && bytes[pos + 1] == b'=' => {
+                pos += 2;
+                SynthToken::Ident("<=".into())
+            }
+            b'>' if pos + 1 < bytes.len() && bytes[pos + 1] == b'=' => {
+                pos += 2;
+                SynthToken::Ident(">=".into())
+            }
+
+            // dialect ref <Name> — only if followed by an identifier char
+            b'<' if pos + 1 < bytes.len() && bytes[pos + 1].is_ascii_alphabetic() => {
                 pos += 1;
                 let name_start = pos;
                 while pos < bytes.len() && bytes[pos] != b'>' {
@@ -173,10 +183,13 @@ pub fn synth_lex(source: &str) -> Result<Vec<SynthSpanned>, String> {
                 SynthToken::Ident(name)
             }
 
+            // bare < and > as operators (not dialect refs)
+            b'<' => { pos += 1; SynthToken::Ident("<".into()) }
+            b'>' => { pos += 1; SynthToken::Ident(">".into()) }
+
             // bare operators (not synth-conflicting)
             _ if b.is_ascii_graphic() => {
                 let op_start = pos;
-                // read multi-char operators
                 while pos < bytes.len()
                     && bytes[pos].is_ascii_graphic()
                     && !b" \t\n\r()[]{}@<>_\"".contains(&bytes[pos])
@@ -186,6 +199,9 @@ pub fn synth_lex(source: &str) -> Result<Vec<SynthSpanned>, String> {
                     pos += 1;
                 }
                 let op = String::from_utf8_lossy(&bytes[op_start..pos]).to_string();
+                if op.is_empty() {
+                    return Err(format!("empty operator at position {}", pos));
+                }
                 SynthToken::Ident(op)
             }
 

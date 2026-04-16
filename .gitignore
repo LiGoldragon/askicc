@@ -1,6 +1,9 @@
 # Rust
 /target
 
+# Generated output
+/generated
+
 # Nix
 .direnv/
 result

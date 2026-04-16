@@ -99,4 +99,27 @@ mod tests {
         // should parse without errors
         assert!(tokens.len() > 20);
     }
+
+    #[test]
+    fn lex_expr_compare_synth() {
+        let source = std::fs::read_to_string("source/ExprCompare.synth").unwrap();
+        let tokens = synth_lex(&source).unwrap();
+        eprintln!("ExprCompare tokens: {}", tokens.len());
+        for t in &tokens {
+            eprintln!("  {:?} adj={}", t.token, t.adjacent);
+        }
+        assert!(tokens.len() > 0);
+    }
+
+    #[test]
+    fn lex_all_synth_files() {
+        for entry in std::fs::read_dir("source").unwrap() {
+            let path = entry.unwrap().path();
+            if path.extension().map(|e| e == "synth").unwrap_or(false) {
+                let source = std::fs::read_to_string(&path).unwrap();
+                let result = synth_lex(&source);
+                assert!(result.is_ok(), "failed to lex {}: {:?}", path.display(), result.err());
+            }
+        }
+    }
 }

@@ -82,6 +82,7 @@ impl<'a> SynthParser<'a> {
         let mut choice_alts: Vec<Alternative> = Vec::new();
 
         while !self.at_end() {
+            let before = self.pos;
             if self.peek().map(|t| &t.token) == Some(&SynthToken::Or) {
                 self.advance(); // consume //
                 let (items, cardinality) = self.parse_alternative()?;
@@ -95,6 +96,10 @@ impl<'a> SynthParser<'a> {
                 if !items.is_empty() {
                     rules.push(Rule::Sequential(items));
                 }
+            }
+            if self.pos <= before {
+                return Err(format!("synth parser stuck at position {}, token: {:?}",
+                    self.pos, self.peek().map(|t| &t.token)));
             }
         }
 
@@ -121,11 +126,15 @@ impl<'a> SynthParser<'a> {
     }
 
     fn parse_item_sequence(&mut self) -> Result<Vec<Item>, String> {
+        self.parse_item_sequence_inner(true)
+    }
+
+    fn parse_item_sequence_inner(&mut self, stop_at_or: bool) -> Result<Vec<Item>, String> {
         let mut items = Vec::new();
 
         while !self.at_end() {
-            // stop at // (next ordered choice alternative) or end
-            if self.peek().map(|t| &t.token) == Some(&SynthToken::Or) {
+            // at rule level, stop at // (next ordered choice alternative)
+            if stop_at_or && self.peek().map(|t| &t.token) == Some(&SynthToken::Or) {
                 break;
             }
             // stop at closing delimiters
@@ -135,6 +144,16 @@ impl<'a> SynthParser<'a> {
                     break;
                 }
                 _ => {}
+            }
+
+            // inside delimiters, // is inline or — treat as a literal
+            if !stop_at_or && self.peek().map(|t| &t.token) == Some(&SynthToken::Or) {
+                let spanned = self.advance().unwrap();
+                items.push(Item {
+                    content: ItemContent::Literal("//".into()),
+                    adjacent: spanned.adjacent,
+                });
+                continue;
             }
 
             let item = self.parse_item()?;
@@ -199,7 +218,7 @@ impl<'a> SynthParser<'a> {
     }
 
     fn parse_delimited(&mut self, kind: DelimKind, close: &SynthToken) -> Result<ItemContent, String> {
-        let inner = self.parse_item_sequence()?;
+        let inner = self.parse_item_sequence_inner(false)?;
         if self.peek().map(|t| &t.token) == Some(close) {
             self.advance();
         } else {

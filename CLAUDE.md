@@ -1,48 +1,58 @@
-# askicc — Bootstrap Compiler (crate)
+# askicc — Bootstrap Compiler
 
-askicc is a Rust crate built into askic (the aski frontend).
-It does the heavy lifting at build time so askic is elegant
-at runtime.
+askicc is a binary that reads .synth dialect files, populates
+a domain-data-tree of aski-core types, and serializes it as
+rkyv. askic reads this rkyv data to know how to parse using
+a dialect-based state machine.
 
-Sema is the thing. Aski is one text notation. askic is the
-frontend that produces .sema. askicc is the layer inside
-askic that prepares its type system and grammar.
+## What askicc Does
 
-## What askicc Does (at build time)
+Reads .synth dialect files → populates a domain-data-tree →
+serializes as rkyv.
 
-1. Reads .synth dialect files → structured grammar data
-2. Reads askic's .aski source → scoped Rust types
+**askicc does NOT generate Rust code.** Only cc and semac
+generate Rust. askicc produces rkyv-serialized data that gets
+embedded in the askic binary at build time. The domain-data-
+tree IS the state machine that drives askic's parser.
 
-Both outputs are compiled into the askic binary. At runtime
-askic has no files to read except user programs.
+## Shared Types from aski-core
 
-## Enum-as-Index Architecture
+askicc depends on cc's generated Rust types (from aski-core).
+These types have rkyv derives so askicc can serialize them.
+askic depends on the same types to deserialize.
 
-Generated Rust types mirror aski structure exactly:
-- Enum → Rust enum (lookup: which variant?)
-- Struct → Rust struct (composite: all fields)
-- Module → Rust struct (has enums AND structs AND traits)
+aski-core is the rkyv contract — it defines every type that
+appears in the message between askicc and askic.
 
-Enums are static indexes. O(1) pattern matching. Exhaustive.
-Zero strings. The enum IS the hashmap.
+askicc populates instances of these types by reading .synth
+files. The populated tree captures all grammar knowledge that
+askic needs: what tokens to match, in what order, with what
+adjacency, using what delimiters, with what cardinality.
+
+## The Pipeline
+
+```
+cc       — .aski → Rust types (bootstrap seed)
+askicc   — .synth → rkyv domain-data-tree (this binary)
+askic    — reads rkyv data-tree → dialect state machine → rkyv parse tree
+semac    — reads rkyv → produces sema + Rust
+```
+
+Four separate binaries. They communicate through files.
 
 ## What askicc Contains
 
-- `source/` — .synth dialect files (v0.17: Enum.synth,
-  Type.synth, TypeApplication.synth, GenericParam.synth, etc.)
-- `src/lexer.rs` — Logos tokenizer (v0.17 tokens)
-- `src/lexer_tests.rs` — tests for v0.17 syntax
-- `v016_attempt/` — discarded old code (see TERMINOLOGY.md)
+- `source/` — .synth dialect files (31 files, v0.17)
+- `aski/` — .aski domain definition files (8 files)
+- `src/synth_lex.rs` — synth tokenizer
+- `src/synth_parse.rs` — .synth → Dialect domain instances
+- `src/aski_parse.rs` — .aski → domain definitions
 
-## The Layers
+## Rust Style
 
-```
-cc      (aski-core crate)  — .aski → Rust types
-askicc  (this crate)       — uses cc + .synth → scoped types + dialects
-askic   (askic crate)      — uses askicc → parser, data-tree, .sema
-```
-
-askic depends on askicc depends on cc. One binary.
+**No free functions — methods on types always.** All Rust
+will eventually be rewritten in aski, which uses methods
+(traits + impls). `main` is the only exception.
 
 ## VCS
 

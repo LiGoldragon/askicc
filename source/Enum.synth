@@ -14,7 +14,7 @@
 // *{@Variant <Struct>}
 
 ;; nested enum: (| InnerEnum A B C |)
-// *(|@Enum <Enum>|)
+// *(| @Enum <Enum> |)
 
 ;; nested struct: {| InnerStruct (Field Type) |}
-// *{|@Struct <Struct>|}
+// *{| @Struct <Struct> |}

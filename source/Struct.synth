@@ -11,7 +11,7 @@
 // *@Field
 
 ;; nested enum: (| Status Active Inactive Done |)
-// *(|@Enum <Enum>|)
+// *(| @Enum <Enum> |)
 
 ;; nested struct: {| Config (Timeout U32) |}
-// *{|@Struct <Struct>|}
+// *{| @Struct <Struct> |}

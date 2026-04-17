@@ -6,7 +6,7 @@
 +<Param>
 ?<Type>
 // [<Body>]
-// (|<Match>|)
-// [|<Loop>|]
-// {|<Expr> [<Body>]|}
+// (| <Match> |)
+// [| <Loop> |]
+// {| <Expr> [<Body>] |}
 // {<StructConstruct>}

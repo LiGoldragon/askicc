@@ -6,7 +6,7 @@
 // :Type/:method(+<Expr>)
 // :Literal
 // [<Body>]
-// (|<Match>|)
-// [|<Loop>|]
-// {|<Expr> [<Body>]|}
+// (| <Match> |)
+// [| <Loop> |]
+// {| <Expr> [<Body>] |}
 // {<StructConstruct>}

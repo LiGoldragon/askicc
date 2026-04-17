@@ -60,7 +60,14 @@ impl<'a> SynthParser<'a> {
 
     fn parse_alternative(&mut self) -> Result<Alternative, String> {
         let cardinality = self.try_cardinality().unwrap_or(Cardinality::One);
-        let items = self.parse_items(true)?;
+        let mut items = self.parse_items(true)?;
+        // If cardinality was consumed (*+?), the first item's adjacency
+        // is relative to the synth marker, not to a source token. Clear it.
+        if cardinality != Cardinality::One {
+            if let Some(first) = items.first_mut() {
+                first.adjacent = false;
+            }
+        }
         Ok(Alternative { items, cardinality })
     }
 
@@ -96,7 +103,11 @@ impl<'a> SynthParser<'a> {
         let adjacent = self.peek_adjacent();
 
         if let Some(card) = self.try_cardinality() {
-            let inner = self.parse_item()?;
+            let mut inner = self.parse_item()?;
+            // Clear inner adjacency — the cardinality marker (*+?) is a synth
+            // construct, not a source token. The inner item's adjacency relative
+            // to the marker is meaningless for source parsing.
+            inner.adjacent = false;
             return Ok(Item {
                 content: ItemContent::Repeat { kind: card, inner: Box::new(inner) },
                 adjacent,

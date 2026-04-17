@@ -237,7 +237,7 @@ impl<'a> SynthLexer<'a> {
             "Method" | "method" => Ok(LabelKind::Method),
             "ForeignFunction" | "foreignFunction" => Ok(LabelKind::ForeignFunction),
             "Signature" | "signature" => Ok(LabelKind::Signature),
-            "Unknown" | "unknown" => Ok(LabelKind::Unknown),
+            "Role" | "role" => Ok(LabelKind::Role),
             "ObjectExport" | "objectExport" => Ok(LabelKind::ObjectExport),
             "ActionExport" | "actionExport" => Ok(LabelKind::ActionExport),
             "ObjectImport" | "objectImport" => Ok(LabelKind::ObjectImport),

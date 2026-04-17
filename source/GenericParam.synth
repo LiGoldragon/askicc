@@ -1,10 +1,16 @@
 ;; GenericParam.synth — after $ sigil
 ;;
-;; A type parameter. Either a bare named slot ($Value) or
-;; a bounded parameter where the bounds ARE the name ($Clone&Debug).
+;; Thematic typing: type parameters carry semantic roles.
+;; $Value = "this slot holds a value" (container role)
+;; $Output = "this slot produces something" (computation role)
+;; $Failure = "what goes wrong" (computation role)
+;; $Clone&Debug = bounds ARE the identity (bounded role)
+;;
+;; The name after $ is the thematic role — not a placeholder
+;; letter, but a declaration of PURPOSE.
 
 ;; bounded: $Clone&Debug, $Clone&Debug&Display (recursive)
 // :Bound_&_<GenericParam>
 
-;; bare: $Value, $Output, $Failure
-// @Unknown
+;; bare thematic role: $Value, $Output, $Failure
+// @Role

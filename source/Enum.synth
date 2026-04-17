@@ -1,20 +1,10 @@
 ;; Enum.synth — inside (Enum ...)
 ;;
 ;; The () form of domain. One-of.
-;; Variants: bare, data-carrying, struct-form, with type application.
-;; Recursive nesting via piped delimiters.
+;; Each label names the output variant directly.
 
-;; bare variant
-// *@Variant
-
-;; data-carrying variant: (Variant Type), (Variant [Vec Type]), (Variant $Param)
-// *(@Variant <Type>)
-
-;; struct-form variant: {Variant (Field Type) ...}
-// *{@Variant <Struct>}
-
-;; nested enum: (| InnerEnum A B C |)
-// *(| @Enum <Enum> |)
-
-;; nested struct: {| InnerStruct (Field Type) |}
-// *{| @Struct <Struct> |}
+// *@BareVariant
+// *(@DataVariant <Type>)
+// *{@StructVariant <Struct>}
+// *(| @NestedEnum <Enum> |)
+// *{| @NestedStruct <Struct> |}

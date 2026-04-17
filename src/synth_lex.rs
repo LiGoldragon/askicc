@@ -242,6 +242,13 @@ impl<'a> SynthLexer<'a> {
             "ActionExport" | "actionExport" => Ok(LabelKind::ActionExport),
             "ObjectImport" | "objectImport" => Ok(LabelKind::ObjectImport),
             "ActionImport" | "actionImport" => Ok(LabelKind::ActionImport),
+            "BareVariant" | "bareVariant" => Ok(LabelKind::BareVariant),
+            "DataVariant" | "dataVariant" => Ok(LabelKind::DataVariant),
+            "StructVariant" | "structVariant" => Ok(LabelKind::StructVariant),
+            "NestedEnum" | "nestedEnum" => Ok(LabelKind::NestedEnum),
+            "NestedStruct" | "nestedStruct" => Ok(LabelKind::NestedStruct),
+            "TypedField" | "typedField" => Ok(LabelKind::TypedField),
+            "SelfTypedField" | "selfTypedField" => Ok(LabelKind::SelfTypedField),
             other => Err(format!("unknown label: {}", other)),
         }
     }

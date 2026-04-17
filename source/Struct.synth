@@ -1,17 +1,9 @@
 ;; Struct.synth — inside {Struct ...}
 ;;
 ;; The {} form of domain. All-of.
-;; Fields: self-typed (bare) or explicitly typed with ().
-;; Type application via []. Recursive nesting via piped delimiters.
+;; Each label names the output variant directly.
 
-;; typed field: (Items [Vec Item]), (Count U32)
-// *(@Field <Type>)
-
-;; self-typed field: Name, Status (field name IS the type)
-// *@Field
-
-;; nested enum: (| Status Active Inactive Done |)
-// *(| @Enum <Enum> |)
-
-;; nested struct: {| Config (Timeout U32) |}
-// *{| @Struct <Struct> |}
+// *(@TypedField <Type>)
+// *@SelfTypedField
+// *(| @NestedEnum <Enum> |)
+// *{| @NestedStruct <Struct> |}

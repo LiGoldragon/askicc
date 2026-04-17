@@ -7,7 +7,7 @@
 use std::fs;
 use std::path::Path;
 
-use aski_core::{DialectTree, Dialect};
+use synth_core::{DialectTree, Dialect};
 use askicc::synth_lex::SynthLexer;
 use askicc::synth_parse::SynthParser;
 

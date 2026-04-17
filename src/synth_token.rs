@@ -1,6 +1,6 @@
 /// Synth token types — resolved to aski-core typed enums at lex time.
 
-use aski_core::{Label, LabelKind, Binding, Casing, DialectKind, LiteralToken, KeywordToken, DelimKind};
+use synth_core::{Label, LabelKind, Binding, Casing, DialectKind, LiteralToken, KeywordToken, DelimKind};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum SynthToken {

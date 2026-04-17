@@ -2,7 +2,7 @@
 mod tests {
     use crate::synth_lex::SynthLexer;
     use crate::synth_token::SynthToken;
-    use aski_core::*;
+    use synth_core::*;
 
     #[test]
     fn lex_declare() {

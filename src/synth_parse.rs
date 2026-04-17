@@ -3,7 +3,7 @@
 /// All methods on SynthParser struct. Produces aski-core types
 /// directly — no intermediate representation.
 
-use aski_core::*;
+use synth_core::*;
 use crate::synth_token::{SynthToken, SynthSpanned};
 
 pub struct SynthParser<'a> {

@@ -4,7 +4,7 @@
 /// Space between tokens → adjacent=false. No space → adjacent=true.
 /// @ prefix → Declare. : prefix → Reference.
 
-use aski_core::{Label, LabelKind, Binding, Casing, DialectKind, LiteralToken, KeywordToken, DelimKind};
+use synth_core::{Label, LabelKind, Binding, Casing, DialectKind, LiteralToken, KeywordToken, DelimKind};
 use crate::synth_token::{SynthToken, SynthSpanned};
 
 pub struct SynthLexer<'a> {

@@ -2,7 +2,7 @@
 mod tests {
     use crate::synth_lex::SynthLexer;
     use crate::synth_parse::SynthParser;
-    use aski_core::*;
+    use synth_core::*;
 
     fn parse(source: &str, kind: DialectKind) -> Dialect {
         let tokens = SynthLexer::new(source).lex().unwrap();

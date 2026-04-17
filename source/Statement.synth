@@ -3,7 +3,7 @@
 // ^<Expr>
 // [| <Expr> <Body> |]
 // [| <Body> |]
-// {| <Expr> [<Body>] |}
+// {| <IterationSource> [<Body>] |}
 // (@Type <Type>)
 // _~@_<Mutation>
 // _@_<Instance>

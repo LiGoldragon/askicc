@@ -8,5 +8,5 @@
 // [<Body>]
 // (| <Match> |)
 // [| <Loop> |]
-// {| <Expr> [<Body>] |}
+// {| <IterationSource> [<Body>] |}
 // {<StructConstruct>}

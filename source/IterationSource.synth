@@ -1,0 +1,6 @@
+;; IterationSource.synth — source and binding for {| |}
+;;
+;; {| @Self.List.Item [@Item.Name] |} — iterate over List,
+;; binding each element as Item.
+
+<Expr>.@Binding

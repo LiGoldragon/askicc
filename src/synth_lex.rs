@@ -277,6 +277,7 @@ impl<'a> SynthLexer<'a> {
             "Pattern" => Ok(DialectKind::Pattern),
             "Loop" => Ok(DialectKind::Loop),
             "Process" => Ok(DialectKind::Process),
+            "IterationSource" => Ok(DialectKind::IterationSource),
             "StructConstruct" => Ok(DialectKind::StructConstruct),
             "Ffi" => Ok(DialectKind::Ffi),
             other => Err(format!("unknown dialect: <{}>", other)),

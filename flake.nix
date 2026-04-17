@@ -9,8 +9,8 @@
     };
     crane.url = "github:ipetkov/crane";
     flake-utils.url = "github:numtide/flake-utils";
-    aski-core = {
-      url = "github:LiGoldragon/aski-core";
+    synth-core = {
+      url = "github:LiGoldragon/synth-core";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.fenix.follows = "fenix";
       inputs.crane.follows = "crane";
@@ -18,32 +18,31 @@
     };
   };
 
-  outputs = { self, nixpkgs, fenix, crane, flake-utils, aski-core, ... }:
+  outputs = { self, nixpkgs, fenix, crane, flake-utils, synth-core, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
         toolchain = fenix.packages.${system}.stable.toolchain;
         craneLib = (crane.mkLib pkgs).overrideToolchain toolchain;
 
-        # aski-core source with generated types — the rkyv contract
-        aski-core-source = aski-core.packages.${system}.source;
+        synth-core-source = synth-core.packages.${system}.source;
 
         src = pkgs.lib.cleanSourceWith {
           src = ./.;
           filter = path: type:
             (craneLib.filterCargoSources path type)
             || (builtins.match ".*\\.synth$" path != null)
-            || (builtins.match ".*\\.aski$" path != null);
+            || (builtins.match ".*\\.core$" path != null);
         };
 
         commonArgs = {
           inherit src;
           pname = "askicc";
           version = "0.17.0";
-          # Populate flake-crates/aski-core for the Cargo path dep
+          # Populate flake-crates/synth-core for the Cargo path dep
           postUnpack = ''
             mkdir -p $sourceRoot/flake-crates
-            cp -r ${aski-core-source} $sourceRoot/flake-crates/aski-core
+            cp -r ${synth-core-source} $sourceRoot/flake-crates/synth-core
             chmod -R +w $sourceRoot/flake-crates
           '';
         };

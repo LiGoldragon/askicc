@@ -17,11 +17,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776380483,
-        "narHash": "sha256-zs/VhOgrRpMWRIUyIgGewQ+7EzabpB57uPOot7/JRes=",
+        "lastModified": 1776415046,
+        "narHash": "sha256-SX2pnCxhnq6ZtmnY8d/ODCZfEgCV4ZQ2EYVt1FOQIzk=",
         "owner": "LiGoldragon",
         "repo": "aski-core",
-        "rev": "ae2d50fd417f461168f129f1f71efbee7838cff6",
+        "rev": "f25cf5f3fc7b386a2d90d09cdc245f90185ae3c8",
         "type": "github"
       },
       "original": {

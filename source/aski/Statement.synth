@@ -5,6 +5,6 @@
 // #InfiniteLoop#[| <Body> |]
 // #Iteration#{| <IterationSource> [ <Body> ] |}
 // #LocalTypeDecl#( @Type <Type> )
-// #MutationStmt#_~@_<Mutation>
+// #MutationStmt#_~__@_<Mutation>
 // #InstanceStmt#_@_<Instance>
 // #ExprStmt#<Expr>

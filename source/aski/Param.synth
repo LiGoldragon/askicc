@@ -1,9 +1,30 @@
-;; Param.synth — parameters
+;; Param.synth — method parameter.
+;;
+;; Borrows (_:__@_, _~__@_) may carry an Origin ('Place[.Field...])
+;; and/or a ViewType ({| Field ... |}). Both are optional.
+;; Origin comes first, then ViewType, then the instance name.
+;;
+;; Plain Self:
+;;   :@Self                   — shared borrow of Self
+;;   ~@Self                   — mutable borrow of Self
+;;   @Self                    — owned Self
+;;   :'Map@Self               — shared borrow of Self, origin at Map
+;;   ~@Self {| Count |}       — mutable view of Self.Count only
+;;   :'Self.Inner@Self        — field-path origin
+;;   :'Map{| Count |}@Self    — origin and view together
+;;
+;; Named param:
+;;   :@Foo Type               — shared borrow named Foo of Type
+;;   :'Map@Foo Type           — with origin
+;;   :'Map{| F |}@Foo Type    — with origin and view
+;;   ~@Foo Type               — mutable borrow named Foo
+;;   @Foo Type                — owned param Foo of Type
+;;   @Foo                     — bare param (no type annotation)
 
-// _:@_Self
-// _~@_Self
+// _:_?<Origin>?<ViewType>_@_Self
+// _~_?<Origin>?<ViewType>_@_Self
 // _@_Self
-// _:@_@Param <Type>
-// _~@_@Param <Type>
+// _:_?<Origin>?<ViewType>_@_@Param <Type>
+// _~_?<Origin>?<ViewType>_@_@Param <Type>
 // _@_@Param <Type>
 // _@_@Param

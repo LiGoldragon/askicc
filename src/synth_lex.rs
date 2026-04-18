@@ -6,7 +6,7 @@
 /// between non-delimiter items still distinguishes required vs optional.
 /// @ prefix → Declare. : prefix → Reference.
 /// # prefix → Tag (closing # required).
-/// ' prefix → reserved for origins (hard error — see design.md §Origins).
+/// ' prefix → Origin (names a place for lifetime tracking).
 
 use synth_core::{
     Label, LabelKind, TagKind, Binding, Casing,
@@ -36,12 +36,14 @@ impl<'a> SynthLexer<'a> {
                 b':' if self.peek_at(1).map(|b| b.is_ascii_alphabetic()).unwrap_or(false) => {
                     tokens.push(self.lex_label(Binding::Reference)?)
                 }
+                b'\'' if self.peek_at(1).map(|b| b.is_ascii_alphabetic()).unwrap_or(false) => {
+                    tokens.push(self.lex_label(Binding::Origin)?)
+                }
                 b'<' => tokens.push(self.lex_angle()?),
                 b'_' => tokens.push(self.lex_literal_escape()?),
                 b'"' => tokens.push(self.lex_string_lit()?),
                 b'\'' => return Err(format!(
-                    "sigil ' at byte {} is reserved for origin annotations \
-                     (see design.md §Origins) — not yet assigned",
+                    "bare ' at byte {} — origin sigil requires a PascalCase place name",
                     self.pos
                 )),
                 b'/' if self.peek_at(1) == Some(b'/') => tokens.push(self.emit_advance(SynthToken::Or, 2)),
@@ -314,6 +316,9 @@ impl<'a> SynthLexer<'a> {
             "objectImport" => Ok(LabelKind::ObjectImport),
             "actionImport" => Ok(LabelKind::ActionImport),
 
+            // Origin / place labels
+            "placeName" => Ok(LabelKind::PlaceName),
+
             // Synth-meta labels (synth surface describes itself)
             "labelName" => Ok(LabelKind::LabelName),
             "tagName" => Ok(LabelKind::TagName),
@@ -421,6 +426,12 @@ impl<'a> SynthLexer<'a> {
             "BoundedParam" => Ok(TagKind::BoundedParam),
             "CallArgs" => Ok(TagKind::CallArgs),
 
+            // Origin / lifetime annotations
+            "PlaceRef" => Ok(TagKind::PlaceRef),
+            "PlacePath" => Ok(TagKind::PlacePath),
+            "PlaceUnion" => Ok(TagKind::PlaceUnion),
+            "ViewType" => Ok(TagKind::ViewType),
+
             // Synth meta-tags
             "Sequential" => Ok(TagKind::Sequential),
             "OrderedChoice" => Ok(TagKind::OrderedChoice),
@@ -473,6 +484,9 @@ impl<'a> SynthLexer<'a> {
             "IterationSource" => Ok(DialectKind::IterationSource),
             "StructConstruct" => Ok(DialectKind::StructConstruct),
             "Ffi" => Ok(DialectKind::Ffi),
+            "Origin" => Ok(DialectKind::Origin),
+            "FieldPath" => Ok(DialectKind::FieldPath),
+            "ViewType" => Ok(DialectKind::ViewType),
             "Program" => Ok(DialectKind::Program),
             "SynthRule" => Ok(DialectKind::SynthRule),
             "SynthAlt" => Ok(DialectKind::SynthAlt),
@@ -486,8 +500,7 @@ impl<'a> SynthLexer<'a> {
     fn resolve_literal_escape(content: &str) -> Result<LiteralToken, String> {
         match content {
             "@" => Ok(LiteralToken::At),
-            "~@" => Ok(LiteralToken::MutAt),
-            ":@" => Ok(LiteralToken::BorrowAt),
+            "~" => Ok(LiteralToken::Tilde),
             "$" => Ok(LiteralToken::Dollar),
             "*" => Ok(LiteralToken::Star),
             "+" => Ok(LiteralToken::Plus),
@@ -520,6 +533,7 @@ impl<'a> SynthLexer<'a> {
             "^" => Ok(LiteralToken::Caret),
             ":" => Ok(LiteralToken::Colon),
             "|" => Ok(LiteralToken::Pipe),
+            "~" => Ok(LiteralToken::Tilde),
             other => Err(format!("unknown operator: {}", other)),
         }
     }

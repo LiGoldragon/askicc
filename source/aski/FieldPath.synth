@@ -1,0 +1,6 @@
+;; FieldPath.synth — one or more .Field segments, recursive.
+;;
+;; Matches `.Name` or `.Name.Name.Name...` — any depth.
+;; Used by Origin's PlacePath for `'Self.Inner.Deeper`.
+
+.:FieldName?<FieldPath>

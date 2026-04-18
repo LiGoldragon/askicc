@@ -1,0 +1,17 @@
+;; Origin.synth — place-based lifetime annotation.
+;;
+;; Names the place from which a borrow's loan came. Attaches to a
+;; borrow sigil (:@ or ~@). Matches Rust's place-based lifetime
+;; syntax (Polonius roadmap).
+;;
+;;   'Place              — origin at a simple place (binding or parameter)
+;;   'Place.Field        — origin at a field-path place (recursive via FieldPath)
+;;   '(Origin Origin ..) — origin is the union of multiple origins
+;;
+;; v0.18 accepts the syntax into the parse tree; semantic
+;; enforcement arrives when Rust's origin model stabilizes.
+;; Longer alternative first so `'Self.Field` doesn't match as PlaceRef.
+
+// #PlacePath#'PlaceName<FieldPath>
+// #PlaceRef#'PlaceName
+// #PlaceUnion#_'_( +<Origin> )

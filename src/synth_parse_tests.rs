@@ -6,7 +6,7 @@ mod tests {
 
     fn parse(source: &str, kind: DialectKind) -> Dialect {
         let tokens = SynthLexer::new(source).lex().unwrap();
-        SynthParser::new(&tokens).parse(kind).unwrap()
+        SynthParser::new(&tokens).parse(SurfaceKind::Aski, kind).unwrap()
     }
 
     #[test]
@@ -40,7 +40,7 @@ mod tests {
 
     #[test]
     fn declare_vs_reference() {
-        let d = parse("@Enum :Type", DialectKind::Root);
+        let d = parse("@EnumName :Type", DialectKind::Root);
         match &d.rules[0] {
             Rule::Sequential { items } => {
                 match &items[0].content {
@@ -87,7 +87,13 @@ mod tests {
                 match &items[0].content {
                     ItemContent::Repeat { kind, inner } => {
                         assert_eq!(*kind, Cardinality::OneOrMore);
-                        assert!(matches!(&inner.content, ItemContent::DialectRef { target: DialectKind::Param }));
+                        match &inner.content {
+                            ItemContent::DialectRef { surface, target } => {
+                                assert_eq!(*surface, None);
+                                assert_eq!(*target, DialectKind::Param);
+                            }
+                            _ => panic!("expected dialect ref"),
+                        }
                     }
                     _ => panic!("expected repeat"),
                 }
@@ -98,21 +104,28 @@ mod tests {
 
     #[test]
     fn parse_all_synth_files() {
-        let synth_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("source");
-        if !synth_dir.exists() { return; }
+        let source_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("source");
+        if !source_root.exists() { return; }
 
-        for entry in std::fs::read_dir(&synth_dir).unwrap() {
-            let path = entry.unwrap().path();
-            if path.extension().map(|x| x == "synth").unwrap_or(false) {
-                let name = path.file_stem().unwrap().to_string_lossy().to_string();
-                let source = std::fs::read_to_string(&path).unwrap();
-                let tokens = SynthLexer::new(&source).lex()
-                    .unwrap_or_else(|e| panic!("lex failed {}: {}", name, e));
-                let kind = SynthLexer::resolve_filename(&name)
-                    .unwrap_or_else(|e| panic!("unknown dialect {}: {}", name, e));
-                let dialect = SynthParser::new(&tokens).parse(kind)
-                    .unwrap_or_else(|e| panic!("parse failed {}: {}", name, e));
-                assert!(!dialect.rules.is_empty(), "no rules in {}", name);
+        for surface_entry in std::fs::read_dir(&source_root).unwrap() {
+            let surface_path = surface_entry.unwrap().path();
+            if !surface_path.is_dir() { continue; }
+            let surface_name = surface_path.file_name().unwrap().to_string_lossy().to_string();
+            let surface_kind = SynthLexer::resolve_surface_kind(&surface_name)
+                .unwrap_or_else(|e| panic!("unknown surface {}: {}", surface_name, e));
+            for entry in std::fs::read_dir(&surface_path).unwrap() {
+                let path = entry.unwrap().path();
+                if path.extension().map(|x| x == "synth").unwrap_or(false) {
+                    let name = path.file_stem().unwrap().to_string_lossy().to_string();
+                    let source = std::fs::read_to_string(&path).unwrap();
+                    let tokens = SynthLexer::new(&source).lex()
+                        .unwrap_or_else(|e| panic!("lex failed {}: {}", name, e));
+                    let kind = SynthLexer::resolve_filename(&name)
+                        .unwrap_or_else(|e| panic!("unknown dialect {}: {}", name, e));
+                    let dialect = SynthParser::new(&tokens).parse(surface_kind, kind)
+                        .unwrap_or_else(|e| panic!("parse failed {}: {}", name, e));
+                    assert!(!dialect.rules.is_empty(), "no rules in {}", name);
+                }
             }
         }
     }

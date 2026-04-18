@@ -6,12 +6,12 @@ mod tests {
 
     #[test]
     fn lex_declare() {
-        let tokens = SynthLexer::new("@Enum").lex().unwrap();
+        let tokens = SynthLexer::new("@EnumName").lex().unwrap();
         assert_eq!(tokens.len(), 1);
         match &tokens[0].token {
             SynthToken::Label(l) => {
                 assert_eq!(l.binding, Binding::Declare);
-                assert_eq!(l.kind, LabelKind::Enum);
+                assert_eq!(l.kind, LabelKind::EnumName);
                 assert_eq!(l.casing, Casing::Pascal);
             }
             _ => panic!("expected label"),
@@ -34,11 +34,11 @@ mod tests {
 
     #[test]
     fn lex_camel_declare() {
-        let tokens = SynthLexer::new("@trait").lex().unwrap();
+        let tokens = SynthLexer::new("@traitName").lex().unwrap();
         match &tokens[0].token {
             SynthToken::Label(l) => {
                 assert_eq!(l.binding, Binding::Declare);
-                assert_eq!(l.kind, LabelKind::Trait);
+                assert_eq!(l.kind, LabelKind::TraitName);
                 assert_eq!(l.casing, Casing::Camel);
             }
             _ => panic!("expected label"),
@@ -59,6 +59,28 @@ mod tests {
     }
 
     #[test]
+    fn lex_origin() {
+        let tokens = SynthLexer::new("'PlaceName").lex().unwrap();
+        match &tokens[0].token {
+            SynthToken::Label(l) => {
+                assert_eq!(l.binding, Binding::Origin);
+                assert_eq!(l.kind, LabelKind::PlaceName);
+                assert_eq!(l.casing, Casing::Pascal);
+            }
+            _ => panic!("expected origin label"),
+        }
+    }
+
+    #[test]
+    fn lex_tag() {
+        let tokens = SynthLexer::new("#Enum#").lex().unwrap();
+        match &tokens[0].token {
+            SynthToken::Tag(k) => assert_eq!(*k, TagKind::Enum),
+            _ => panic!("expected tag"),
+        }
+    }
+
+    #[test]
     fn lex_keyword() {
         let tokens = SynthLexer::new("Self").lex().unwrap();
         assert!(matches!(&tokens[0].token, SynthToken::Keyword(KeywordToken::Self_)));
@@ -67,7 +89,25 @@ mod tests {
     #[test]
     fn lex_dialect_ref() {
         let tokens = SynthLexer::new("<Type>").lex().unwrap();
-        assert!(matches!(&tokens[0].token, SynthToken::DialectRef(DialectKind::Type_)));
+        match &tokens[0].token {
+            SynthToken::DialectRef { surface, target } => {
+                assert_eq!(*surface, None);
+                assert_eq!(*target, DialectKind::Type_);
+            }
+            _ => panic!("expected dialect ref"),
+        }
+    }
+
+    #[test]
+    fn lex_cross_surface_dialect_ref() {
+        let tokens = SynthLexer::new("<:aski:Statement>").lex().unwrap();
+        match &tokens[0].token {
+            SynthToken::DialectRef { surface, target } => {
+                assert_eq!(*surface, Some(SurfaceKind::Aski));
+                assert_eq!(*target, DialectKind::Statement);
+            }
+            _ => panic!("expected cross-surface ref"),
+        }
     }
 
     #[test]
@@ -77,9 +117,15 @@ mod tests {
     }
 
     #[test]
-    fn lex_mut_at_escape() {
-        let tokens = SynthLexer::new("_~@_").lex().unwrap();
-        assert!(matches!(&tokens[0].token, SynthToken::Literal(LiteralToken::MutAt)));
+    fn lex_tilde_escape() {
+        let tokens = SynthLexer::new("_~_").lex().unwrap();
+        assert!(matches!(&tokens[0].token, SynthToken::Literal(LiteralToken::Tilde)));
+    }
+
+    #[test]
+    fn lex_apostrophe_escape() {
+        let tokens = SynthLexer::new("_'_").lex().unwrap();
+        assert!(matches!(&tokens[0].token, SynthToken::Literal(LiteralToken::Apostrophe)));
     }
 
     #[test]
@@ -92,7 +138,7 @@ mod tests {
 
     #[test]
     fn lex_spaced() {
-        let tokens = SynthLexer::new("@Enum <Type>").lex().unwrap();
+        let tokens = SynthLexer::new("@EnumName <Type>").lex().unwrap();
         assert_eq!(tokens.len(), 2);
         assert!(!tokens[1].adjacent);
     }
@@ -139,7 +185,7 @@ mod tests {
 
     #[test]
     fn lex_comment() {
-        let tokens = SynthLexer::new(";; comment\n@Enum").lex().unwrap();
+        let tokens = SynthLexer::new(";; comment\n@EnumName").lex().unwrap();
         assert_eq!(tokens.len(), 1);
     }
 
@@ -158,15 +204,19 @@ mod tests {
 
     #[test]
     fn lex_all_synth_files() {
-        let synth_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("source");
-        if !synth_dir.exists() { return; }
+        let source_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("source");
+        if !source_root.exists() { return; }
 
-        for entry in std::fs::read_dir(&synth_dir).unwrap() {
-            let path = entry.unwrap().path();
-            if path.extension().map(|x| x == "synth").unwrap_or(false) {
-                let source = std::fs::read_to_string(&path).unwrap();
-                let result = SynthLexer::new(&source).lex();
-                assert!(result.is_ok(), "failed to lex {}: {:?}", path.display(), result.err());
+        for surface_entry in std::fs::read_dir(&source_root).unwrap() {
+            let surface_path = surface_entry.unwrap().path();
+            if !surface_path.is_dir() { continue; }
+            for entry in std::fs::read_dir(&surface_path).unwrap() {
+                let path = entry.unwrap().path();
+                if path.extension().map(|x| x == "synth").unwrap_or(false) {
+                    let source = std::fs::read_to_string(&path).unwrap();
+                    let result = SynthLexer::new(&source).lex();
+                    assert!(result.is_ok(), "failed to lex {}: {:?}", path.display(), result.err());
+                }
             }
         }
     }

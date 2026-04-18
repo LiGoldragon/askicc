@@ -446,6 +446,7 @@ impl<'a> SynthLexer<'a> {
             "DeclareCamel" => Ok(TagKind::DeclareCamel),
             "ReferencePascal" => Ok(TagKind::ReferencePascal),
             "ReferenceCamel" => Ok(TagKind::ReferenceCamel),
+            "OriginPascal" => Ok(TagKind::OriginPascal),
             "ZeroOrMore" => Ok(TagKind::ZeroOrMore),
             "OneOrMore" => Ok(TagKind::OneOrMore),
             "Optional" => Ok(TagKind::Optional),

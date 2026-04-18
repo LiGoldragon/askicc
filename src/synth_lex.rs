@@ -1,10 +1,17 @@
 /// Synth lexer — byte scanner with adjacency tracking.
 ///
-/// Resolves all strings to aski-core typed enums at lex time.
+/// Resolves all strings to synth-core typed enums at lex time.
 /// Space between tokens → adjacent=false. No space → adjacent=true.
+/// Space adjacent to a delimiter is ignored at parse time; adjacency
+/// between non-delimiter items still distinguishes required vs optional.
 /// @ prefix → Declare. : prefix → Reference.
+/// # prefix → Tag (closing # required).
+/// ' prefix → reserved for origins (hard error — see design.md §Origins).
 
-use synth_core::{Label, LabelKind, Binding, Casing, DialectKind, LiteralToken, KeywordToken, DelimKind};
+use synth_core::{
+    Label, LabelKind, TagKind, Binding, Casing,
+    DialectKind, SurfaceKind, LiteralToken, KeywordToken, DelimKind,
+};
 use crate::synth_token::{SynthToken, SynthSpanned};
 
 pub struct SynthLexer<'a> {
@@ -32,6 +39,11 @@ impl<'a> SynthLexer<'a> {
                 b'<' => tokens.push(self.lex_angle()?),
                 b'_' => tokens.push(self.lex_literal_escape()?),
                 b'"' => tokens.push(self.lex_string_lit()?),
+                b'\'' => return Err(format!(
+                    "sigil ' at byte {} is reserved for origin annotations \
+                     (see design.md §Origins) — not yet assigned",
+                    self.pos
+                )),
                 b'/' if self.peek_at(1) == Some(b'/') => tokens.push(self.emit_advance(SynthToken::Or, 2)),
                 b'*' => tokens.push(self.emit_advance(SynthToken::ZeroOrMore, 1)),
                 b'+' => tokens.push(self.emit_advance(SynthToken::OneOrMore, 1)),
@@ -121,10 +133,44 @@ impl<'a> SynthLexer<'a> {
         Ok(self.emit(SynthToken::Label(label), adj, pos))
     }
 
+    fn lex_tag(&mut self) -> Result<SynthSpanned, String> {
+        let (adj, pos) = self.snap();
+        self.pos += 1; // skip opening #
+        let name = self.read_word();
+        if self.pos < self.bytes.len() && self.bytes[self.pos] == b'#' {
+            self.pos += 1; // skip closing #
+        } else {
+            return Err(format!("expected closing # after #{}", name));
+        }
+        self.last_end = self.pos;
+        let kind = Self::resolve_tag_kind(&name)?;
+        Ok(self.emit(SynthToken::Tag(kind), adj, pos))
+    }
+
     fn lex_angle(&mut self) -> Result<SynthSpanned, String> {
         if self.peek_at(1) == Some(b'=') {
             return Ok(self.emit_advance(SynthToken::Literal(LiteralToken::LtEq), 2));
         }
+        // Cross-surface reference: <:surface:Name>
+        if self.peek_at(1) == Some(b':') {
+            let (adj, pos) = self.snap();
+            self.pos += 2; // skip <:
+            let surface_name = self.read_word();
+            if self.pos >= self.bytes.len() || self.bytes[self.pos] != b':' {
+                return Err(format!("expected : after <:{}", surface_name));
+            }
+            self.pos += 1; // skip :
+            let target_name = self.read_word();
+            if self.pos >= self.bytes.len() || self.bytes[self.pos] != b'>' {
+                return Err(format!("expected > after <:{}:{}", surface_name, target_name));
+            }
+            self.pos += 1; // skip >
+            self.last_end = self.pos;
+            let surface = Some(Self::resolve_surface_kind(&surface_name)?);
+            let target = Self::resolve_dialect_kind(&target_name)?;
+            return Ok(self.emit(SynthToken::DialectRef { surface, target }, adj, pos));
+        }
+        // Same-surface reference: <Name>
         if self.peek_at(1).map(|b| b.is_ascii_alphabetic()).unwrap_or(false) {
             let (adj, pos) = self.snap();
             self.pos += 1; // skip <
@@ -135,8 +181,8 @@ impl<'a> SynthLexer<'a> {
                 return Err(format!("expected > after dialect ref <{}", name));
             }
             self.last_end = self.pos;
-            let kind = Self::resolve_dialect_kind(&name)?;
-            return Ok(self.emit(SynthToken::DialectRef(kind), adj, pos));
+            let target = Self::resolve_dialect_kind(&name)?;
+            return Ok(self.emit(SynthToken::DialectRef { surface: None, target }, adj, pos));
         }
         Ok(self.emit_advance(SynthToken::Literal(LiteralToken::Lt), 1))
     }
@@ -174,7 +220,6 @@ impl<'a> SynthLexer<'a> {
         let (adj, pos) = self.snap();
         let name = self.read_word();
         self.last_end = self.pos;
-        // Check keywords first
         if let Some(kw) = Self::try_keyword(&name) {
             return Ok(self.emit(SynthToken::Keyword(kw), adj, pos));
         }
@@ -216,87 +261,185 @@ impl<'a> SynthLexer<'a> {
         Self::resolve_dialect_kind(name)
     }
 
-    fn resolve_label_kind(name: &str) -> Result<LabelKind, String> {
-        // Case-insensitive match — casing is tracked separately
+    pub fn resolve_surface_kind(name: &str) -> Result<SurfaceKind, String> {
         match name {
-            "Module" | "module" => Ok(LabelKind::Module),
-            "Enum" | "enum" => Ok(LabelKind::Enum),
-            "Struct" | "struct" => Ok(LabelKind::Struct),
-            "Type" | "type" => Ok(LabelKind::Type_),
-            "Newtype" | "newtype" => Ok(LabelKind::Newtype),
-            "Constructor" | "constructor" => Ok(LabelKind::Constructor),
-            "Variant" | "variant" => Ok(LabelKind::Variant),
-            "Field" | "field" => Ok(LabelKind::Field),
-            "Literal" | "literal" => Ok(LabelKind::Literal),
-            "Instance" | "instance" => Ok(LabelKind::Instance),
-            "Binding" | "binding" => Ok(LabelKind::Binding),
-            "Param" | "param" => Ok(LabelKind::Param),
-            "Bound" | "bound" => Ok(LabelKind::Bound),
-            "Const" | "const" => Ok(LabelKind::Const),
-            "Ffi" | "ffi" => Ok(LabelKind::Ffi),
-            "Trait" | "trait" => Ok(LabelKind::Trait),
-            "Method" | "method" => Ok(LabelKind::Method),
-            "ForeignFunction" | "foreignFunction" => Ok(LabelKind::ForeignFunction),
-            "Signature" | "signature" => Ok(LabelKind::Signature),
-            "Role" | "role" => Ok(LabelKind::Role),
-            "ObjectExport" | "objectExport" => Ok(LabelKind::ObjectExport),
-            "ActionExport" | "actionExport" => Ok(LabelKind::ActionExport),
-            "ObjectImport" | "objectImport" => Ok(LabelKind::ObjectImport),
-            "ActionImport" | "actionImport" => Ok(LabelKind::ActionImport),
-            "BareVariant" | "bareVariant" => Ok(LabelKind::BareVariant),
-            "DataVariant" | "dataVariant" => Ok(LabelKind::DataVariant),
-            "StructVariant" | "structVariant" => Ok(LabelKind::StructVariant),
-            "NestedEnum" | "nestedEnum" => Ok(LabelKind::NestedEnum),
-            "NestedStruct" | "nestedStruct" => Ok(LabelKind::NestedStruct),
-            "TypedField" | "typedField" => Ok(LabelKind::TypedField),
-            "SelfTypedField" | "selfTypedField" => Ok(LabelKind::SelfTypedField),
-            "TypedInstance" | "typedInstance" => Ok(LabelKind::TypedInstance),
-            "UntypedInstance" | "untypedInstance" => Ok(LabelKind::UntypedInstance),
-            "LocalTypeDecl" | "localTypeDecl" => Ok(LabelKind::LocalTypeDecl),
-            "BinOr" | "binOr" => Ok(LabelKind::BinOr),
-            "BinAnd" | "binAnd" => Ok(LabelKind::BinAnd),
-            "BinEq" | "binEq" => Ok(LabelKind::BinEq),
-            "BinNotEq" | "binNotEq" => Ok(LabelKind::BinNotEq),
-            "BinLt" | "binLt" => Ok(LabelKind::BinLt),
-            "BinGt" | "binGt" => Ok(LabelKind::BinGt),
-            "BinLtEq" | "binLtEq" => Ok(LabelKind::BinLtEq),
-            "BinGtEq" | "binGtEq" => Ok(LabelKind::BinGtEq),
-            "BinAdd" | "binAdd" => Ok(LabelKind::BinAdd),
-            "BinSub" | "binSub" => Ok(LabelKind::BinSub),
-            "BinMul" | "binMul" => Ok(LabelKind::BinMul),
-            "BinMod" | "binMod" => Ok(LabelKind::BinMod),
-            "FieldAccess" | "fieldAccess" => Ok(LabelKind::FieldAccess),
-            "MethodCall" | "methodCall" => Ok(LabelKind::MethodCall),
-            "TryUnwrap" | "tryUnwrap" => Ok(LabelKind::TryUnwrap),
-            "InstanceRef" | "instanceRef" => Ok(LabelKind::InstanceRef),
-            "PathVariant" | "pathVariant" => Ok(LabelKind::PathVariant),
-            "PathCall" | "pathCall" => Ok(LabelKind::PathCall),
-            "LiteralExpr" | "literalExpr" => Ok(LabelKind::LiteralExpr),
-            "InlineEval" | "inlineEval" => Ok(LabelKind::InlineEval),
-            "MatchExpr" | "matchExpr" => Ok(LabelKind::MatchExpr),
-            "LoopExpr" | "loopExpr" => Ok(LabelKind::LoopExpr),
-            "IterExpr" | "iterExpr" => Ok(LabelKind::IterExpr),
-            "StructExpr" | "structExpr" => Ok(LabelKind::StructExpr),
-            "EarlyReturn" | "earlyReturn" => Ok(LabelKind::EarlyReturn),
-            "WhileLoop" | "whileLoop" => Ok(LabelKind::WhileLoop),
-            "InfiniteLoop" | "infiniteLoop" => Ok(LabelKind::InfiniteLoop),
-            "Iteration" | "iteration" => Ok(LabelKind::Iteration),
-            "MutationStmt" | "mutationStmt" => Ok(LabelKind::MutationStmt),
-            "InstanceStmt" | "instanceStmt" => Ok(LabelKind::InstanceStmt),
-            "ExprStmt" | "exprStmt" => Ok(LabelKind::ExprStmt),
-            "VariantBind" | "variantBind" => Ok(LabelKind::VariantBind),
-            "VariantMatch" | "variantMatch" => Ok(LabelKind::VariantMatch),
-            "StringMatch" | "stringMatch" => Ok(LabelKind::StringMatch),
-            "ConditionalLoop" | "conditionalLoop" => Ok(LabelKind::ConditionalLoop),
-            "BlockBody" | "blockBody" => Ok(LabelKind::BlockBody),
-            "MatchBody" | "matchBody" => Ok(LabelKind::MatchBody),
-            "LoopBody" | "loopBody" => Ok(LabelKind::LoopBody),
-            "IterBody" | "iterBody" => Ok(LabelKind::IterBody),
-            "StructBody" | "structBody" => Ok(LabelKind::StructBody),
-            "InstanceType" | "instanceType" => Ok(LabelKind::InstanceType),
-            "AppliedType" | "appliedType" => Ok(LabelKind::AppliedType),
-            "GenericParamType" | "genericParamType" => Ok(LabelKind::GenericParamType),
-            other => Err(format!("unknown label: {}", other)),
+            "core" | "Core" => Ok(SurfaceKind::Core),
+            "aski" | "Aski" => Ok(SurfaceKind::Aski),
+            "synth" | "Synth" => Ok(SurfaceKind::Synth),
+            "exec" | "Exec" => Ok(SurfaceKind::Exec),
+            other => Err(format!("unknown surface: {}", other)),
+        }
+    }
+
+    fn resolve_label_kind(name: &str) -> Result<LabelKind, String> {
+        // Case-insensitive match — casing is tracked separately.
+        // Labels name the ROLE of a source-read identifier.
+        let normalized = lowercase_first(name);
+        match normalized.as_str() {
+            // Name declarations — root-level data defs
+            "moduleName" => Ok(LabelKind::ModuleName),
+            "enumName" => Ok(LabelKind::EnumName),
+            "structName" => Ok(LabelKind::StructName),
+            "newtypeName" => Ok(LabelKind::NewtypeName),
+            "constName" => Ok(LabelKind::ConstName),
+            "ffiName" => Ok(LabelKind::FfiName),
+            "traitName" => Ok(LabelKind::TraitName),
+            "variantName" => Ok(LabelKind::VariantName),
+            "fieldName" => Ok(LabelKind::FieldName),
+            "methodName" => Ok(LabelKind::MethodName),
+            "sigName" => Ok(LabelKind::SigName),
+            "instanceName" => Ok(LabelKind::InstanceName),
+
+            // Short-form declarations (no "Name" suffix)
+            "type" => Ok(LabelKind::Type_),
+            "param" => Ok(LabelKind::Param),
+            "binding" => Ok(LabelKind::Binding),
+            "role" => Ok(LabelKind::Role),
+            "item" => Ok(LabelKind::Item),
+            "objectExport" => Ok(LabelKind::ObjectExport),
+            "actionExport" => Ok(LabelKind::ActionExport),
+            "foreignFunction" => Ok(LabelKind::ForeignFunction),
+
+            // References (typically via :Label)
+            "instance" => Ok(LabelKind::Instance),
+            "variant" => Ok(LabelKind::Variant),
+            "literal" => Ok(LabelKind::Literal),
+            "bound" => Ok(LabelKind::Bound),
+            "module" => Ok(LabelKind::Module),
+            "method" => Ok(LabelKind::Method),
+            "statement" => Ok(LabelKind::Statement),
+            "field" => Ok(LabelKind::Field),
+            "struct" => Ok(LabelKind::Struct),
+            "constructor" => Ok(LabelKind::Constructor),
+            "objectImport" => Ok(LabelKind::ObjectImport),
+            "actionImport" => Ok(LabelKind::ActionImport),
+
+            // Synth-meta labels (synth surface describes itself)
+            "labelName" => Ok(LabelKind::LabelName),
+            "tagName" => Ok(LabelKind::TagName),
+            "dialectName" => Ok(LabelKind::DialectName),
+
+            _ => Err(format!("unknown label: {}", name)),
+        }
+    }
+
+    fn resolve_tag_kind(name: &str) -> Result<TagKind, String> {
+        // Tags identify the TYPE of an output node. Always PascalCase.
+        match name {
+            // Aski root
+            "Module" => Ok(TagKind::Module),
+            "Enum" => Ok(TagKind::Enum),
+            "Struct" => Ok(TagKind::Struct),
+            "Newtype" => Ok(TagKind::Newtype),
+            "Const" => Ok(TagKind::Const),
+            "Ffi" => Ok(TagKind::Ffi),
+            "TraitDecl" => Ok(TagKind::TraitDecl),
+            "TraitImpl" => Ok(TagKind::TraitImpl),
+            "Program" => Ok(TagKind::Program),
+
+            // Enum children
+            "BareVariant" => Ok(TagKind::BareVariant),
+            "DataVariant" => Ok(TagKind::DataVariant),
+            "StructVariant" => Ok(TagKind::StructVariant),
+            "NestedEnum" => Ok(TagKind::NestedEnum),
+            "NestedStruct" => Ok(TagKind::NestedStruct),
+
+            // Struct children
+            "TypedField" => Ok(TagKind::TypedField),
+            "SelfTypedField" => Ok(TagKind::SelfTypedField),
+
+            // Module imports
+            "Import" => Ok(TagKind::Import),
+
+            // Statement variants
+            "EarlyReturn" => Ok(TagKind::EarlyReturn),
+            "WhileLoop" => Ok(TagKind::WhileLoop),
+            "InfiniteLoop" => Ok(TagKind::InfiniteLoop),
+            "Iteration" => Ok(TagKind::Iteration),
+            "MutationStmt" => Ok(TagKind::MutationStmt),
+            "InstanceStmt" => Ok(TagKind::InstanceStmt),
+            "ExprStmt" => Ok(TagKind::ExprStmt),
+            "LocalTypeDecl" => Ok(TagKind::LocalTypeDecl),
+            "TypedInstance" => Ok(TagKind::TypedInstance),
+            "UntypedInstance" => Ok(TagKind::UntypedInstance),
+
+            // Expression variants
+            "InstanceRef" => Ok(TagKind::InstanceRef),
+            "PathVariant" => Ok(TagKind::PathVariant),
+            "PathCall" => Ok(TagKind::PathCall),
+            "LiteralExpr" => Ok(TagKind::LiteralExpr),
+            "InlineEval" => Ok(TagKind::InlineEval),
+            "MatchExpr" => Ok(TagKind::MatchExpr),
+            "LoopExpr" => Ok(TagKind::LoopExpr),
+            "IterExpr" => Ok(TagKind::IterExpr),
+            "StructExpr" => Ok(TagKind::StructExpr),
+
+            // Binary operators
+            "BinOr" => Ok(TagKind::BinOr),
+            "BinAnd" => Ok(TagKind::BinAnd),
+            "BinEq" => Ok(TagKind::BinEq),
+            "BinNotEq" => Ok(TagKind::BinNotEq),
+            "BinLt" => Ok(TagKind::BinLt),
+            "BinGt" => Ok(TagKind::BinGt),
+            "BinLtEq" => Ok(TagKind::BinLtEq),
+            "BinGtEq" => Ok(TagKind::BinGtEq),
+            "BinAdd" => Ok(TagKind::BinAdd),
+            "BinSub" => Ok(TagKind::BinSub),
+            "BinMul" => Ok(TagKind::BinMul),
+            "BinMod" => Ok(TagKind::BinMod),
+
+            // Postfix operators
+            "FieldAccess" => Ok(TagKind::FieldAccess),
+            "MethodCall" => Ok(TagKind::MethodCall),
+            "TryUnwrap" => Ok(TagKind::TryUnwrap),
+
+            // Pattern variants
+            "VariantBind" => Ok(TagKind::VariantBind),
+            "VariantMatch" => Ok(TagKind::VariantMatch),
+            "StringMatch" => Ok(TagKind::StringMatch),
+
+            // Loop variants
+            "ConditionalLoop" => Ok(TagKind::ConditionalLoop),
+
+            // Method-body variants
+            "BlockBody" => Ok(TagKind::BlockBody),
+            "MatchBody" => Ok(TagKind::MatchBody),
+            "LoopBody" => Ok(TagKind::LoopBody),
+            "IterBody" => Ok(TagKind::IterBody),
+            "StructBody" => Ok(TagKind::StructBody),
+
+            // Type-expression variants
+            "InstanceType" => Ok(TagKind::InstanceType),
+            "AppliedType" => Ok(TagKind::AppliedType),
+            "GenericParamType" => Ok(TagKind::GenericParamType),
+
+            // Misc leaf constructs
+            "TypeAnnotation" => Ok(TagKind::TypeAnnotation),
+            "FieldInit" => Ok(TagKind::FieldInit),
+            "MatchArm" => Ok(TagKind::MatchArm),
+            "FfiFunction" => Ok(TagKind::FfiFunction),
+            "BoundedParam" => Ok(TagKind::BoundedParam),
+            "CallArgs" => Ok(TagKind::CallArgs),
+
+            // Synth meta-tags
+            "Sequential" => Ok(TagKind::Sequential),
+            "OrderedChoice" => Ok(TagKind::OrderedChoice),
+            "NamedItem" => Ok(TagKind::NamedItem),
+            "TaggedItem" => Ok(TagKind::TaggedItem),
+            "DialectRefItem" => Ok(TagKind::DialectRefItem),
+            "DelimitedItem" => Ok(TagKind::DelimitedItem),
+            "RepeatItem" => Ok(TagKind::RepeatItem),
+            "LiteralItem" => Ok(TagKind::LiteralItem),
+            "KeywordItem" => Ok(TagKind::KeywordItem),
+            "DeclarePascal" => Ok(TagKind::DeclarePascal),
+            "DeclareCamel" => Ok(TagKind::DeclareCamel),
+            "ReferencePascal" => Ok(TagKind::ReferencePascal),
+            "ReferenceCamel" => Ok(TagKind::ReferenceCamel),
+            "ZeroOrMore" => Ok(TagKind::ZeroOrMore),
+            "OneOrMore" => Ok(TagKind::OneOrMore),
+            "Optional" => Ok(TagKind::Optional),
+
+            other => Err(format!("unknown tag: #{}#", other)),
         }
     }
 
@@ -324,16 +467,18 @@ impl<'a> SynthLexer<'a> {
             "Param" => Ok(DialectKind::Param),
             "Signature" => Ok(DialectKind::Signature),
             "Method" => Ok(DialectKind::Method),
-            "TraitDecl" => Ok(DialectKind::TraitDecl),
-            "TraitImpl" => Ok(DialectKind::TraitImpl),
-            "TypeImpl" => Ok(DialectKind::TypeImpl),
             "Match" => Ok(DialectKind::Match),
             "Pattern" => Ok(DialectKind::Pattern),
             "Loop" => Ok(DialectKind::Loop),
-            "Process" => Ok(DialectKind::Process),
             "IterationSource" => Ok(DialectKind::IterationSource),
             "StructConstruct" => Ok(DialectKind::StructConstruct),
             "Ffi" => Ok(DialectKind::Ffi),
+            "Program" => Ok(DialectKind::Program),
+            "SynthRule" => Ok(DialectKind::SynthRule),
+            "SynthAlt" => Ok(DialectKind::SynthAlt),
+            "SynthItem" => Ok(DialectKind::SynthItem),
+            "SynthLabel" => Ok(DialectKind::SynthLabel),
+            "SynthCard" => Ok(DialectKind::SynthCard),
             other => Err(format!("unknown dialect: <{}>", other)),
         }
     }
@@ -348,6 +493,12 @@ impl<'a> SynthLexer<'a> {
             "+" => Ok(LiteralToken::Plus),
             "?" => Ok(LiteralToken::Question),
             "&" => Ok(LiteralToken::Ampersand),
+            "//" => Ok(LiteralToken::DoubleSlash),
+            "#" => Ok(LiteralToken::Hash),
+            "<" => Ok(LiteralToken::Lt),
+            ">" => Ok(LiteralToken::Gt),
+            ":" => Ok(LiteralToken::Colon),
+            "'" => Ok(LiteralToken::Apostrophe),
             other => Err(format!("unknown literal escape: _{}_", other)),
         }
     }
@@ -379,5 +530,13 @@ impl<'a> SynthLexer<'a> {
             "Main" => Some(KeywordToken::Main),
             _ => None,
         }
+    }
+}
+
+fn lowercase_first(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        Some(c) => c.to_ascii_lowercase().to_string() + chars.as_str(),
+        None => String::new(),
     }
 }

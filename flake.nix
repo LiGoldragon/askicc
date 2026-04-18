@@ -1,5 +1,5 @@
 {
-  description = "askicc — bootstrap compiler: .synth → rkyv domain-data-tree";
+  description = "askicc — bootstrap compiler: .synth → rkyv dsl tree";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
@@ -53,26 +53,25 @@
           inherit cargoArtifacts;
         });
 
-        # Stage 2b: run askicc on .synth → rkyv domain-data-tree.
-        # This is the grammar data that gets embedded in askic.
-        dialect-data = pkgs.runCommand "dialect-data" {
+        # Stage 2b: run askicc on source/<surface>/*.synth → rkyv dsl tree.
+        # Single dsls.rkyv with all four DSLs (core, aski, synth, exec),
+        # each Dialect surface-tagged. Gets embedded in askic.
+        dsls-data = pkgs.runCommand "dsls-data" {
           nativeBuildInputs = [ askicc ];
         } ''
-          mkdir -p source
-          cp ${./source}/*.synth source/
-          askicc source $out/dialects.rkyv
+          mkdir -p $out
+          askicc ${./source} $out/dsls.rkyv
         '';
 
-        # Pure .synth dialect files
+        # Pure .synth source tree (all surfaces)
         synth-source = pkgs.runCommand "synth-source" {} ''
-          mkdir -p $out
-          cp ${./source}/*.synth $out/
+          cp -r ${./source} $out
         '';
 
       in {
         packages = {
           default = askicc;
-          inherit askicc dialect-data synth-source;
+          inherit askicc dsls-data synth-source;
         };
 
         checks = {

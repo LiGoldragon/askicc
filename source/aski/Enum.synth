@@ -2,7 +2,7 @@
 ;;
 ;; The () form of domain. One-of.
 
-// *@BareVariant
+// *#BareVariant#@VariantName
 // *#DataVariant#( @VariantName <Type> )
 // *#StructVariant#{ @VariantName <Struct> }
 // *#NestedEnum#(| @EnumName <Enum> |)

@@ -3,6 +3,6 @@
 ;; The {} form of domain. All-of.
 
 // *#TypedField#( @FieldName <Type> )
-// *@SelfTypedField
+// *#SelfTypedField#@FieldName
 // *#NestedEnum#(| @EnumName <Enum> |)
 // *#NestedStruct#{| @StructName <Struct> |}

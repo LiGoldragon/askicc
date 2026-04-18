@@ -1,6 +1,6 @@
-/// Synth parser — tokens → aski-core Dialect domain tree.
+/// Synth parser — tokens → synth-core Dialect tree (dsl data).
 ///
-/// All methods on SynthParser struct. Produces aski-core types
+/// All methods on SynthParser struct. Produces synth-core types
 /// directly — no intermediate representation.
 
 use synth_core::*;
@@ -16,9 +16,9 @@ impl<'a> SynthParser<'a> {
         SynthParser { tokens, pos: 0 }
     }
 
-    pub fn parse(mut self, kind: DialectKind) -> Result<Dialect, String> {
+    pub fn parse(mut self, surface: SurfaceKind, kind: DialectKind) -> Result<Dialect, String> {
         let rules = self.parse_rules()?;
-        Ok(Dialect { kind, rules })
+        Ok(Dialect { surface, kind, rules })
     }
 
     // ── Rule parsing ────────────────────────────────────────
@@ -118,10 +118,13 @@ impl<'a> SynthParser<'a> {
 
         let content = match token {
             SynthToken::Label(label) => ItemContent::Named { label },
+            SynthToken::Tag(kind) => ItemContent::Tagged { tag: Tag { kind } },
             SynthToken::Keyword(kw) => ItemContent::Keyword { token: kw },
-            SynthToken::DialectRef(kind) => ItemContent::DialectRef { target: kind },
+            SynthToken::DialectRef { surface, target } => {
+                ItemContent::DialectRef { surface, target }
+            }
             SynthToken::Literal(tok) => ItemContent::Literal { token: tok },
-            SynthToken::StringLit => ItemContent::LiteralValue,
+            SynthToken::StringLit => ItemContent::StringLit,
             SynthToken::Open(kind) => {
                 let inner = self.parse_items(false)?;
                 self.expect_close(kind)?;

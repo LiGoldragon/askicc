@@ -82,7 +82,7 @@ mod tests {
 
     #[test]
     fn lex_keyword() {
-        let tokens = SynthLexer::new("Self").lex().unwrap();
+        let tokens = SynthLexer::new("self").lex().unwrap();
         assert!(matches!(&tokens[0].token, SynthToken::Keyword(KeywordToken::Self_)));
     }
 

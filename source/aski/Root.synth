@@ -1,7 +1,10 @@
-;; Root.synth — aski surface (v0.18)
+;; Root.synth — aski surface (v0.19).
 ;;
 ;; Modules and libraries. Every construct delimited.
-;; No bare newtypes. No process block (moved to exec surface).
+;; Optional generic slot {+<GenericParam>} after the name for
+;; Enum, Struct, Newtype, TraitDecl.
+;;
+;; Traits are Pascal under v0.19. Methods are camel.
 ;;
 ;; Delimiter allocation at root:
 ;;   ()      Module (first), Enum, TraitDecl
@@ -12,10 +15,10 @@
 ;;   [||]    FFI
 
 #Module#(@ModuleName <Module>)
-// *#Enum#(@EnumName <Enum>)
-// *#TraitDecl#(@traitName [+(@sigName <Signature>)])
-// *#TraitImpl#[@traitName <Type> [+(@methodName <Method>)]]
-// *#Struct#{@StructName <Struct>}
+// *#Enum#(@EnumName ?{ +<GenericParam> } <Enum>)
+// *#TraitDecl#(@TraitName ?{ +<GenericParam> } [+(@methodName <Signature>)])
+// *#TraitImpl#[@TraitName <Type> [+(@methodName <Method>)]]
+// *#Struct#{@StructName ?{ +<GenericParam> } <Struct>}
 // *#Const#{| @ConstName <Type> @Literal |}
-// *#Newtype#(| @NewtypeName <Type> |)
+// *#Newtype#(| @NewtypeName ?{ +<GenericParam> } <Type> |)
 // *#Ffi#[| @FfiName <Ffi> |]

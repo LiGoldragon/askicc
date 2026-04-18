@@ -1,4 +1,7 @@
-;; Loop.synth — inside [|...|] in body context
+;; Loop.synth (v0.19) — inside [| ... |] at body or expression level.
+;;
+;; Unified: required condition followed by statements. Struct-shape
+;; dialect (no tag — parent provides #WhileLoop# / #LoopBody# / #LoopExpr#).
 
-// #ConditionalLoop#<Expr> +<Statement>
-// #InfiniteLoop#+<Statement>
+<Expr>
+*<Statement>

@@ -1,15 +1,14 @@
-;; ExprAtom.synth — leaf expressions
+;; ExprAtom.synth (v0.19) — leaf expressions.
 ;;
-;; BorrowExpr / MutBorrowExpr produce reference values from an
-;; existing instance. They can then be composed with ExprPostfix
-;; (e.g., `:@Self.Field` = BorrowExpr of Self, then FieldAccess).
+;; Borrows use & (was :). Paths use : (was /).
+;; Instance references are bare camelCase names (no @ sigil).
 
-// #BorrowExpr#_:_?<Origin>?<ViewType>_@_:Instance
-// #MutBorrowExpr#_~_?<Origin>?<ViewType>_@_:Instance
-// #InstanceRef#_@_:Instance
+// #BorrowExpr#_&_?<Origin>?<ViewType>:instance
+// #MutBorrowExpr#_~__&_?<Origin>?<ViewType>:instance
+// #InstanceRef#:instance
+// #PathCall#:Type_:_:method#CallArgs#( +<Expr> )
+// #PathVariant#:Type_:_:Variant
 // #BareVariant#:Variant
-// #PathVariant#:Type/:Variant
-// #PathCall#:Type/:method#CallArgs#( +<Expr> )
 // #LiteralExpr#:Literal
 // #InlineEval#[ <Body> ]
 // #MatchExpr#(| <Match> |)

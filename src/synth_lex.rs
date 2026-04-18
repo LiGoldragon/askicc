@@ -298,8 +298,7 @@ impl<'a> SynthLexer<'a> {
             "binding" => Ok(LabelKind::Binding),
             "role" => Ok(LabelKind::Role),
             "item" => Ok(LabelKind::Item),
-            "objectExport" => Ok(LabelKind::ObjectExport),
-            "actionExport" => Ok(LabelKind::ActionExport),
+            "exportedName" => Ok(LabelKind::ExportedName),
             "foreignFunction" => Ok(LabelKind::ForeignFunction),
 
             // References (typically via :Label)
@@ -313,8 +312,7 @@ impl<'a> SynthLexer<'a> {
             "field" => Ok(LabelKind::Field),
             "struct" => Ok(LabelKind::Struct),
             "constructor" => Ok(LabelKind::Constructor),
-            "objectImport" => Ok(LabelKind::ObjectImport),
-            "actionImport" => Ok(LabelKind::ActionImport),
+            "importedName" => Ok(LabelKind::ImportedName),
 
             // Origin / place labels
             "placeName" => Ok(LabelKind::PlaceName),
@@ -356,17 +354,17 @@ impl<'a> SynthLexer<'a> {
             // Module imports
             "Import" => Ok(TagKind::Import),
 
-            // Statement variants
+            // Statement variants (v0.19)
             "EarlyReturn" => Ok(TagKind::EarlyReturn),
             "WhileLoop" => Ok(TagKind::WhileLoop),
-            "InfiniteLoop" => Ok(TagKind::InfiniteLoop),
             "Iteration" => Ok(TagKind::Iteration),
             "MutationStmt" => Ok(TagKind::MutationStmt),
-            "InstanceStmt" => Ok(TagKind::InstanceStmt),
             "ExprStmt" => Ok(TagKind::ExprStmt),
-            "LocalTypeDecl" => Ok(TagKind::LocalTypeDecl),
-            "TypedInstance" => Ok(TagKind::TypedInstance),
-            "UntypedInstance" => Ok(TagKind::UntypedInstance),
+            "LocalCanonical" => Ok(TagKind::LocalCanonical),
+            "LocalTypeOnly" => Ok(TagKind::LocalTypeOnly),
+            "LocalTypeInit" => Ok(TagKind::LocalTypeInit),
+            "LocalConstruct" => Ok(TagKind::LocalConstruct),
+            "LocalBind" => Ok(TagKind::LocalBind),
 
             // Expression variants
             "InstanceRef" => Ok(TagKind::InstanceRef),
@@ -403,10 +401,8 @@ impl<'a> SynthLexer<'a> {
             // Pattern variants
             "VariantBind" => Ok(TagKind::VariantBind),
             "VariantMatch" => Ok(TagKind::VariantMatch),
+            "VariantAlt" => Ok(TagKind::VariantAlt),
             "StringMatch" => Ok(TagKind::StringMatch),
-
-            // Loop variants
-            "ConditionalLoop" => Ok(TagKind::ConditionalLoop),
 
             // Method-body variants
             "BlockBody" => Ok(TagKind::BlockBody),
@@ -479,7 +475,6 @@ impl<'a> SynthLexer<'a> {
             "TypeApplication" => Ok(DialectKind::TypeApplication),
             "GenericParam" => Ok(DialectKind::GenericParam),
             "Statement" => Ok(DialectKind::Statement),
-            "Instance" => Ok(DialectKind::Instance),
             "Mutation" => Ok(DialectKind::Mutation),
             "Param" => Ok(DialectKind::Param),
             "Signature" => Ok(DialectKind::Signature),
@@ -546,7 +541,7 @@ impl<'a> SynthLexer<'a> {
 
     fn try_keyword(name: &str) -> Option<KeywordToken> {
         match name {
-            "Self" => Some(KeywordToken::Self_),
+            "self" => Some(KeywordToken::Self_),
             _ => None,
         }
     }

@@ -1,4 +1,12 @@
-;; GenericParam.synth — after $ sigil
+;; GenericParam.synth (v0.19) — declare a generic type parameter.
+;;
+;; The $ sigil marks the parameter. Optional bound set in {} after
+;; the name collects trait refs. No combinator — space-separated
+;; in {} replaces the old `&`.
+;;
+;;   $Value                      — unbounded
+;;   $Value{Clone Debug}          — bounded by Clone and Debug
+;;   ${Clone Debug}               — bounds-as-name (no semantic name)
 
-// #BoundedParam#:Bound_&_<GenericParam>
-// @Role
+// #BoundedParam#_$_@Role { +:Bound }
+// _$_@Role

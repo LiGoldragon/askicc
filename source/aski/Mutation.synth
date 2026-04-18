@@ -1,3 +1,4 @@
-;; Mutation.synth — after _~__@_ in statement
+;; Mutation.synth (v0.19) — after the _~_ sigil in statement position.
+;; Target is a camelCase instance reference; method call syntax unchanged.
 
-:Instance.:method( +<Expr> )
+:instance.:method( +<Expr> )

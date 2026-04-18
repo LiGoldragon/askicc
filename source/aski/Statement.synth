@@ -1,10 +1,17 @@
-;; Statement.synth
+;; Statement.synth (v0.19) — all statements delimited or sigil-marked.
+;;
+;; Bodies contain zero-or-more statements, with the tail being a bare
+;; expression outside the statement list (handled at the enclosing
+;; Body/Method level). Every statement form here is unambiguously
+;; identified by its opening token.
 
 // #EarlyReturn#^<Expr>
-// #WhileLoop#[| <Expr> <Body> |]
-// #InfiniteLoop#[| <Body> |]
+// #WhileLoop#[| <Loop> |]
 // #Iteration#{| <IterationSource> [ <Body> ] |}
-// #LocalTypeDecl#( @Type <Type> )
-// #MutationStmt#_~__@_<Mutation>
-// #InstanceStmt#_@_<Instance>
-// #ExprStmt#<Expr>
+// #MutationStmt#_~_<Mutation>
+// #ExprStmt#[ <Expr> ]
+// #LocalTypeInit#( @instanceName <Type>_:_<Expr> )
+// #LocalConstruct#( @instanceName _:_<Expr> )
+// #LocalTypeOnly#( @instanceName <Type> )
+// #LocalBind#( @instanceName <Expr> )
+// #LocalCanonical#( @instanceName )

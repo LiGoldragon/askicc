@@ -1,4 +1,0 @@
-;; Instance.synth — after _@_ in statement
-
-// #TypedInstance#@InstanceName #TypeAnnotation#( <Type> ) <Expr>
-// #UntypedInstance#@InstanceName <Expr>

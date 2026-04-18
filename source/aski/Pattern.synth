@@ -1,9 +1,10 @@
-;; Pattern.synth — inside match arm (...)
+;; Pattern.synth (v0.19) — match patterns.
 ;;
-;; Or-patterns use | between variants in source: (Fire | Air).
-;; The match arm handles the | separation at the Match level,
-;; not inside Pattern.
+;; Or-patterns use [] (evaluation delimiter) for alternatives.
+;; Variant bindings drop the @ sigil; binding name is a bare
+;; camelCase identifier.
 
-// #VariantBind#:Variant _@_@Binding
+// #VariantBind#:Variant @binding
+// #VariantAlt#[ +:Variant ]
 // #VariantMatch#:Variant
 // #StringMatch#"literal"

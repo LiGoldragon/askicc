@@ -58,7 +58,7 @@ mod tests {
 
     #[test]
     fn keyword_token() {
-        let d = parse("Self", DialectKind::Param);
+        let d = parse("self", DialectKind::Param);
         match &d.rules[0] {
             Rule::Sequential { items } => {
                 assert!(matches!(&items[0].content, ItemContent::Keyword { token: KeywordToken::Self_ }));

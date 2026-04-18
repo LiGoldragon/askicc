@@ -1,5 +1,5 @@
-;; Module.synth — exec surface module header
+;; Module.synth — exec surface module header (v0.19).
 ;;
-;; Imports only. No exports — exec files don't export.
+;; Imports only — exec files don't export. Flat import-name list.
 
-*#Import#[ :Module *:ObjectImport *:actionImport ]
+*#Import#[ :Module *:ImportedName ]

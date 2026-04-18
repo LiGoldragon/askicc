@@ -13,4 +13,4 @@
 // #InstanceType#_@_[ <TypeApplication> ]
 // #AppliedType#[ <TypeApplication> ]
 // #GenericParamType#_$_<GenericParam>
-// :Type
+// #Named#:Type

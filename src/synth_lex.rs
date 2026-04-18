@@ -416,6 +416,7 @@ impl<'a> SynthLexer<'a> {
             "StructBody" => Ok(TagKind::StructBody),
 
             // Type-expression variants
+            "Named" => Ok(TagKind::Named),
             "InstanceType" => Ok(TagKind::InstanceType),
             "AppliedType" => Ok(TagKind::AppliedType),
             "GenericParamType" => Ok(TagKind::GenericParamType),
@@ -546,7 +547,6 @@ impl<'a> SynthLexer<'a> {
     fn try_keyword(name: &str) -> Option<KeywordToken> {
         match name {
             "Self" => Some(KeywordToken::Self_),
-            "Main" => Some(KeywordToken::Main),
             _ => None,
         }
     }

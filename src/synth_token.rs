@@ -10,7 +10,7 @@ pub enum SynthToken {
     Optional,                        // ? (synth cardinality)
     Label(Label),                    // @Label (declare) or :Label (reference)
     Tag(TagKind),                    // #Name# — names the output variant without matching
-    Keyword(KeywordToken),           // bare keyword (Self, Main)
+    Keyword(KeywordToken),           // bare keyword (Self)
     DialectRef {                     // <Name> or <:surface:Name>
         surface: Option<SurfaceKind>,
         target: DialectKind,

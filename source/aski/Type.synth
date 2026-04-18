@@ -1,7 +1,15 @@
 ;; Type.synth — type expressions
 ;;
-;; Dispatched to from any position expecting a type.
+;; Dispatched to from any position expecting a type: parameter
+;; types, return types, generic arguments, struct field types,
+;; const types, newtype inner types.
+;;
+;; Borrowed forms may carry an optional Origin and/or ViewType,
+;; matching Param's shape — so a return type like `-> :'x String`
+;; or a generic slot like `[Vec :@String]` is expressible.
 
+// #BorrowedType#_:_?<Origin>?<ViewType>_@_[ <TypeApplication> ]
+// #MutBorrowedType#_~_?<Origin>?<ViewType>_@_[ <TypeApplication> ]
 // #InstanceType#_@_[ <TypeApplication> ]
 // #AppliedType#[ <TypeApplication> ]
 // #GenericParamType#_$_<GenericParam>

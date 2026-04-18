@@ -378,6 +378,8 @@ impl<'a> SynthLexer<'a> {
             "LoopExpr" => Ok(TagKind::LoopExpr),
             "IterExpr" => Ok(TagKind::IterExpr),
             "StructExpr" => Ok(TagKind::StructExpr),
+            "BorrowExpr" => Ok(TagKind::BorrowExpr),
+            "MutBorrowExpr" => Ok(TagKind::MutBorrowExpr),
 
             // Binary operators
             "BinOr" => Ok(TagKind::BinOr),
@@ -417,6 +419,8 @@ impl<'a> SynthLexer<'a> {
             "InstanceType" => Ok(TagKind::InstanceType),
             "AppliedType" => Ok(TagKind::AppliedType),
             "GenericParamType" => Ok(TagKind::GenericParamType),
+            "BorrowedType" => Ok(TagKind::BorrowedType),
+            "MutBorrowedType" => Ok(TagKind::MutBorrowedType),
 
             // Misc leaf constructs
             "TypeAnnotation" => Ok(TagKind::TypeAnnotation),

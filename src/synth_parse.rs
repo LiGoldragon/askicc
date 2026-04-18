@@ -1,4 +1,4 @@
-/// Synth parser — tokens → synth-core Dialect tree (dsl data).
+/// Synth parser — tokens → synth-core Dialect domain-data-tree.
 ///
 /// All methods on SynthParser struct. Produces synth-core types
 /// directly — no intermediate representation.

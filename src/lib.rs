@@ -1,7 +1,7 @@
 /// askicc — bootstrap compiler.
 ///
 /// Reads .synth files from source/<surface>/ directories, produces
-/// synth-core dsl-tree (Dialect, Rule, Item, ...) and serializes as
+/// synth-core domain-data-tree (Dialect, Rule, Item, ...) and serializes as
 /// a single rkyv `dsls.rkyv` with all four DSLs flattened.
 
 pub mod synth_token;

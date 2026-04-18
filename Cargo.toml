@@ -3,7 +3,7 @@ name = "askicc"
 version = "0.17.0"
 edition = "2021"
 authors = ["Li Goldragon <li@goldragon.criome.net>"]
-description = "askicc — bootstrap compiler: .synth → rkyv dsl tree (all 4 DSLs in one dsls.rkyv)"
+description = "askicc — bootstrap compiler: .synth → rkyv domain-data-tree (all 4 DSLs in one dsls.rkyv)"
 
 [[bin]]
 name = "askicc"

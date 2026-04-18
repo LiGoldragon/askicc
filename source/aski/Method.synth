@@ -1,0 +1,11 @@
+;; Method.synth — inside (method ...)
+;;
+;; Parameters, optional return type, then body.
+
++<Param>
+?<Type>
+// #BlockBody#[ <Body> ]
+// #MatchBody#(| <Match> |)
+// #LoopBody#[| <Loop> |]
+// #IterBody#{| <IterationSource> [ <Body> ] |}
+// #StructBody#{ <StructConstruct> }

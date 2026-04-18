@@ -1,0 +1,9 @@
+;; Enum.synth — inside (Enum ...)
+;;
+;; The () form of domain. One-of.
+
+// *@BareVariant
+// *#DataVariant#( @VariantName <Type> )
+// *#StructVariant#{ @VariantName <Struct> }
+// *#NestedEnum#(| @EnumName <Enum> |)
+// *#NestedStruct#{| @StructName <Struct> |}

@@ -1,0 +1,6 @@
+;; Struct.synth — core surface struct body
+
+// *#TypedField#( @FieldName <:aski:Type> )
+// *@SelfTypedField
+// *#NestedEnum#(| @EnumName <Enum> |)
+// *#NestedStruct#{| @StructName <Struct> |}

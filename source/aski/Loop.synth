@@ -1,0 +1,4 @@
+;; Loop.synth — inside [|...|] in body context
+
+// #ConditionalLoop#<Expr> +<Statement>
+// #InfiniteLoop#+<Statement>

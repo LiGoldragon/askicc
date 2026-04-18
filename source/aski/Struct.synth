@@ -1,0 +1,8 @@
+;; Struct.synth — inside {Struct ...}
+;;
+;; The {} form of domain. All-of.
+
+// *#TypedField#( @FieldName <Type> )
+// *@SelfTypedField
+// *#NestedEnum#(| @EnumName <Enum> |)
+// *#NestedStruct#{| @StructName <Struct> |}

@@ -1,0 +1,6 @@
+;; SynthLabel.synth — @Name or :Name
+
+// #DeclarePascal#_@_@LabelName
+// #DeclareCamel#_@_@labelName
+// #ReferencePascal#_:_:LabelName
+// #ReferenceCamel#_:_:labelName

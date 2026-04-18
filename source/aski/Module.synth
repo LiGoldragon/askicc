@@ -2,4 +2,4 @@
 
 *@ObjectExport
 *@actionExport
-*[:Module *:ObjectImport *:actionImport]
+*#Import#[ :Module *:ObjectImport *:actionImport ]

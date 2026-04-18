@@ -1,0 +1,6 @@
+;; SynthItem.synth — one item in a synth rule
+
+// #NamedItem#<SynthLabel>
+// #TaggedItem#_#_@TagName_#_
+// #DialectRefItem#_<_:DialectName_>_
+// #RepeatItem#<SynthCard><SynthItem>

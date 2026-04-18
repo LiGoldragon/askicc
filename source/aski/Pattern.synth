@@ -4,11 +4,6 @@
 ;; The match arm handles the | separation at the Match level,
 ;; not inside Pattern.
 
-;; variant with binding: (Ident @Binding)
-// :Variant _@_@Binding
-
-;; bare variant: (Fire)
-// :Variant
-
-;; string literal: ("(")
-// "literal"
+// #VariantBind#:Variant _@_@Binding
+// #VariantMatch#:Variant
+// #StringMatch#"literal"

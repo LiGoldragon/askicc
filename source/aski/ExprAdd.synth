@@ -1,0 +1,5 @@
+;; ExprAdd.synth — addition, subtraction
+
+// <ExprMul> #BinAdd#_+_ <ExprAdd>
+// <ExprMul> #BinSub#- <ExprAdd>
+// <ExprMul>

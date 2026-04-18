@@ -1,4 +1,4 @@
 ;; ExprOr.synth — logical or (lowest precedence)
 
-// <ExprAnd> || <ExprOr>
+// <ExprAnd> #BinOr#|| <ExprOr>
 // <ExprAnd>

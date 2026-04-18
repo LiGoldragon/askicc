@@ -1,9 +1,0 @@
-;; ExprCompare.synth — comparison (non-repeating)
-
-// <ExprAdd> == <ExprAdd>
-// <ExprAdd> != <ExprAdd>
-// <ExprAdd> < <ExprAdd>
-// <ExprAdd> > <ExprAdd>
-// <ExprAdd> <= <ExprAdd>
-// <ExprAdd> >= <ExprAdd>
-// <ExprAdd>

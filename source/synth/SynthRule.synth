@@ -1,0 +1,7 @@
+;; SynthRule.synth — one rule in a synth file
+;;
+;; Sequential: bare items on a line
+;; OrderedChoice: one or more // alternatives
+
+// #Sequential#+<SynthItem>
+// #OrderedChoice#+<SynthAlt>

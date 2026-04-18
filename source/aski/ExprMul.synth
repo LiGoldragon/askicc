@@ -1,0 +1,5 @@
+;; ExprMul.synth — multiplication, modulo
+
+// <ExprPostfix> #BinMul#_*_ <ExprMul>
+// <ExprPostfix> #BinMod#% <ExprMul>
+// <ExprPostfix>

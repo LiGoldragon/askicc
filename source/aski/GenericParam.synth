@@ -1,0 +1,4 @@
+;; GenericParam.synth — after $ sigil
+
+// #BoundedParam#:Bound_&_<GenericParam>
+// @Role

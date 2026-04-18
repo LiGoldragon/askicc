@@ -1,0 +1,9 @@
+;; ExprCompare.synth — comparison (non-repeating)
+
+// <ExprAdd> #BinEq#== <ExprAdd>
+// <ExprAdd> #BinNotEq#!= <ExprAdd>
+// <ExprAdd> #BinLt#< <ExprAdd>
+// <ExprAdd> #BinGt#> <ExprAdd>
+// <ExprAdd> #BinLtEq#<= <ExprAdd>
+// <ExprAdd> #BinGtEq#>= <ExprAdd>
+// <ExprAdd>

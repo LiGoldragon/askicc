@@ -1,0 +1,21 @@
+;; Root.synth — aski surface (v0.18)
+;;
+;; Modules and libraries. Every construct delimited.
+;; No bare newtypes. No process block (moved to exec surface).
+;;
+;; Delimiter allocation at root:
+;;   ()      Module (first), Enum, TraitDecl
+;;   []      TraitImpl
+;;   {}      Struct
+;;   {||}    Const
+;;   (||)    Newtype
+;;   [||]    FFI
+
+#Module#(@ModuleName <Module>)
+// *#Enum#(@EnumName <Enum>)
+// *#TraitDecl#(@traitName [+(@sigName <Signature>)])
+// *#TraitImpl#[@traitName <Type> [+(@methodName <Method>)]]
+// *#Struct#{@StructName <Struct>}
+// *#Const#{| @ConstName <Type> @Literal |}
+// *#Newtype#(| @NewtypeName <Type> |)
+// *#Ffi#[| @FfiName <Ffi> |]

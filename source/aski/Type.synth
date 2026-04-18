@@ -1,0 +1,8 @@
+;; Type.synth — type expressions
+;;
+;; Dispatched to from any position expecting a type.
+
+// #InstanceType#_@_[ <TypeApplication> ]
+// #AppliedType#[ <TypeApplication> ]
+// #GenericParamType#_$_<GenericParam>
+// :Type

@@ -9,6 +9,7 @@ pub enum SynthToken {
     ZeroOrMore,                      // * (synth cardinality)
     Optional,                        // ? (synth cardinality)
     Label(Label),                    // @Label (declare) or :Label (reference)
+    Tag(LabelKind),                  // #Name# — names the output variant without matching
     Keyword(KeywordToken),           // bare keyword (Self, Main)
     DialectRef(DialectKind),         // <Name> — resolved at lex time
     Literal(LiteralToken),           // _X_ or bare operator — resolved at lex time

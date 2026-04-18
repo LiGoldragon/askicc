@@ -1,0 +1,12 @@
+;; ExprAtom.synth — leaf expressions
+
+// #InstanceRef#_@_:Instance
+// #BareVariant#:Variant
+// #PathVariant#:Type/:Variant
+// #PathCall#:Type/:method#CallArgs#( +<Expr> )
+// #LiteralExpr#:Literal
+// #InlineEval#[ <Body> ]
+// #MatchExpr#(| <Match> |)
+// #LoopExpr#[| <Loop> |]
+// #IterExpr#{| <IterationSource> [ <Body> ] |}
+// #StructExpr#{ <StructConstruct> }

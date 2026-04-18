@@ -1,0 +1,4 @@
+;; Instance.synth — after _@_ in statement
+
+// @TypedInstance #TypeAnnotation#( <Type> ) <Expr>
+// @UntypedInstance <Expr>

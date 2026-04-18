@@ -1,0 +1,7 @@
+;; Enum.synth — core surface enum body (inside (Enum ...))
+
+// *@BareVariant
+// *#DataVariant#( @VariantName <:aski:Type> )
+// *#StructVariant#{ @VariantName <:aski:Struct> }
+// *#NestedEnum#(| @EnumName <Enum> |)
+// *#NestedStruct#{| @StructName <:aski:Struct> |}

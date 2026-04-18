@@ -1,0 +1,11 @@
+;; Root.synth — synth surface (v0.18)
+;;
+;; A synth file is a sequence of rules. Each rule is either
+;; Sequential (bare items on a line) or OrderedChoice (// lines).
+;;
+;; This surface is self-description for tooling (editors,
+;; linters, documentation). askicc uses its own hand-written
+;; parser to bootstrap — this dialect data is NOT what askicc
+;; uses to parse .synth files.
+
+*<SynthRule>

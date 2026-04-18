@@ -2,7 +2,7 @@
 ;;
 ;; Recurses to handle chains: @Self.Left.Value.method(X)?
 
-// <ExprPostfix>.:Field
-// <ExprPostfix>.:method(+<Expr>)
-// <ExprPostfix>_?_
+// <ExprPostfix>#FieldAccess#.:Field
+// <ExprPostfix>#MethodCall#.:method#CallArgs#( +<Expr> )
+// <ExprPostfix>#TryUnwrap#_?_
 // <ExprAtom>

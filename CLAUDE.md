@@ -1,60 +1,60 @@
-# askicc — Bootstrap Compiler
+# askicc — The Synth Compiler
 
-askicc is a binary that reads .synth dialect files, populates
-a domain-data-tree of aski-core types, and serializes it as
-rkyv. askic reads this rkyv data to know how to parse using
-a dialect-based state machine.
+askicc reads `.synth` dialect files and produces rkyv dialect
+data that askic executes as a state machine.
 
-## What askicc Does
+## v0.18 — Four Surfaces
 
-Reads .synth dialect files → populates a domain-data-tree →
-serializes as rkyv.
-
-**askicc does NOT generate Rust code.** Only cc and semac
-generate Rust. askicc produces rkyv-serialized data that gets
-embedded in the askic binary at build time. The domain-data-
-tree IS the state machine that drives askic's parser.
-
-## Shared Types from aski-core
-
-askicc depends on cc's generated Rust types (from aski-core).
-These types have rkyv derives so askicc can serialize them.
-askic depends on the same types to deserialize.
-
-aski-core is the rkyv contract — it defines every type that
-appears in the message between askicc and askic.
-
-askicc populates instances of these types by reading .synth
-files. The populated tree captures all grammar knowledge that
-askic needs: what tokens to match, in what order, with what
-adjacency, using what delimiters, with what cardinality.
-
-## The Pipeline
+askicc reads from `source/<surface>/*.synth` and produces one
+rkyv per surface:
 
 ```
-cc       — .aski → Rust types (bootstrap seed)
-askicc   — .synth → rkyv domain-data-tree (this binary)
-askic    — reads rkyv data-tree → dialect state machine → rkyv parse tree
-semac    — reads rkyv → produces sema + Rust
+source/
+  core/    →  generated/dialects.core.rkyv
+  aski/    →  generated/dialects.aski.rkyv
+  synth/   →  generated/dialects.synth.rkyv
+  exec/    →  generated/dialects.exec.rkyv
 ```
 
-Four separate binaries. They communicate through files.
+Each subdirectory is a surface. askicc enumerates subdirectories,
+resolves each name to a `SurfaceKind` variant, and builds a
+`DialectTree { surface, dialects }` for each.
 
-## What askicc Contains
+## Synth v0.18 Syntax
 
-- `source/` — .synth dialect files (31 files, v0.17)
-- `aski/` — .aski domain definition files (8 files)
-- `src/synth_lex.rs` — synth tokenizer
-- `src/synth_parse.rs` — .synth → Dialect domain instances
-- `src/aski_parse.rs` — .aski → domain definitions
+**Labels and tags:**
+- `@Label` — reads a source token AND identifies output variant
+- `:Label` — references an existing name in scope
+- `#Tag#` — names output variant WITHOUT reading source token
+
+**Dialect references:**
+- `<Name>` — same-surface dialect reference
+- `<:surface:Name>` — cross-surface dialect reference
+
+**Literal escapes:** `_@_`, `_$_`, `_+_`, `_*_`, `_?_`, `_:@_`, `_~@_`
+
+**Cardinality:** `*` (zero-or-more), `+` (one-or-more), `?` (optional)
+
+**Delimiters:** `() [] {} (||) [||] {||}`
+
+**Space rules:**
+- Space between non-delimiter items = adjacency-optional in source
+- No space between non-delimiter items = source must be adjacent
+- Space after opening / before closing delimiters = no-op (readability)
+
+**Ordered choice:** Lines prefixed with `//` form an ordered choice.
+
+## Files
+
+- `source/<surface>/*.synth` — grammar per surface
+- `src/synth_lex.rs` — tokenizes `.synth` files
+- `src/synth_parse.rs` — parses to synth-core types
+- `src/main.rs` — enumerates surfaces, emits rkyv per surface
 
 ## Rust Style
 
-**No free functions — methods on types always.** All Rust
-will eventually be rewritten in aski, which uses methods
-(traits + impls). `main` is the only exception.
+**No free functions — methods on types always.** `main` is the exception.
 
 ## VCS
 
-Jujutsu (`jj`) mandatory. Git is storage backend only.
-Tests in separate files. Domain = any data def (enum + struct + newtype).
+jj mandatory (git is storage backend only).

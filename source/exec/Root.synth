@@ -1,0 +1,14 @@
+;; Root.synth — exec surface (v0.18)
+;;
+;; Executable programs. Minimal: imports, optional consts,
+;; then the main program body. Everything else referenced
+;; from the aski surface.
+;;
+;; Delimiter allocation:
+;;   ()      Module header (imports only)
+;;   {||}    Const
+;;   []      Program (the main process)
+
+#Module#( @ModuleName <Module> )
+*#Const#{| @ConstName <:aski:Type> @Literal |}
+#Program#[ +<:aski:Statement> ]

@@ -1,0 +1,8 @@
+;; Root.synth — core surface (v0.18)
+;;
+;; Pure type definitions. No module, no imports, no expressions.
+;; What corec eats. The module name comes from the filename.
+
+// *#Enum#( @EnumName <Enum> )
+// *#Struct#{ @StructName <:aski:Struct> }
+// *#Newtype#(| @NewtypeName <:aski:Type> |)

@@ -1,0 +1,5 @@
+;; SynthAlt.synth — one alternative in an OrderedChoice
+;;
+;; Starts with //, optional cardinality, then items.
+
+_//_ ?<SynthCard> +<SynthItem>

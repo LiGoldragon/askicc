@@ -1,0 +1,5 @@
+;; SynthCard.synth — cardinality marker
+
+// #ZeroOrMore#_*_
+// #OneOrMore#_+_
+// #Optional#_?_

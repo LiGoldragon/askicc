@@ -1,0 +1,7 @@
+;; Match.synth — inside (|...|)
+;;
+;; Optional target expression, then one or more arms.
+;; Each arm: ( pattern ) result-expr
+
+?<Expr>
++#MatchArm#( <Pattern> ) <Expr>

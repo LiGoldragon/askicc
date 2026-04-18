@@ -1,9 +1,0 @@
-;; Struct.synth — inside {Struct ...}
-;;
-;; The {} form of domain. All-of.
-;; Each label names the output variant directly.
-
-// *(@TypedField <Type>)
-// *@SelfTypedField
-// *(| @NestedEnum <Enum> |)
-// *{| @NestedStruct <Struct> |}

@@ -1,0 +1,10 @@
+;; Statement.synth
+
+// #EarlyReturn#^<Expr>
+// #WhileLoop#[| <Expr> <Body> |]
+// #InfiniteLoop#[| <Body> |]
+// #Iteration#{| <IterationSource> [ <Body> ] |}
+// #LocalTypeDecl#( @Type <Type> )
+// #MutationStmt#_~@_<Mutation>
+// #InstanceStmt#_@_<Instance>
+// #ExprStmt#<Expr>

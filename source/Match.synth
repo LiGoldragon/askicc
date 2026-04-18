@@ -1,8 +1,0 @@
-;; Match.synth — inside (|...|)
-;;
-;; Each arm: (pattern) result-expr
-;; Or-patterns: (Fire | Air) result-expr
-;; Optional target expression before arms.
-
-?<Expr>
-+(<Pattern>) <Expr>

@@ -1,8 +1,27 @@
-;; Root.synth — core surface (v0.18)
+;; Root.synth — core surface (v0.20).
 ;;
-;; Pure type definitions. No module, no imports, no expressions.
-;; What corec eats. The module name comes from the filename.
+;; Pure type definitions. An optional module header at the top
+;; allows declaring the module name and imports from other .core
+;; files in the project (v0.20 addition). If the header is absent,
+;; the module name is derived from the filename (legacy shape,
+;; what existing aski-core/synth-core .core files still use).
+;;
+;; Under v0.20, the preferred form is:
+;;
+;;     (trait [module Visibility] [type GenericParam TraitBound])
+;;     {TraitDecl …}
+;;     {Method …}
+;;
+;; Where each `[Source Names…]` is an import from another .core
+;; file. Corec currently parses the legacy fake-enum-TOC form;
+;; migration of existing .core files is scheduled for the next
+;; session alongside corec parser updates.
+;;
+;; Types declared in a .core file are implicitly all-public —
+;; .core is a contract surface for the bootstrap compiler; the
+;; @ visibility sigil doesn't apply here.
 
+?#Module#(@ModuleName <:aski:Module>)
 // *#Enum#( @EnumName <Enum> )
 // *#Struct#{ @StructName <:aski:Struct> }
 // *#Newtype#(| @NewtypeName <:aski:Type> |)

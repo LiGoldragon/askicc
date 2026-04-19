@@ -4,7 +4,7 @@ askicc reads `.synth` files and produces a single rkyv `dsls.rkyv`
 containing every dialect from every DSL — the state-machine data
 that askic executes at runtime.
 
-## v0.18 — Four DSLs, one rkyv
+## v0.19 — Four DSLs, one rkyv
 
 askicc reads from `source/<surface>/*.synth` and emits a single
 combined `generated/dsls.rkyv` where each `Dialect` carries its
@@ -23,7 +23,12 @@ A **dialect** is one `.synth` file within a DSL (Body, Statement,
 Expr, …). askic dispatches by (`SurfaceKind`, `DialectKind`) in one
 flat map loaded from `dsls.rkyv`.
 
-## Synth v0.18 Syntax
+Current state: **41 dialects** across 4 DSLs (Core=3, Aski=30, Synth=6, Exec=2).
+**49 tests pass** — 30 v0.18 regression tests + 19 new v0.19-specific tests
+(borrow shapes, mutable borrow, type-app brace, LocalDecl tags, VariantAlt,
+path separator, generic slot, exec Program tag).
+
+## Synth v0.19 Syntax
 
 **Labels and tags (orthogonal):**
 - `@Label` — Declare: reads a source token, binds it to a field role
@@ -38,35 +43,21 @@ flat map loaded from `dsls.rkyv`.
 - `<Name>` — same-surface dialect reference
 - `<:surface:Name>` — cross-surface dialect reference
 
-**Literal escapes** (each is one atomic token in source):
-`_@_` `_~_` `_$_` `_*_` `_+_` `_?_` `_&_` `_:_` `_<_` `_>_` `_#_` `_//_` `_'_`
+**Literal escapes (aski-source tokens):**
+- `_@_` `_~_` `_$_` `_*_` `_+_` `_?_` `_&_` `_:_` `_<_` `_>_` `_#_` `_//_` `_'_`
 
-Canonical compound forms compose escapes: `_:__@_` (borrow-at),
-`_~__@_` (mut-at). No fused `BorrowAt`/`MutAt` tokens — synth is
-maximally specific.
+Each is one atomic token. Compound forms compose: `_~__&_` is `~` adjacent to `&` (mutable borrow).
 
-**Cardinality:** `*` (zero-or-more), `+` (one-or-more), `?` (optional).
+## v0.19 Aski Syntax (what the .synth files encode)
 
-**Delimiters:** `()` `[]` `{}` `(||)` `[||]` `{||}`.
+- **Borrow:** `&self` (shared), `~&self` (mutable). Was `:@Self` / `~@Self` in v0.18.
+- **Path:** `Type:method(args)`, `Type:Variant`. Was `Type/method`, `Type/Variant`.
+- **Type application:** `{Vec Element}`. Was `[Vec Element]`.
+- **Or-pattern:** `[Fire Air]`. Was `(Fire | Air)`.
+- **Generic slot:** `{$Value}` after definition name; bound set `$Value{Clone Debug}`.
+- **Local decl:** `(counter U32:new(0))` — 5 shapes via `()`. Was `@Counter U32/new(0)`.
+- **ExprStmt:** `[expr]` for side-effects. Was bare expression.
+- **Case rule:** Pascal for compile-time structural (incl. traits); camel for runtime (incl. locals, self).
+- **Retired:** `@` sigil, `&` combinator, `Self` keyword (now `self`).
 
-**Space rules:**
-- Space between non-delimiter items = adjacency-optional in source
-- No space between non-delimiter items = source must be adjacent
-- Space after opening or before closing delimiter = ignored
-
-**Ordered choice:** lines prefixed with `//`.
-
-## Files
-
-- `source/<surface>/*.synth` — grammar per DSL
-- `src/synth_lex.rs` — tokenizes `.synth` files
-- `src/synth_parse.rs` — parses to synth-core types
-- `src/main.rs` — enumerates surfaces, emits `dsls.rkyv`
-
-## Rust Style
-
-**No free functions — methods on types always.** `main` is the exception.
-
-## VCS
-
-jj mandatory (git is storage backend only).
+See `/home/li/git/aski-core/spec/syntax-v019.aski` for the full language-by-example.

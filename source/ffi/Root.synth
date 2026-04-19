@@ -1,0 +1,14 @@
+;; Root.synth — FFI surface (v0.20).
+;;
+;; Each `.ffi` file declares one or more FFI groups. A group is
+;; a namespace for foreign functions — e.g., a linked library, a
+;; system interface, or a C-callable surface.
+;;
+;; Each group wraps a set of function signatures. Signatures reuse
+;; aski's <:aski:Signature> dialect — FFI functions are just aski
+;; method signatures without bodies, bound externally.
+;;
+;; Future: this surface will gain target-language specifiers,
+;; calling conventions, and type marshalling declarations.
+
+// *#FfiGroup#(@FfiName +#FfiFunction#(@foreignFunction <:aski:Signature>))

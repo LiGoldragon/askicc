@@ -1,0 +1,8 @@
+;; TraitItem.synth (v0.20) — one item inside a trait declaration body.
+;;
+;; Either an associated type (bare Pascal name) or a method
+;; (camel-named group with optional body — body present = default
+;; implementation; absent = required method).
+
+// #AssociatedType#@AssociatedName
+// ( @methodName <Method> )

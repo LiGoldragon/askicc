@@ -1,28 +1,26 @@
-;; Root.synth — aski surface (v0.19).
+;; Root.synth — aski surface (v0.20).
 ;;
-;; Modules and libraries. Every construct delimited.
+;; Modules and libraries. Every declaration takes an optional `@`
+;; prefix to mark it public (private by default).
 ;;
-;; Optional generic slot `{+<GenericParam>}` after the name for
-;; Enum, Struct, Newtype. TraitDecl's slot additionally accepts
-;; super-trait references: `{$Value PartialOrd Eq}` means generic
-;; param $Value, with required super-traits PartialOrd and Eq.
-;; TraitImpl also carries generics: `[TraitName {$Value} Target …]`.
+;; Trait declarations moved to `[|...|]` delimiter (v0.20, reclaimed
+;; from FFI which has its own surface now). This gives every root
+;; construct a distinct opening token — first-token decidable.
 ;;
-;; Traits are Pascal under v0.19. Methods are camel.
-;;
-;; Delimiter allocation at root:
-;;   ()      Module (first), Enum, TraitDecl
+;; Delimiter allocation at aski root:
+;;   ()      Module (first), Enum
 ;;   []      TraitImpl
 ;;   {}      Struct
 ;;   {||}    Const
 ;;   (||)    Newtype
-;;   [||]    FFI
+;;   [||]    TraitDecl (new in v0.20; was FFI)
+;;
+;; (FFI moved to its own `.ffi` surface — see `source/ffi/`.)
 
 #Module#(@ModuleName <Module>)
-// *#Enum#(@EnumName ?{ +<GenericParam> } <Enum>)
-// *#TraitDecl#(@TraitName ?{ *<GenericParam> *:TraitName } [+(@methodName <Method>)])
-// *#TraitImpl#[@TraitName ?{ +<GenericParam> } <Type> [+(@methodName <Method>)]]
-// *#Struct#{@StructName ?{ +<GenericParam> } <Struct>}
-// *#Const#{| @ConstName <Type> @Literal |}
-// *#Newtype#(| @NewtypeName ?{ +<GenericParam> } <Type> |)
-// *#Ffi#[| @FfiName <Ffi> |]
+// *?_@_#Enum#(@EnumName ?{ +<GenericParam> } <Enum>)
+// *?_@_#TraitDecl#[| @TraitName ?{ *<GenericParam> *:TraitName } +<TraitItem> |]
+// *?_@_#TraitImpl#[@TraitName ?{ +<GenericParam> } <Type> [+<TraitImplItem>]]
+// *?_@_#Struct#{@StructName ?{ +<GenericParam> } <Struct>}
+// *?_@_#Const#{| @ConstName <Type> @Literal |}
+// *?_@_#Newtype#(| @NewtypeName ?{ +<GenericParam> } <Type> |)

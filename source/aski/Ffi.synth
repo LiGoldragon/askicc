@@ -1,3 +1,0 @@
-;; Ffi.synth — inside [| Ffi ... |]
-
-+#FfiFunction#( @foreignFunction <Signature> )

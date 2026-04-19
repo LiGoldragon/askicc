@@ -1,8 +1,10 @@
-;; Struct.synth — inside {Struct ...}
+;; Struct.synth (v0.20) — inside {Struct ...}.
 ;;
-;; The {} form of domain. All-of.
+;; Fields default private. Optional `@` prefix marks a field public.
+;; Same visibility rule applies whether the field is typed
+;; `(@Name Type)` or self-typed `@Name`.
 
-// *#TypedField#( @FieldName <Type> )
-// *#SelfTypedField#@FieldName
+// *?_@_#TypedField#( @FieldName <Type> )
+// *?_@_#SelfTypedField#@FieldName
 // *#NestedEnum#(| @EnumName <Enum> |)
 // *#NestedStruct#{| @StructName <Struct> |}

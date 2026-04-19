@@ -1,8 +1,7 @@
-;; Module.synth (v0.19) — inside (Module ...).
+;; Module.synth (v0.20) — inside (Module ...).
 ;;
-;; Exports and imports flattened: one kind of export-name, one kind
-;; of imported-name. Both Pascal since all module-level exportable
-;; things are Pascal under the v0.19 case rule.
+;; Module exports retired — visibility is now declaration-local
+;; via the `@` sigil. Module header carries only the name and
+;; optional imports.
 
-*@ExportedName
 *#Import#[ :Module *:ImportedName ]

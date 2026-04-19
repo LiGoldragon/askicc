@@ -1,0 +1,9 @@
+;; TraitImplItem.synth (v0.20) — one item inside a trait impl body.
+;;
+;; Either an associated type binding (Pascal name + Type) or a
+;; method implementation (camel-named group with required body).
+;; All items wrapped in `()` — case of first token inside the
+;; paren distinguishes.
+
+// #AssociatedTypeImpl#( @AssociatedName <Type> )
+// ( @methodName <Method> )

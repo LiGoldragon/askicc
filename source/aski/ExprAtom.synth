@@ -1,10 +1,15 @@
-;; ExprAtom.synth (v0.19) — leaf expressions.
+;; ExprAtom.synth (v0.20) — leaf expressions.
 ;;
 ;; Borrows use & (was :). Paths use : (was /).
 ;; Instance references are bare camelCase names (no @ sigil).
+;;
+;; New in v0.20: #SelfRef# makes `self` a valid expression atom
+;; so `self.field`, `self.method(x)`, etc. parse correctly. This
+;; was a gap in v0.19 — bare `self` wasn't accepted as an opener.
 
 // #BorrowExpr#_&_?<Origin>?<ViewType>:instance
 // #MutBorrowExpr#_~__&_?<Origin>?<ViewType>:instance
+// #SelfRef#self
 // #InstanceRef#:instance
 // #PathCall#:Type_:_:method#CallArgs#( +<Expr> )
 // #PathVariant#:Type_:_:Variant

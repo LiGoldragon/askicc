@@ -164,12 +164,13 @@ mod tests {
     }
 
     #[test]
-    fn lex_exported_name_label() {
-        let tokens = SynthLexer::new("@ExportedName").lex().unwrap();
+    fn lex_associated_name_label() {
+        // v0.20: ExportedName retired (module exports gone); AssociatedName is new for trait associated types.
+        let tokens = SynthLexer::new("@AssociatedName").lex().unwrap();
         match &tokens[0].token {
             SynthToken::Label(l) => {
                 assert_eq!(l.binding, Binding::Declare);
-                assert_eq!(l.kind, LabelKind::ExportedName);
+                assert_eq!(l.kind, LabelKind::AssociatedName);
                 assert_eq!(l.casing, Casing::Pascal);
             }
             _ => panic!("expected label"),

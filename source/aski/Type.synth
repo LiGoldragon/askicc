@@ -1,17 +1,15 @@
-;; Type.synth — type expressions (v0.19).
+;; Type.synth — type expressions (v0.20).
 ;;
 ;; Type application uses {} (construction delimiter, was []).
 ;; Borrows use & (was :).
 ;;
-;; Note: v0.18 had a separate #InstanceType# variant for `@[Vec X]` —
-;; "instance-position type" vs bare `[Vec X]` "type reference." v0.19
-;; drops the `@` sigil, collapsing the syntactic distinction. AppliedType
-;; now covers every position where a type appears; position semantics
-;; (param type vs return type vs field type) are derived from the
-;; surrounding rule, not from a per-type marker.
+;; New in v0.20: #SelfAssocType# covers `self:Item` — reference
+;; to an associated type of the current trait's Self type. Needed
+;; inside method signatures that return or accept associated types.
 
 // #BorrowedType#_&_?<Origin>?<ViewType>{ <TypeApplication> }
 // #MutBorrowedType#_~__&_?<Origin>?<ViewType>{ <TypeApplication> }
 // #AppliedType#{ <TypeApplication> }
+// #SelfAssocType#self_:_:AssociatedName
 // #GenericParamType#<GenericParam>
 // #Named#:Type

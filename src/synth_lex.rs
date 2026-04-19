@@ -269,6 +269,7 @@ impl<'a> SynthLexer<'a> {
             "aski" | "Aski" => Ok(SurfaceKind::Aski),
             "synth" | "Synth" => Ok(SurfaceKind::Synth),
             "exec" | "Exec" => Ok(SurfaceKind::Exec),
+            "ffi" | "Ffi" => Ok(SurfaceKind::Ffi),
             other => Err(format!("unknown surface: {}", other)),
         }
     }
@@ -298,8 +299,8 @@ impl<'a> SynthLexer<'a> {
             "binding" => Ok(LabelKind::Binding),
             "role" => Ok(LabelKind::Role),
             "item" => Ok(LabelKind::Item),
-            "exportedName" => Ok(LabelKind::ExportedName),
             "foreignFunction" => Ok(LabelKind::ForeignFunction),
+            "associatedName" => Ok(LabelKind::AssociatedName),
 
             // References (typically via :Label)
             "instance" => Ok(LabelKind::Instance),
@@ -417,6 +418,17 @@ impl<'a> SynthLexer<'a> {
             "GenericParamType" => Ok(TagKind::GenericParamType),
             "BorrowedType" => Ok(TagKind::BorrowedType),
             "MutBorrowedType" => Ok(TagKind::MutBorrowedType),
+            "SelfAssocType" => Ok(TagKind::SelfAssocType),
+
+            // Trait items (v0.20)
+            "AssociatedType" => Ok(TagKind::AssociatedType),
+            "AssociatedTypeImpl" => Ok(TagKind::AssociatedTypeImpl),
+
+            // Self expression (v0.20)
+            "SelfRef" => Ok(TagKind::SelfRef),
+
+            // FFI surface (v0.20)
+            "FfiGroup" => Ok(TagKind::FfiGroup),
 
             // Misc leaf constructs
             "TypeAnnotation" => Ok(TagKind::TypeAnnotation),
@@ -479,6 +491,8 @@ impl<'a> SynthLexer<'a> {
             "Signature" => Ok(DialectKind::Signature),
             "Method" => Ok(DialectKind::Method),
             "MethodBody" => Ok(DialectKind::MethodBody),
+            "TraitItem" => Ok(DialectKind::TraitItem),
+            "TraitImplItem" => Ok(DialectKind::TraitImplItem),
             "Match" => Ok(DialectKind::Match),
             "Pattern" => Ok(DialectKind::Pattern),
             "Loop" => Ok(DialectKind::Loop),

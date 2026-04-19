@@ -86,7 +86,7 @@ impl Askicc {
         fs::write(out_path, bytes.as_ref())
             .map_err(|e| format!("failed to write {}: {}", out_path.display(), e))?;
 
-        let surfaces: Vec<_> = [SurfaceKind::Core, SurfaceKind::Aski, SurfaceKind::Synth, SurfaceKind::Exec]
+        let surfaces: Vec<_> = [SurfaceKind::Core, SurfaceKind::Aski, SurfaceKind::Synth, SurfaceKind::Exec, SurfaceKind::Ffi]
             .iter()
             .map(|s| (s, self.dialects.iter().filter(|d| &d.surface == s).count()))
             .filter(|(_, n)| *n > 0)

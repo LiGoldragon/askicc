@@ -4,7 +4,7 @@ askicc reads `.synth` files and produces a single rkyv `dsls.rkyv`
 containing every dialect from every DSL — the state-machine data
 that askic executes at runtime.
 
-## v0.19 — Four DSLs, one rkyv
+## v0.20 — Five DSLs, one rkyv
 
 askicc reads from `source/<surface>/*.synth` and emits a single
 combined `generated/dsls.rkyv` where each `Dialect` carries its
@@ -24,11 +24,11 @@ Expr, …). askic dispatches by (`SurfaceKind`, `DialectKind`) in one
 flat map loaded from `dsls.rkyv`.
 
 Current state: **41 dialects** across 4 DSLs (Core=3, Aski=30, Synth=6, Exec=2).
-**49 tests pass** — 30 v0.18 regression tests + 19 new v0.19-specific tests
+**52 tests pass** — 30 v0.18 regression tests + 19 v0.19-specific tests + 3 v0.20-specific tests
 (borrow shapes, mutable borrow, type-app brace, LocalDecl tags, VariantAlt,
 path separator, generic slot, exec Program tag).
 
-## Synth v0.19 Syntax
+## Synth v0.20 Syntax
 
 **Labels and tags (orthogonal):**
 - `@Label` — Declare: reads a source token, binds it to a field role
@@ -48,8 +48,14 @@ path separator, generic slot, exec Program tag).
 
 Each is one atomic token. Compound forms compose: `_~__&_` is `~` adjacent to `&` (mutable borrow).
 
-## v0.19 Aski Syntax (what the .synth files encode)
+## v0.20 Aski Syntax (what the .synth files encode)
 
+- **Visibility:** `@` prefix on declarations and field slots = public; default private (v0.20 new).
+- **Trait decl at `[|...|]`** delimiter (v0.20 — was `(...)` before; reclaimed from FFI).
+- **FFI:** moved to its own `.ffi` surface (v0.20).
+- **Associated types:** `Item` bare in trait decl; `(Item Token)` in impl; `self:Item` path (v0.20).
+- **Self in expressions:** `self.field`, `self.method()` work (v0.20 added `#SelfRef#` to ExprAtom).
+- **Default trait methods:** Method body is `?<MethodBody>` (v0.19) — missing body = required.
 - **Borrow:** `&self` (shared), `~&self` (mutable). Was `:@Self` / `~@Self` in v0.18.
 - **Path:** `Type:method(args)`, `Type:Variant`. Was `Type/method`, `Type/Variant`.
 - **Type application:** `{Vec Element}`. Was `[Vec Element]`.

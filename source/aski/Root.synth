@@ -6,7 +6,7 @@
 ;; Enum, Struct, Newtype. TraitDecl's slot additionally accepts
 ;; super-trait references: `{$Value PartialOrd Eq}` means generic
 ;; param $Value, with required super-traits PartialOrd and Eq.
-;; TraitImpl also carries generics: `[TraitName {$T} Target …]`.
+;; TraitImpl also carries generics: `[TraitName {$Value} Target …]`.
 ;;
 ;; Traits are Pascal under v0.19. Methods are camel.
 ;;

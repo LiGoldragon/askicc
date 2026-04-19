@@ -20,7 +20,7 @@
 
 #Module#(@ModuleName <Module>)
 // *#Enum#(@EnumName ?{ +<GenericParam> } <Enum>)
-// *#TraitDecl#(@TraitName ?{ *<GenericParam> *:TraitName } [+(@methodName <Signature>)])
+// *#TraitDecl#(@TraitName ?{ *<GenericParam> *:TraitName } [+(@methodName <Method>)])
 // *#TraitImpl#[@TraitName ?{ +<GenericParam> } <Type> [+(@methodName <Method>)]]
 // *#Struct#{@StructName ?{ +<GenericParam> } <Struct>}
 // *#Const#{| @ConstName <Type> @Literal |}

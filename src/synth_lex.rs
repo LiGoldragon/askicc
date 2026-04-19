@@ -478,6 +478,7 @@ impl<'a> SynthLexer<'a> {
             "Param" => Ok(DialectKind::Param),
             "Signature" => Ok(DialectKind::Signature),
             "Method" => Ok(DialectKind::Method),
+            "MethodBody" => Ok(DialectKind::MethodBody),
             "Match" => Ok(DialectKind::Match),
             "Pattern" => Ok(DialectKind::Pattern),
             "Loop" => Ok(DialectKind::Loop),

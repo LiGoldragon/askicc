@@ -1,0 +1,13 @@
+;; MethodBody.synth (v0.19) — one of five body shapes.
+;;
+;; Factored out of Method.synth so the body can be marked optional
+;; at the Method level. A method with no body is a signature-only
+;; declaration (used for required trait methods); a method with a
+;; body is either a default trait-method implementation or a
+;; full method implementation in a trait impl.
+
+// #BlockBody#[ <Body> ]
+// #MatchBody#(| <Match> |)
+// #LoopBody#[| <Loop> |]
+// #IterBody#{| <IterationSource> [ <Body> ] |}
+// #StructBody#{ <StructConstruct> }

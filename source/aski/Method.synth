@@ -1,12 +1,8 @@
 ;; Method.synth — method definition (v0.19).
 ;;
-;; Optional generic slot, parameters, optional return type, then body.
+;; Signature + optional body. When body is absent, this is a
+;; signature-only declaration (required trait method). When body
+;; is present, this is a default trait-method or full impl.
 
-?{ +<GenericParam> }
-+<Param>
-?<Type>
-// #BlockBody#[ <Body> ]
-// #MatchBody#(| <Match> |)
-// #LoopBody#[| <Loop> |]
-// #IterBody#{| <IterationSource> [ <Body> ] |}
-// #StructBody#{ <StructConstruct> }
+<Signature>
+?<MethodBody>

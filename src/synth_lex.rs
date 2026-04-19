@@ -40,7 +40,27 @@ impl<'a> SynthLexer<'a> {
                     tokens.push(self.lex_label(Binding::Origin)?)
                 }
                 b'<' => tokens.push(self.lex_angle()?),
-                b'_' => tokens.push(self.lex_literal_escape()?),
+                b'_' => {
+                    // Bare `_` (not opening an escape sequence) = Underscore literal.
+                    // The escape form is `_X_...` where X is the content. A standalone
+                    // `_` followed by whitespace or a closer is the wildcard literal
+                    // used by Pattern.synth's #WildcardPattern# alternative.
+                    let next = self.peek_at(1);
+                    let is_escape_start = match next {
+                        Some(b) => !b.is_ascii_whitespace()
+                            && b != b')' && b != b']' && b != b'}'
+                            && b != b'|' && b != b'/',
+                        None => false,
+                    };
+                    if is_escape_start {
+                        tokens.push(self.lex_literal_escape()?);
+                    } else {
+                        tokens.push(self.emit_advance(
+                            SynthToken::Literal(LiteralToken::Underscore),
+                            1,
+                        ));
+                    }
+                }
                 b'"' => tokens.push(self.lex_string_lit()?),
                 b'\'' => return Err(format!(
                     "bare ' at byte {} — origin sigil requires a PascalCase place name",
@@ -404,6 +424,7 @@ impl<'a> SynthLexer<'a> {
             "VariantMatch" => Ok(TagKind::VariantMatch),
             "VariantAlt" => Ok(TagKind::VariantAlt),
             "StringMatch" => Ok(TagKind::StringMatch),
+            "WildcardPattern" => Ok(TagKind::WildcardPattern),
 
             // Param variants (v0.20 — newly tagged)
             "OwnedSelf" => Ok(TagKind::OwnedSelf),

@@ -1,9 +1,16 @@
-;; Pattern.synth (v0.19) — match patterns.
+;; Pattern.synth (v0.20) — match patterns.
 ;;
 ;; Or-patterns use [] (evaluation delimiter) for alternatives.
 ;; Variant bindings drop the @ sigil; binding name is a bare
-;; camelCase identifier.
+;; camelCase identifier (per the case rule: camelCase = actual
+;; instance of a type — the binding is determined by the
+;; payload's type name).
+;;
+;; v0.20: #WildcardPattern# added. `_` matches any value and
+;; binds nothing — the catch-all arm in match. Listed first so
+;; it's tried before the :Variant-prefixed alternatives.
 
+// #WildcardPattern#_
 // #VariantBind#:Variant @binding
 // #VariantAlt#[ +:Variant ]
 // #VariantMatch#:Variant

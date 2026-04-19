@@ -175,6 +175,20 @@ mod tests {
     }
 
     #[test]
+    fn parse_wildcard_pattern_v020() {
+        // #WildcardPattern# _ — bare underscore as a match-any pattern
+        let d = parse("// #WildcardPattern#_", DialectKind::Pattern);
+        match &d.rules[0] {
+            Rule::OrderedChoice { alternatives } => {
+                let alt_items = &alternatives[0].items;
+                assert!(matches!(&alt_items[0].content, ItemContent::Tagged { tag } if tag.kind == TagKind::WildcardPattern));
+                assert!(matches!(&alt_items[1].content, ItemContent::Literal { token: LiteralToken::Underscore }));
+            }
+            _ => panic!("expected ordered choice"),
+        }
+    }
+
+    #[test]
     fn parse_path_separator_v019() {
         // :Type_:_:Variant — Pascal type, literal colon, Pascal variant (path)
         let d = parse(":Type_:_:Variant", DialectKind::ExprAtom);

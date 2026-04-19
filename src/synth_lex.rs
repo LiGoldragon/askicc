@@ -405,6 +405,15 @@ impl<'a> SynthLexer<'a> {
             "VariantAlt" => Ok(TagKind::VariantAlt),
             "StringMatch" => Ok(TagKind::StringMatch),
 
+            // Param variants (v0.20 — newly tagged)
+            "OwnedSelf" => Ok(TagKind::OwnedSelf),
+            "BorrowedSelf" => Ok(TagKind::BorrowedSelf),
+            "MutBorrowedSelf" => Ok(TagKind::MutBorrowedSelf),
+            "OwnedNamed" => Ok(TagKind::OwnedNamed),
+            "BorrowedNamed" => Ok(TagKind::BorrowedNamed),
+            "MutBorrowedNamed" => Ok(TagKind::MutBorrowedNamed),
+            "BareNamed" => Ok(TagKind::BareNamed),
+
             // Method-body variants
             "BlockBody" => Ok(TagKind::BlockBody),
             "MatchBody" => Ok(TagKind::MatchBody),

@@ -1,29 +1,40 @@
-;; Param.synth — method parameter (v0.19).
+;; Param.synth — method parameter (v0.20).
 ;;
 ;; Borrows use `&` (shared) and `~&` (mutable). Origins (`'Place`)
 ;; and view types (`{| Field ... |}`) attach before the borrowed
 ;; name. Self is the camelCase keyword `self`.
 ;;
+;; v0.20: every alternative is now tagged with `#TagKind#`. Previously
+;; untagged (v0.19), which meant askic-assemble had to dispatch on
+;; token shape — inconsistent with every other OrderedChoice dialect
+;; in the grammar. Tags added match the Param enum variants declared
+;; in aski-core/core/param.core.
+;;
 ;; Plain self:
-;;   &self                   — shared borrow of self
-;;   ~&self                  — mutable borrow of self
-;;   self                    — owned self
-;;   &'Map self              — shared borrow, origin at Map
-;;   ~&self {| Count |}      — mutable view of self's Count field only
-;;   &'self.Inner self       — field-path origin
-;;   &'Map {| Count |} self  — origin and view together
+;;   &self                   — shared borrow of self                → BorrowedSelf
+;;   ~&self                  — mutable borrow of self               → MutBorrowedSelf
+;;   self                    — owned self                            → OwnedSelf
+;;   &'Map self              — shared borrow, origin at Map          → BorrowedSelf (w/ origin)
+;;   ~&self {| Count |}      — mutable view of self's Count field    → MutBorrowedSelf (w/ view)
+;;   &'self.Inner self       — field-path origin                     → BorrowedSelf (w/ origin)
+;;   &'Map {| Count |} self  — origin and view together              → BorrowedSelf (w/ both)
 ;;
 ;; Named param:
-;;   &foo Type               — shared borrow named foo of Type
-;;   &'Map foo Type          — with origin
-;;   ~&foo Type              — mutable borrow named foo
-;;   foo Type                — owned param foo of Type
-;;   foo                     — bare param (no type annotation)
+;;   &foo Type               — shared borrow named foo of Type       → BorrowedNamed
+;;   &'Map foo Type          — with origin                           → BorrowedNamed (w/ origin)
+;;   ~&foo Type              — mutable borrow named foo              → MutBorrowedNamed
+;;   foo Type                — owned param foo of Type               → OwnedNamed
+;;   foo                     — bare param (no type annotation)       → BareNamed
+;;
+;; Ordering note: longer alternatives first (BorrowedSelf before OwnedSelf,
+;; BorrowedNamed before OwnedNamed, OwnedNamed before BareNamed) so the
+;; engine doesn't commit to the shorter shape before the longer one has
+;; been tried.
 
-// _&_?<Origin>?<ViewType>self
-// _~__&_?<Origin>?<ViewType>self
-// self
-// _&_?<Origin>?<ViewType>@param <Type>
-// _~__&_?<Origin>?<ViewType>@param <Type>
-// @param <Type>
-// @param
+// #BorrowedSelf#_&_?<Origin>?<ViewType>self
+// #MutBorrowedSelf#_~__&_?<Origin>?<ViewType>self
+// #OwnedSelf#self
+// #BorrowedNamed#_&_?<Origin>?<ViewType>@param <Type>
+// #MutBorrowedNamed#_~__&_?<Origin>?<ViewType>@param <Type>
+// #OwnedNamed#@param <Type>
+// #BareNamed#@param

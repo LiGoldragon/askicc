@@ -413,7 +413,6 @@ impl<'a> SynthLexer<'a> {
 
             // Type-expression variants
             "Named" => Ok(TagKind::Named),
-            "InstanceType" => Ok(TagKind::InstanceType),
             "AppliedType" => Ok(TagKind::AppliedType),
             "GenericParamType" => Ok(TagKind::GenericParamType),
             "BorrowedType" => Ok(TagKind::BorrowedType),

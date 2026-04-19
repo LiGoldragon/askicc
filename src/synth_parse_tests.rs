@@ -102,6 +102,122 @@ mod tests {
         }
     }
 
+    // ── v0.19 specific tests ──
+
+    #[test]
+    fn parse_local_construct_v019() {
+        // (counter :new(0)) — LocalConstruct rule from Statement.synth
+        let d = parse("// #LocalConstruct#( @instanceName _:_<Expr> )", DialectKind::Statement);
+        match &d.rules[0] {
+            Rule::OrderedChoice { alternatives } => {
+                assert_eq!(alternatives.len(), 1);
+                let alt_items = &alternatives[0].items;
+                // First item is the tag
+                assert!(matches!(&alt_items[0].content, ItemContent::Tagged { tag } if tag.kind == TagKind::LocalConstruct));
+                // Then the delimited group
+                assert!(matches!(&alt_items[1].content, ItemContent::Delimited { kind: DelimKind::Paren, .. }));
+            }
+            _ => panic!("expected ordered choice"),
+        }
+    }
+
+    #[test]
+    fn parse_borrow_param_v019() {
+        // _&_self  — shared borrow of self (v0.19)
+        let d = parse("_&_self", DialectKind::Param);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                assert!(matches!(&items[0].content, ItemContent::Literal { token: LiteralToken::Ampersand }));
+                assert!(matches!(&items[1].content, ItemContent::Keyword { token: KeywordToken::Self_ }));
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
+    #[test]
+    fn parse_mut_borrow_param_v019() {
+        // _~__&_self — mutable borrow (combined ~&)
+        let d = parse("_~__&_self", DialectKind::Param);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                assert!(matches!(&items[0].content, ItemContent::Literal { token: LiteralToken::Tilde }));
+                assert!(matches!(&items[1].content, ItemContent::Literal { token: LiteralToken::Ampersand }));
+                assert!(matches!(&items[2].content, ItemContent::Keyword { token: KeywordToken::Self_ }));
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
+    #[test]
+    fn parse_type_app_brace_v019() {
+        // {<TypeApplication>}  — v0.19 type application uses braces
+        let d = parse("{ <TypeApplication> }", DialectKind::Type_);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                assert!(matches!(&items[0].content, ItemContent::Delimited { kind: DelimKind::Brace, .. }));
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
+    #[test]
+    fn parse_or_pattern_v019() {
+        // [+:Variant] — VariantAlt or-pattern
+        let d = parse("// #VariantAlt#[ +:Variant ]", DialectKind::Pattern);
+        match &d.rules[0] {
+            Rule::OrderedChoice { alternatives } => {
+                let alt_items = &alternatives[0].items;
+                assert!(matches!(&alt_items[0].content, ItemContent::Tagged { tag } if tag.kind == TagKind::VariantAlt));
+                assert!(matches!(&alt_items[1].content, ItemContent::Delimited { kind: DelimKind::Bracket, .. }));
+            }
+            _ => panic!("expected ordered choice"),
+        }
+    }
+
+    #[test]
+    fn parse_path_separator_v019() {
+        // :Type_:_:Variant — Pascal type, literal colon, Pascal variant (path)
+        let d = parse(":Type_:_:Variant", DialectKind::ExprAtom);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                assert!(matches!(&items[0].content, ItemContent::Named { label } if label.kind == LabelKind::Type_));
+                assert!(matches!(&items[1].content, ItemContent::Literal { token: LiteralToken::Colon }));
+                assert!(matches!(&items[2].content, ItemContent::Named { label } if label.kind == LabelKind::Variant));
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
+    #[test]
+    fn parse_generic_slot_v019() {
+        // ?{ +<GenericParam> } — optional generic slot
+        let d = parse("?{ +<GenericParam> }", DialectKind::Root);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                match &items[0].content {
+                    ItemContent::Repeat { kind, inner } => {
+                        assert_eq!(*kind, Cardinality::Optional);
+                        assert!(matches!(&inner.content, ItemContent::Delimited { kind: DelimKind::Brace, .. }));
+                    }
+                    _ => panic!("expected repeat"),
+                }
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
+    #[test]
+    fn parse_exec_program_tag_v019() {
+        // #Program#[ +<:aski:Statement> ] — exec surface Program with cross-surface ref
+        let d = parse("#Program#[ +<:aski:Statement> ]", DialectKind::Root);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                assert!(matches!(&items[0].content, ItemContent::Tagged { tag } if tag.kind == TagKind::Program));
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
     #[test]
     fn parse_all_synth_files() {
         let source_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("source");

@@ -1,13 +1,13 @@
-(Elements Element Quality describe)
+(Elements Element Quality Describe)
 
 (Element Fire Earth Air Water)
 
 (Quality Passionate Grounded Intellectual Intuitive)
 
-(describe [(describe :@Self Quality)])
+(Describe [(describe &self Quality)])
 
-[describe Element [
-  (describe :@Self Quality (|
+[Describe Element [
+  (describe &self Quality (|
     (Fire) Passionate
     (Earth) Grounded
     (Air) Intellectual

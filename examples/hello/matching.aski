@@ -1,14 +1,14 @@
-(matching Element Polarity categorize)
+(Matching Element Polarity Categorize)
 
 (Element Fire Earth Air Water)
 
 (Polarity Active Receptive)
 
-(categorize [(polarity :@Self Polarity)])
+(Categorize [(polarity &self Polarity)])
 
-[categorize Element [
-  (polarity :@Self Polarity (|
-    (Fire | Air) Active
-    (Earth | Water) Receptive
+[Categorize Element [
+  (polarity &self Polarity (|
+    ([Fire Air]) Active
+    ([Earth Water]) Receptive
   |))
 ]]

@@ -1,11 +1,11 @@
-(params Addition multiply)
+(Params Addition Multiply)
 
 {Addition (Left U32) (Right U32)}
 
-(multiply [(multiply :@Self @Factor U32 U32)])
+(Multiply [(multiply &self &factor U32 U32)])
 
-[multiply Addition [
-  (multiply :@Self @Factor U32 U32 [
-    ^(@Self.Left * @Factor + @Self.Right * @Factor)
+[Multiply Addition [
+  (multiply &self &factor U32 U32 [
+    self.Left * factor + self.Right * factor
   ])
 ]]

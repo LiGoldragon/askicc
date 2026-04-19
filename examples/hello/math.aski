@@ -1,11 +1,11 @@
-(math Addition compute)
+(Math Addition Compute)
 
 {Addition (Left U32) (Right U32)}
 
-(compute [(add :@Self U32)])
+(Compute [(add &self U32)])
 
-[compute Addition [
-  (add :@Self U32 [
-    ^(@Self.Left + @Self.Right)
+[Compute Addition [
+  (add &self U32 [
+    self.Left + self.Right
   ])
 ]]

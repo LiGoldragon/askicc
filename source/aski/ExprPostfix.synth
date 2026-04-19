@@ -1,6 +1,7 @@
-;; ExprPostfix.synth — field access, method call, try-unwrap
+;; ExprPostfix.synth — field access, method call, try-unwrap (v0.19).
 ;;
-;; Recurses to handle chains: @Self.Left.Value.method(X)?
+;; Recurses to handle chains: self.Left.Value.method(x)?
+;; Field/method access uses `.` (unchanged); paths use `:` (was `/`).
 
 // <ExprPostfix>#FieldAccess#.:Field
 // <ExprPostfix>#MethodCall#.:method#CallArgs#( +<Expr> )

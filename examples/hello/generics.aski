@@ -1,13 +1,13 @@
-(generics Container Item process)
+(Generics Container Item Process)
 
 (Item (Text String) (Number I64) Empty)
 
-{Container (Items [Vec Item]) (Count U32)}
+{Container (Items {Vec Item}) (Count U32)}
 
-(process [(transform :@Self @Items @[Vec Item] @[Vec Item])])
+(Process [(transform &self &items {Vec Item} {Vec Item})])
 
-[process Container [
-  (transform :@Self @Items @[Vec Item] @[Vec Item] [
-    ^@Items
+[Process Container [
+  (transform &self &items {Vec Item} {Vec Item} [
+    ^items
   ])
 ]]

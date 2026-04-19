@@ -1,4 +1,9 @@
-;; Signature.synth — inside (signature ...)
+;; Signature.synth — method signature (v0.19).
+;;
+;; Optional generic slot, then parameters, then optional return type.
+;; Generic methods use the same {$Name ...} slot syntax as generic
+;; type definitions.
 
+?{ +<GenericParam> }
 +<Param>
 ?<Type>

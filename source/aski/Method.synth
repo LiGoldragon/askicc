@@ -1,7 +1,8 @@
-;; Method.synth — inside (method ...)
+;; Method.synth — method definition (v0.19).
 ;;
-;; Parameters, optional return type, then body.
+;; Optional generic slot, parameters, optional return type, then body.
 
+?{ +<GenericParam> }
 +<Param>
 ?<Type>
 // #BlockBody#[ <Body> ]

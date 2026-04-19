@@ -1,8 +1,12 @@
 ;; Root.synth — aski surface (v0.19).
 ;;
 ;; Modules and libraries. Every construct delimited.
-;; Optional generic slot {+<GenericParam>} after the name for
-;; Enum, Struct, Newtype, TraitDecl.
+;;
+;; Optional generic slot `{+<GenericParam>}` after the name for
+;; Enum, Struct, Newtype. TraitDecl's slot additionally accepts
+;; super-trait references: `{$Value PartialOrd Eq}` means generic
+;; param $Value, with required super-traits PartialOrd and Eq.
+;; TraitImpl also carries generics: `[TraitName {$T} Target …]`.
 ;;
 ;; Traits are Pascal under v0.19. Methods are camel.
 ;;
@@ -16,8 +20,8 @@
 
 #Module#(@ModuleName <Module>)
 // *#Enum#(@EnumName ?{ +<GenericParam> } <Enum>)
-// *#TraitDecl#(@TraitName ?{ +<GenericParam> } [+(@methodName <Signature>)])
-// *#TraitImpl#[@TraitName <Type> [+(@methodName <Method>)]]
+// *#TraitDecl#(@TraitName ?{ *<GenericParam> *:TraitName } [+(@methodName <Signature>)])
+// *#TraitImpl#[@TraitName ?{ +<GenericParam> } <Type> [+(@methodName <Method>)]]
 // *#Struct#{@StructName ?{ +<GenericParam> } <Struct>}
 // *#Const#{| @ConstName <Type> @Literal |}
 // *#Newtype#(| @NewtypeName ?{ +<GenericParam> } <Type> |)

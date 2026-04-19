@@ -63,7 +63,7 @@ Each is one atomic token. Compound forms compose: `_~__&_` is `~` adjacent to `&
 - **Generic slot:** `{$Value}` after definition name; bound set `$Value{Clone Debug}`.
 - **Local decl:** `(counter U32:new(0))` — 5 shapes via `()`. Was `@Counter U32/new(0)`.
 - **ExprStmt:** `[expr]` for side-effects. Was bare expression.
-- **Case rule:** Pascal for compile-time structural (incl. traits); camel for runtime (incl. locals, self).
+- **Case rule:** Pascal for compile-time structural (incl. traits); camel for actual instances of a type (incl. locals, methods, self, match-arm bindings). `F64` is the type; `f64` is an instance of it.
 - **Retired:** `@` sigil, `&` combinator, `Self` keyword (now `self`).
 
 See `/home/li/git/aski-core/spec/syntax-v019.aski` for the full language-by-example.

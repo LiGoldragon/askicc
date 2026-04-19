@@ -218,6 +218,68 @@ mod tests {
         }
     }
 
+    // ── v0.19 de-crippling tests ──
+
+    #[test]
+    fn parse_super_trait_slot_v019() {
+        // Combined constraint slot: generics first ($-prefixed), then super-traits (Pascal refs)
+        let d = parse("?{ *<GenericParam> *:TraitName }", DialectKind::Root);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                // Outer optional wraps a {} with two starred items inside
+                match &items[0].content {
+                    ItemContent::Repeat { kind, inner } => {
+                        assert_eq!(*kind, Cardinality::Optional);
+                        assert!(matches!(&inner.content, ItemContent::Delimited { kind: DelimKind::Brace, .. }));
+                    }
+                    _ => panic!("expected optional repeat"),
+                }
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
+    #[test]
+    fn parse_method_generic_slot_v019() {
+        // Method.synth prefix: optional generics, then params, then return
+        let d = parse("?{ +<GenericParam> } +<Param> ?<Type>", DialectKind::Method);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                // First item: optional generic slot
+                match &items[0].content {
+                    ItemContent::Repeat { kind: Cardinality::Optional, inner } => {
+                        assert!(matches!(&inner.content, ItemContent::Delimited { kind: DelimKind::Brace, .. }));
+                    }
+                    _ => panic!("expected optional generic slot"),
+                }
+                // Second item: params
+                assert!(matches!(&items[1].content, ItemContent::Repeat { kind: Cardinality::OneOrMore, .. }));
+                // Third item: optional return type
+                assert!(matches!(&items[2].content, ItemContent::Repeat { kind: Cardinality::Optional, .. }));
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
+    #[test]
+    fn parse_super_trait_ref_v019() {
+        // Bare `:TraitName` — Pascal label reference, used inside constraint slot for super-traits
+        let d = parse(":TraitName", DialectKind::Root);
+        match &d.rules[0] {
+            Rule::Sequential { items } => {
+                match &items[0].content {
+                    ItemContent::Named { label } => {
+                        assert_eq!(label.binding, Binding::Reference);
+                        assert_eq!(label.kind, LabelKind::TraitName);
+                        assert_eq!(label.casing, Casing::Pascal);
+                    }
+                    _ => panic!("expected named reference"),
+                }
+            }
+            _ => panic!("expected sequential"),
+        }
+    }
+
     #[test]
     fn parse_all_synth_files() {
         let source_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("source");

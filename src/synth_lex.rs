@@ -269,7 +269,7 @@ impl<'a> SynthLexer<'a> {
             "aski" | "Aski" => Ok(SurfaceKind::Aski),
             "synth" | "Synth" => Ok(SurfaceKind::Synth),
             "exec" | "Exec" => Ok(SurfaceKind::Exec),
-            "ffi" | "Ffi" => Ok(SurfaceKind::Ffi),
+            "rfi" | "Rfi" => Ok(SurfaceKind::Rfi),
             other => Err(format!("unknown surface: {}", other)),
         }
     }
@@ -285,7 +285,7 @@ impl<'a> SynthLexer<'a> {
             "structName" => Ok(LabelKind::StructName),
             "newtypeName" => Ok(LabelKind::NewtypeName),
             "constName" => Ok(LabelKind::ConstName),
-            "ffiName" => Ok(LabelKind::FfiName),
+            "rfiName" => Ok(LabelKind::RfiName),
             "traitName" => Ok(LabelKind::TraitName),
             "variantName" => Ok(LabelKind::VariantName),
             "fieldName" => Ok(LabelKind::FieldName),
@@ -336,7 +336,7 @@ impl<'a> SynthLexer<'a> {
             "Struct" => Ok(TagKind::Struct),
             "Newtype" => Ok(TagKind::Newtype),
             "Const" => Ok(TagKind::Const),
-            "Ffi" => Ok(TagKind::Ffi),
+            "Rfi" => Ok(TagKind::Rfi),
             "TraitDecl" => Ok(TagKind::TraitDecl),
             "TraitImpl" => Ok(TagKind::TraitImpl),
             "Program" => Ok(TagKind::Program),
@@ -427,14 +427,14 @@ impl<'a> SynthLexer<'a> {
             // Self expression (v0.20)
             "SelfRef" => Ok(TagKind::SelfRef),
 
-            // FFI surface (v0.20)
-            "FfiGroup" => Ok(TagKind::FfiGroup),
+            // RFI surface (v0.20)
+            "RfiGroup" => Ok(TagKind::RfiGroup),
 
             // Misc leaf constructs
             "TypeAnnotation" => Ok(TagKind::TypeAnnotation),
             "FieldInit" => Ok(TagKind::FieldInit),
             "MatchArm" => Ok(TagKind::MatchArm),
-            "FfiFunction" => Ok(TagKind::FfiFunction),
+            "RfiFunction" => Ok(TagKind::RfiFunction),
             "BoundedParam" => Ok(TagKind::BoundedParam),
             "CallArgs" => Ok(TagKind::CallArgs),
 
@@ -498,7 +498,7 @@ impl<'a> SynthLexer<'a> {
             "Loop" => Ok(DialectKind::Loop),
             "IterationSource" => Ok(DialectKind::IterationSource),
             "StructConstruct" => Ok(DialectKind::StructConstruct),
-            "Ffi" => Ok(DialectKind::Ffi),
+            "Rfi" => Ok(DialectKind::Rfi),
             "Origin" => Ok(DialectKind::Origin),
             "FieldPath" => Ok(DialectKind::FieldPath),
             "ViewType" => Ok(DialectKind::ViewType),

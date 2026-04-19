@@ -4,7 +4,7 @@
 ;; prefix to mark it public (private by default).
 ;;
 ;; Trait declarations moved to `[|...|]` delimiter (v0.20, reclaimed
-;; from FFI which has its own surface now). This gives every root
+;; from RFI which has its own surface now). This gives every root
 ;; construct a distinct opening token — first-token decidable.
 ;;
 ;; Delimiter allocation at aski root:
@@ -13,9 +13,9 @@
 ;;   {}      Struct
 ;;   {||}    Const
 ;;   (||)    Newtype
-;;   [||]    TraitDecl (new in v0.20; was FFI)
+;;   [||]    TraitDecl (new in v0.20; was RFI)
 ;;
-;; (FFI moved to its own `.ffi` surface — see `source/ffi/`.)
+;; (RFI moved to its own `.rfi` surface — see `source/rfi/`.)
 
 #Module#(@ModuleName <Module>)
 // *?_@_#Enum#(@EnumName ?{ +<GenericParam> } <Enum>)

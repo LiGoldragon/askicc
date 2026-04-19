@@ -2,13 +2,13 @@
 ///
 /// Reads .synth files from source/<surface>/ directories and
 /// produces a single rkyv `dsls.rkyv` containing every dialect
-/// from every DSL (core, aski, synth, exec) flattened into one
-/// DialectTree. Each Dialect carries its SurfaceKind so askic
+/// from every DSL (core, aski, synth, exec, rfi) flattened into
+/// one DialectTree. Each Dialect carries its SurfaceKind so askic
 /// can dispatch by (Surface, DialectKind).
 ///
-/// Terminology: a DSL (one of four surfaces) is made of many
+/// Terminology: a DSL (one of five surfaces) is made of many
 /// dialects (Body, Statement, Expr, …). One .synth file = one
-/// dialect. This rkyv bundles all four DSLs.
+/// dialect. This rkyv bundles all five DSLs.
 ///
 /// Usage: askicc <source-root> <output-file>
 
@@ -86,7 +86,7 @@ impl Askicc {
         fs::write(out_path, bytes.as_ref())
             .map_err(|e| format!("failed to write {}: {}", out_path.display(), e))?;
 
-        let surfaces: Vec<_> = [SurfaceKind::Core, SurfaceKind::Aski, SurfaceKind::Synth, SurfaceKind::Exec, SurfaceKind::Ffi]
+        let surfaces: Vec<_> = [SurfaceKind::Core, SurfaceKind::Aski, SurfaceKind::Synth, SurfaceKind::Exec, SurfaceKind::Rfi]
             .iter()
             .map(|s| (s, self.dialects.iter().filter(|d| &d.surface == s).count()))
             .filter(|(_, n)| *n > 0)

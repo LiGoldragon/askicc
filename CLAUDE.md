@@ -51,8 +51,8 @@ Each is one atomic token. Compound forms compose: `_~__&_` is `~` adjacent to `&
 ## v0.20 Aski Syntax (what the .synth files encode)
 
 - **Visibility:** `@` prefix on declarations and field slots = public; default private (v0.20 new).
-- **Trait decl at `[|...|]`** delimiter (v0.20 — was `(...)` before; reclaimed from FFI).
-- **FFI:** moved to its own `.ffi` surface (v0.20).
+- **Trait decl at `[|...|]`** delimiter (v0.20 — was `(...)` before; reclaimed from RFI).
+- **RFI:** moved to its own `.rfi` surface (v0.20).
 - **Associated types:** `Item` bare in trait decl; `(Item Token)` in impl; `self:Item` path (v0.20).
 - **Self in expressions:** `self.field`, `self.method()` work (v0.20 added `#SelfRef#` to ExprAtom).
 - **Default trait methods:** Method body is `?<MethodBody>` (v0.19) — missing body = required.

@@ -67,4 +67,4 @@ Each is one atomic token. Compound forms compose: `_~__&_` is `~` adjacent to `&
 - **Case rule:** Pascal for compile-time structural (incl. traits); camel for actual instances of a type (incl. locals, methods, self, match-arm bindings). `F64` is the type; `f64` is an instance of it.
 - **Retired:** `@` sigil, `&` combinator, `Self` keyword (now `self`).
 
-See `/home/li/git/aski-core/spec/syntax-v020.aski` for the full language-by-example.
+See `/home/li/git/aski/spec/syntax-v020.aski` for the full language-by-example.

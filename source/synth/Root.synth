@@ -1,4 +1,4 @@
-;; Root.synth — synth surface (v0.18)
+;; Root.synth — synth surface (v0.20)
 ;;
 ;; A synth file is a sequence of rules. Each rule is either
 ;; Sequential (bare items on a line) or OrderedChoice (// lines).

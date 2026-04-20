@@ -4,8 +4,8 @@
 ;; exactly those fields. Matches Rust's view-types proposal
 ;; (pre-RFC #3269): `&mut {count} self` / `&{name, count} self`.
 ;;
-;;   :@Self {| Name Count |}    — shared view: read-only, only these fields visible
-;;   ~@Self {| Counter |}       — mutable view: mutable, only this field visible
+;;   &self {| Name Count |}    — shared view: read-only, only these fields visible
+;;   ~&self {| Counter |}       — mutable view: mutable, only this field visible
 ;;
 ;; The view narrows which fields the borrow may touch. Sibling
 ;; fields remain free for other borrows to hold concurrently.

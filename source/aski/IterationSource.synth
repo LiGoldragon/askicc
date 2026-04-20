@@ -1,6 +1,6 @@
 ;; IterationSource.synth — source and binding for {| |}
 ;;
-;; {| @Self.List.Item [@Item.Name] |} — iterate over List,
-;; binding each element as Item.
+;; {| self.List.item [StdOut:print(item.Name)] |} — iterate over
+;; the List field of self, binding each element as `item`.
 
 <Expr>.@Binding

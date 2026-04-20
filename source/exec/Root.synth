@@ -1,4 +1,4 @@
-;; Root.synth — exec surface (v0.18)
+;; Root.synth — exec surface (v0.20)
 ;;
 ;; Executable programs. Minimal: imports, optional consts,
 ;; then the main program body. Everything else referenced

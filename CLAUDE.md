@@ -14,19 +14,20 @@ combined `generated/dsls.rkyv` where each `Dialect` carries its
 source/
   core/    \
   aski/     \
-  synth/    /  →  generated/dsls.rkyv  (surface-tagged Dialects)
-  exec/    /
+  synth/     \  →  generated/dsls.rkyv  (surface-tagged Dialects)
+  exec/     /
+  rfi/     /
 ```
 
-A **DSL** is one of the four surfaces (core, aski, synth, exec).
+A **DSL** is one of the five surfaces (core, aski, synth, exec, rfi).
 A **dialect** is one `.synth` file within a DSL (Body, Statement,
 Expr, …). askic dispatches by (`SurfaceKind`, `DialectKind`) in one
 flat map loaded from `dsls.rkyv`.
 
-Current state: **41 dialects** across 4 DSLs (Core=3, Aski=30, Synth=6, Exec=2).
-**52 tests pass** — 30 v0.18 regression tests + 19 v0.19-specific tests + 3 v0.20-specific tests
+Current state: **44 dialects** across 5 DSLs (Core=3, Aski=32, Synth=6, Exec=2, Rfi=1).
+**53 tests pass** — 30 v0.18 regression tests + 19 v0.19-specific tests + 4 v0.20-specific tests
 (borrow shapes, mutable borrow, type-app brace, LocalDecl tags, VariantAlt,
-path separator, generic slot, exec Program tag).
+path separator, generic slot, exec Program tag, wildcard pattern).
 
 ## Synth v0.20 Syntax
 
@@ -66,4 +67,4 @@ Each is one atomic token. Compound forms compose: `_~__&_` is `~` adjacent to `&
 - **Case rule:** Pascal for compile-time structural (incl. traits); camel for actual instances of a type (incl. locals, methods, self, match-arm bindings). `F64` is the type; `f64` is an instance of it.
 - **Retired:** `@` sigil, `&` combinator, `Self` keyword (now `self`).
 
-See `/home/li/git/aski-core/spec/syntax-v019.aski` for the full language-by-example.
+See `/home/li/git/aski-core/spec/syntax-v020.aski` for the full language-by-example.

@@ -2,7 +2,7 @@
 ///
 /// Reads .synth files from source/<surface>/ directories, produces
 /// synth-core domain-data-tree (Dialect, Rule, Item, ...) and serializes as
-/// a single rkyv `dsls.rkyv` with all four DSLs flattened.
+/// a single rkyv `dsls.rkyv` with all five DSLs flattened.
 
 pub mod synth_token;
 pub mod synth_lex;

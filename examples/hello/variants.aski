@@ -1,5 +1,0 @@
-(Variants Shape Option)
-
-(Shape Circle Square (Triangle F64))
-
-(Option {$Value} (Some $Value) None)

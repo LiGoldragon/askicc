@@ -1,5 +1,0 @@
-(Constants MaxSigns Pi)
-
-{| MaxSigns U32 12 |}
-
-{| Pi F64 3.14159265358979 |}

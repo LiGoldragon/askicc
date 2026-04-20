@@ -1,8 +1,0 @@
-;; hello — entry point uses [| |] process block in a module
-
-(Hello Element Quality describe)
-
-[|
-  @MyElement Element/Fire
-  StdOut @MyElement.describe
-|]
